@@ -11,9 +11,9 @@ import { useAuthorization } from '@/hooks/useAuthorization';
 import { DATABASE_ICON_MAP, DATE_FORMAT } from '@/hooks/useConstants';
 import { StateConfigType } from '@/hooks/usePageState';
 import api from '@/services/atomDataView';
-import AtomDataViewType from '@/services/atomDataView/type';
+import * as AtomDataViewType from '@/services/atomDataView/type';
 import dataConnectApi from '@/services/dataConnect';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import HOOKS from '@/hooks';
 import { Table, Button, IconFont } from '@/web-library/common';
 import FieldTable from './components/FieldTable';
@@ -60,8 +60,8 @@ const AtomDataView = (): JSX.Element => {
   const [tableData, setTableData] = useState<AtomDataViewType.Data[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [detailDrawerData, setDetailDrawerData] = useState<DataItem[] | null>(null);
-  const [allDataSource, setAllDataSource] = useState<DataConnectType.Data[]>([]);
-  const [dataSourceTree, setDataSourceTree] = useState<DataConnectType.Data[]>([]);
+  const [allDataSource, setAllDataSource] = useState<DataConnectType.DataSource[]>([]);
+  const [dataSourceTree, setDataSourceTree] = useState<DataConnectType.DataSource[]>([]);
   const [tableParams, setTableParams] = useState<{ [key: string]: string }>({});
   const [editId, setEditId] = useState<string>('');
   const [previewId, setPreviewId] = useState<string>('');
@@ -88,7 +88,7 @@ const AtomDataView = (): JSX.Element => {
   // 获取分组列表
   const getDataSourceList = async (): Promise<void> => {
     const res = await dataConnectApi.getDataSourceList({ limit: -1 });
-    const cur: DataConnectType.Data[] = res.entries.map((val) => ({
+    const cur: DataConnectType.DataSource[] = res.entries.map((val) => ({
       ...val.bin_data,
       ...val,
       title: val.name,

@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Table } from 'antd';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
 import api from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import emptyImg from '@/assets/images/customDataView/empty.png';
 import styles from './index.module.less';
 

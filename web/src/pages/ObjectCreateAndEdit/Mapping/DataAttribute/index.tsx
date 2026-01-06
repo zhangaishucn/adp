@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import { ReactFlow, addEdge, useNodesState, useEdgesState, Edge, Connection, applyNodeChanges, type OnNodesChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import HOOKS from '@/hooks';
 import AttrForm from './attrForm';
 import CustomEdge from './customEdge';

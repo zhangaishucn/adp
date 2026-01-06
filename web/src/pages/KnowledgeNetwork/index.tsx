@@ -8,10 +8,10 @@ import { TableProps } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import ContainerIsVisible, { getTypePermissionOperation, matchPermission, PERMISSION_CODES } from '@/components/ContainerIsVisible';
 import Tags from '@/components/Tags';
-import frameworkProps from '@/utils/axios-http/frameworkProps';
 import downFile from '@/utils/down-file';
-import api from '@/services/Knowledge-network';
-import KnowledgeNetworkType from '@/services/Knowledge-network/type';
+import api from '@/services/knowledgeNetwork';
+import * as KnowledgeNetworkType from '@/services/knowledgeNetwork/type';
+import { baseConfig } from '@/services/request';
 import createImage from '@/assets/images/common/create.svg';
 import emptyImage from '@/assets/images/common/empty.png';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
@@ -27,10 +27,10 @@ const KnowledgeNetwork = () => {
   const { modal } = HOOKS.useGlobalContext();
   const { pageState, pagination, onUpdateState } = HOOKS.usePageStateNew(); // 分页信息
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const [selectedRows, setSelectedRows] = useState<KnowledgeNetworkType.Detail[]>([]);
-  const [tableData, setTableData] = useState<KnowledgeNetworkType.Detail[]>([]);
+  const [selectedRows, setSelectedRows] = useState<KnowledgeNetworkType.KnowledgeNetwork[]>([]);
+  const [tableData, setTableData] = useState<KnowledgeNetworkType.KnowledgeNetwork[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filterValues, setFilterValues] = useState<Pick<KnowledgeNetworkType.ListQuery, 'name_pattern' | 'tag'>>({ name_pattern: '', tag: 'all' }); // 筛选条件
+  const [filterValues, setFilterValues] = useState<Pick<KnowledgeNetworkType.GetNetworkListParams, 'name_pattern' | 'tag'>>({ name_pattern: '', tag: 'all' }); // 筛选条件
   const [checkId, setCheckId] = useState<string>();
   const [open, setOpen] = useState<boolean>(false);
   const { page, limit, direction, sort } = pageState || {};
@@ -48,7 +48,7 @@ const KnowledgeNetwork = () => {
     setIsLoading(true);
     // 根据指标模型名称排序，向后端传参为 model_name
     try {
-      const res = await api.queryNetworks(postData);
+      const res = await api.getNetworkList(postData);
       if (!res) return;
       const { total_count, entries } = res;
 
@@ -65,12 +65,12 @@ const KnowledgeNetwork = () => {
   };
 
   useEffect(() => {
-    frameworkProps.data.toggleSideBarShow(true);
+    baseConfig.toggleSideBarShow(true);
     getTableData();
   }, []);
 
   /** 筛选条件变更 */
-  const onChangeTableOperation = (values: Pick<KnowledgeNetworkType.ListQuery, 'name_pattern' | 'tag'>) => {
+  const onChangeTableOperation = (values: Pick<KnowledgeNetworkType.GetNetworkListParams, 'name_pattern' | 'tag'>) => {
     getTableData({ offset: 0, ...values });
     setFilterValues(values);
   };
@@ -90,7 +90,7 @@ const KnowledgeNetwork = () => {
     setOpen(false);
   };
 
-  const changeDel = (row?: KnowledgeNetworkType.Detail) => {
+  const changeDel = (row?: KnowledgeNetworkType.KnowledgeNetwork) => {
     const content = row
       ? intl.get('Global.deleteConfirm', { name: row.name })
       : intl.get('Global.deleteConfirmMultiple', { names: selectedRows.map((val) => val.name).join(','), count: selectedRows.length });
@@ -107,13 +107,13 @@ const KnowledgeNetwork = () => {
   };
 
   const exportData = async (id: string): Promise<void> => {
-    const res = await api.detailNetwork({ knIds: [id], mode: 'export' });
+    const res = await api.getNetworkDetail({ knIds: [id], mode: 'export' });
     downFile(JSON.stringify(res, null, 2), res.name, 'json');
     message.success(intl.get('Global.exportSuccess'));
   };
 
   /** 操作按钮 */
-  const onOperate = (key: string, record: KnowledgeNetworkType.Detail) => {
+  const onOperate = (key: string, record: KnowledgeNetworkType.KnowledgeNetwork) => {
     if (key === 'view') {
       localStorage.setItem('KnowledgeNetwork.id', record.id);
       history.push(`/ontology/main/overview?id=${record.id}`);
@@ -135,7 +135,7 @@ const KnowledgeNetwork = () => {
       width: 350,
       __fixed: true,
       __selected: true,
-      render: (value: string, record: KnowledgeNetworkType.Detail) => (
+      render: (value: string, record: KnowledgeNetworkType.KnowledgeNetwork) => (
         <div className="g-flex-align-center" style={{ lineHeight: '22px' }} title={value}>
           <div className={styles['name-icon']} style={{ background: record.color }}>
             <IconFont type={record.icon} style={{ color: '#fff', fontSize: 20 }} />
@@ -238,7 +238,7 @@ const KnowledgeNetwork = () => {
       <Title>{intl.get('KnowledgeNetwork.businessKnowledgeNetwork')}</Title>
       <div style={{ height: 'calc(100% - 30px)' }}>
         <Table.PageTable
-          name="metric-model"
+          name="knowledgeNetwork"
           rowKey="id"
           columns={columns}
           loading={isLoading}

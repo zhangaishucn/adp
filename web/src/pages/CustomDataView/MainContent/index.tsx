@@ -45,7 +45,7 @@ export const MainContent: React.FC = () => {
   const [tagsData, setTagsData] = useState<{ value: string; label: string }[]>([]);
   const [tableParams, setTableParams] = useState<{ sorter: unknown; filters: { [key: string]: any[] } }>({
     sorter: null,
-    filters: { queryType: [] },
+    filters: { query_type: [] },
   });
   const [tablePagination, setTablePagination] = useState({
     ...PAGINATION_DEFAULT,
@@ -228,16 +228,16 @@ export const MainContent: React.FC = () => {
         limit: pageSize,
         sort: sorter?.field || 'update_time',
         direction: sorter?.order === 'ascend' ? 'asc' : 'desc',
-        queryType: filters?.queryType || [],
-        namePattern: searchValue,
+        query_type: filters?.query_type || [],
+        name_pattern: searchValue,
         tag: selectedTag === 'all' ? '' : selectedTag,
-        groupId: currentSelectGroup?.id,
+        group_id: currentSelectGroup?.id,
         type: 'custom',
       });
 
-      const { totalCount, entries } = res;
+      const { total_count, entries } = res;
       setTableData(entries);
-      setTablePagination({ ...tablePagination, total: totalCount, pageSize, current });
+      setTablePagination({ ...tablePagination, total: total_count, pageSize, current });
       setTableParams({ sorter, filters });
       setIsLoading(false);
       setSelectedRowKeys([]);

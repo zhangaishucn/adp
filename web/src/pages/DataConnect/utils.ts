@@ -1,6 +1,6 @@
 import intl from 'react-intl-universal';
 import { DATABASE_ICON_MAP } from '@/hooks/useConstants';
-import dataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 
 // 为了保持向后兼容，导出别名
 export const dataBaseIconList: { [key: string]: any } = DATABASE_ICON_MAP;
@@ -21,11 +21,11 @@ const SCAN_STATUS_COLOR_MAP: Record<string, 'default' | 'processing' | 'success'
   fail: 'error',
 } as const;
 
-export const getConnector = (type: string, connectors: dataConnectType.Connector[]): dataConnectType.Connector | undefined => {
+export const getConnector = (type: string, connectors: DataConnectType.Connector[]): DataConnectType.Connector | undefined => {
   return connectors.find((val) => val.olk_connector_name === type);
 };
 
-export const getConnectorTypes = (connectors: dataConnectType.Connector[]): string[] => {
+export const getConnectorTypes = (connectors: DataConnectType.Connector[]): string[] => {
   const types = connectors
     .map((val) => val.type)
     .reduce((prev: string[], val) => {
@@ -39,7 +39,7 @@ export const getConnectorTypes = (connectors: dataConnectType.Connector[]): stri
   return types;
 };
 
-export const getConnectorIcon = (val: dataConnectType.Connector): string => {
+export const getConnectorIcon = (val: DataConnectType.Connector): string => {
   const cur = dataBaseIconList[val.olk_connector_name] || dataBaseIconList[val.type];
 
   return cur?.coloredName;
@@ -52,8 +52,8 @@ export const encodeUnicode = (str: string | number | boolean): string => {
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, fromCharCode));
 };
 
-export const transformAndMapDataSources = (dataSources: dataConnectType.Data[]): dataConnectType.Data[] => {
-  const newDataSources: dataConnectType.Data[] = dataSources.map((item) => ({
+export const transformAndMapDataSources = (dataSources: DataConnectType.DataSource[]): DataConnectType.DataSource[] => {
+  const newDataSources: DataConnectType.DataSource[] = dataSources.map((item) => ({
     ...item,
     ...dataBaseIconList[item.type],
     // isLeaf: item.type !== 'excel'
@@ -61,7 +61,7 @@ export const transformAndMapDataSources = (dataSources: dataConnectType.Data[]):
   // 找出dataSources中存在的type
   const existingTypes = dataSources
     .map((item) => item.type)
-    .reduce((prev: dataConnectType.Data[], val) => {
+    .reduce((prev: DataConnectType.DataSource[], val) => {
       const prevTypes = prev.map((item) => item.type);
       const dataBaseIcon = dataBaseIconList[val];
 
@@ -72,18 +72,18 @@ export const transformAndMapDataSources = (dataSources: dataConnectType.Data[]):
           title: dataBaseIcon.show,
           key: val,
           paramType: 'data_source_type',
-        } as dataConnectType.Data);
+        } as DataConnectType.DataSource);
       }
 
       return prev;
     }, []);
 
-  const dataSourcesTree: dataConnectType.Data[] = [];
+  const dataSourcesTree: DataConnectType.DataSource[] = [];
 
   // 将dataSources中的数据插入到对应的children中
   existingTypes.forEach((item) => {
     const children = newDataSources.filter((val) => val.type === item.type);
-    const cur: dataConnectType.Data = {
+    const cur: DataConnectType.DataSource = {
       ...item,
       icon: children[0]?.icon,
       children,

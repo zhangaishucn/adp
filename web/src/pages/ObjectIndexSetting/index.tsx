@@ -4,7 +4,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { CheckCircleFilled, InfoCircleFilled, LeftOutlined } from '@ant-design/icons';
 import { Divider, Empty } from 'antd';
 import { nanoid } from 'nanoid';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import emptyImage from '@/assets/images/common/empty.png';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
 import HOOKS from '@/hooks';
@@ -41,6 +41,12 @@ const ObjectSetting = () => {
 
   const goBack = () => {
     history.goBack();
+  };
+
+  const checkIsSetting = (config: any) => {
+    if (!config || typeof config !== 'object') return false;
+    const { keyword_config, fulltext_config, vector_config } = config;
+    return keyword_config.enabled || fulltext_config.enabled || vector_config.enabled;
   };
 
   /** 获取属性列表 */
@@ -87,7 +93,11 @@ const ObjectSetting = () => {
     const { name_pattern, type, state } = filterValues;
     return dataSource.filter((item) => {
       const nameMatch = name_pattern ? item.name.includes(name_pattern) : true;
-      const stateMatch = state ? item.state === state : true;
+      let currentState = '2';
+      if (canSettingTypes.includes(item.type)) {
+        currentState = checkIsSetting(item.index_config) ? '1' : '0';
+      }
+      const stateMatch = state ? currentState === state : true;
       const typeMatch = type ? item.type === type : true;
       return nameMatch && stateMatch && typeMatch;
     });
@@ -97,12 +107,6 @@ const ObjectSetting = () => {
     const { current, pageSize } = paginationParams;
     const state = { page: current, limit: pageSize };
     onUpdateState(state);
-  };
-
-  const checkIsSetting = (config: any) => {
-    if (!config || typeof config !== 'object') return false;
-    const { keyword_config, fulltext_config, vector_config } = config;
-    return keyword_config.enabled || fulltext_config.enabled || vector_config.enabled;
   };
 
   const columns: any[] = [

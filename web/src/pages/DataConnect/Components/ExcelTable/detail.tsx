@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Table, Empty } from 'antd';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
 import api from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import { Drawer } from '@/web-library/common';
 import styles from './index.module.less';
 import type { ColumnsType } from 'antd/es/table';

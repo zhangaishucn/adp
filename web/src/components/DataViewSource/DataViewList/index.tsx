@@ -30,7 +30,7 @@ const DataViewList: React.FC<{
             checked={checkedList.findIndex((val) => val.id === item.id) !== -1}
           ></Checkbox>
         ) : (
-          <Tooltip title={intl.get('Components.dataViewSource.checkedTip')}>
+          <Tooltip title={intl.get('DataViewSource.checkedTip')}>
             <Checkbox defaultChecked disabled></Checkbox>
           </Tooltip>
         )}
@@ -79,7 +79,7 @@ const DataViewList: React.FC<{
         <Input
           prefix={<SearchOutlined style={{ color: 'rgba(0, 0, 0, 0.3)', fontSize: '16px' }} />}
           allowClear
-          placeholder={intl.get('Global.search')}
+          placeholder={intl.get('DataViewSource.search')}
           onChange={(e) => {
             setSearchValue(e.target.value || '');
           }}

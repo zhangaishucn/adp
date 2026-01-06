@@ -1,12 +1,9 @@
-/** 文件上传 */
-
-import React from 'react';
+import React, { useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { Upload, Tooltip, Modal } from 'antd';
 import { arNotification } from '@/components/ARNotification';
-import getLocaleValue from '@/utils/get-locale-value';
 import { IconFont } from '@/web-library/common';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 
 enum File {
   Json = 'json',
@@ -15,9 +12,9 @@ enum File {
 const ImportFile = ({
   children,
   accept = File.Json,
-  customRequest, // 导入数据的请求
-  getData, // 导入成功之后获取数据
-  confirm, // 导入时，提示框
+  customRequest,
+  getData,
+  confirm,
   ...props
 }: {
   children?: React.ReactElement;
@@ -29,13 +26,17 @@ const ImportFile = ({
   customRequest: (param: any, name: any) => Promise<unknown | void>;
   [key: string]: any;
 }): JSX.Element => {
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   const uploadFile = (e: any): void => {
     const strArr = e.file.name.split('.');
     const name = strArr[0];
     const fileType = strArr[strArr.length - 1];
 
     if (fileType !== accept) {
-      arNotification.error(getLocaleValue('fileAccept', { localeZh, value: { accept } }, { localeEn, value: { accept } }));
+      arNotification.error(intl.get('ImportFile.fileAccept', { accept }));
       return;
     }
 
@@ -45,7 +46,7 @@ const ImportFile = ({
 
     const resolve = (): void => {
       getData();
-      arNotification.success(getLocaleValue('importSuccess', { localeZh }, { localeEn }));
+      arNotification.success(intl.get('ImportFile.importSuccess'));
     };
 
     const reject = () => {};
@@ -61,7 +62,7 @@ const ImportFile = ({
 
               if (error) {
                 Modal.confirm({
-                  getContainer: () => document.getElementById('vega-root') as HTMLElement, // 指定挂载节点
+                  getContainer: () => document.getElementById('vega-root') as HTMLElement,
                   onOk: () => customRequest(JSON.parse(result as string), name).then(resolve, reject),
                   title: error,
                 });
@@ -74,7 +75,7 @@ const ImportFile = ({
             customRequest(e.target?.result, name).then(resolve, reject);
           }
         } catch (e) {
-          arNotification.error(getLocaleValue('fileError', { localeZh }, { localeEn }));
+          arNotification.error(intl.get('ImportFile.fileError'));
         }
       };
 
@@ -85,7 +86,7 @@ const ImportFile = ({
   return (
     <Upload accept={accept} showUploadList={false} customRequest={uploadFile} {...props}>
       {children || (
-        <Tooltip title={getLocaleValue('import', { localeZh }, { localeEn })}>
+        <Tooltip title={intl.get('ImportFile.import')}>
           <IconFont type="icon-upload"></IconFont>
         </Tooltip>
       )}

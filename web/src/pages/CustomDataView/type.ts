@@ -1,4 +1,4 @@
-/** 自定义视图 类型定义*/
+import { GroupType } from '@/services/customDataView/type';
 
 export interface CustomDataViewContextType {
   currentSelectGroup: GroupType | undefined;
@@ -7,15 +7,6 @@ export interface CustomDataViewContextType {
   setReloadGroup: (reload: boolean) => void;
 }
 
-export type GroupType = {
-  id: string;
-  name: string;
-  data_view_count: number;
-  update_time: string;
-  builtin: boolean;
-};
-
-/** 类型定义*/
 export enum queryType {
   Promql = 'promql',
   Dsl = 'dsl',

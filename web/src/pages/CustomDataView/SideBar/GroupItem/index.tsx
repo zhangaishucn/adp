@@ -2,7 +2,7 @@ import intl from 'react-intl-universal';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { Button, Dropdown, MenuProps } from 'antd';
 import classnames from 'classnames';
-import { GroupType } from '../../type';
+import { GroupType } from '@/services/customDataView/type';
 import styles from '../index.module.less';
 
 export const GroupItem: React.FC<{

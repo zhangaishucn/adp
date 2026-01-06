@@ -1,15 +1,22 @@
 /** 时间过滤器组件，用于全局筛选过滤数据 */
+import { useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { Tabs, Dropdown, TabsProps } from 'antd';
 import dayjs from 'dayjs';
 import DateRange from './DateRange';
+import locales from './locales';
 import QuickTags from './QuickTags';
 
 const TimeFilter = (props: any) => {
   const { placement, timeRange = { label: '最近24小时', value: [dayjs().subtract(24, 'h'), dayjs()] }, onFilterChange, children } = props;
 
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   const items: TabsProps['items'] = [
-    { key: 'quickSelect', label: '快速选择', children: <QuickTags timeRange={timeRange} onFilterChange={onFilterChange} /> },
-    { key: 'dateRange', label: '时间段选择', children: <DateRange timeRange={timeRange} onFilterChange={onFilterChange} /> },
+    { key: 'quickSelect', label: intl.get('TimeFilter.quickSelect'), children: <QuickTags timeRange={timeRange} onFilterChange={onFilterChange} /> },
+    { key: 'dateRange', label: intl.get('TimeFilter.dateRange'), children: <DateRange timeRange={timeRange} onFilterChange={onFilterChange} /> },
   ];
 
   const isQuickSelect = timeRange.label.indexOf('-') < 0;

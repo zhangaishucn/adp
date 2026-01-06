@@ -1,6 +1,5 @@
 import ReactDOM from 'react-dom/client';
 import 'react-resizable/css/styles.css';
-import frameworkProps from '@/utils/axios-http/frameworkProps';
 import api from '@/services/authorization';
 import { baseConfig } from '@/services/request';
 import App from '@/pages/router';
@@ -12,7 +11,7 @@ import UTILS from '@/utils';
 
 const init = async () => {
   try {
-    const userPermissionOperation = await api.authorizationGetResourceType();
+    const userPermissionOperation = await api.getResourceTypeOperation();
     sessionStorage.setItem('vega.userPermissionOperation', JSON.stringify(userPermissionOperation || []));
   } catch (error) {
     console.log('error: 获取权限失败', error);
@@ -49,11 +48,14 @@ export async function bootstrap(props: any) {
   baseConfig.userid = props?.userid;
   baseConfig.roles = props?.config?.userInfo?.user?.roles || [];
   baseConfig.refresh = props?.token?.refreshOauth2Token;
+  baseConfig.toggleSideBarShow = props?.toggleSideBarShow;
+  baseConfig.businessDomainID = props?.businessDomainID || '';
+  baseConfig.history = props?.history;
+  baseConfig.navigate = props?.navigate;
   UTILS.SessionStorage.set('language', props?.lang);
   UTILS.SessionStorage.set('token', props?.token?.getToken?.access_token);
 }
 export async function mount(props: any) {
-  frameworkProps.data = props;
   await Promise.resolve();
   init().finally(() => {
     render(props);

@@ -74,7 +74,7 @@ const DataViewList: React.FC<{
         <Input
           prefix={<SearchOutlined style={{ color: 'rgba(0, 0, 0, 0.3)', fontSize: '16px' }} />}
           allowClear
-          placeholder={intl.get('Global.search')}
+          placeholder={intl.get('CustomDataViewSource.search')}
           onChange={(e) => {
             setSearchValue(e.target.value || '');
           }}

@@ -8,9 +8,9 @@ import { TableProps } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import Tags from '@/components/Tags';
 import downFile from '@/utils/down-file';
-import api from '@/services/concept-group';
-import ConceptGroupType from '@/services/concept-group/type';
-import KnowledgeNetworkType from '@/services/Knowledge-network/type';
+import api from '@/services/conceptGroup';
+import * as ConceptGroupType from '@/services/conceptGroup/type';
+import * as KnowledgeNetworkType from '@/services/knowledgeNetwork/type';
 import createImage from '@/assets/images/common/create.svg';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
 import ENUMS from '@/enums';
@@ -28,7 +28,7 @@ const MENU_SORT_ITEMS: MenuProps['items'] = [
 ];
 
 interface ConceptGroupProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission?: boolean;
 }
 

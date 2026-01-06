@@ -56,15 +56,15 @@ const DateViewPreview: React.FC<{ id: string }> = ({ id }) => {
   return !empty ? (
     <div className={styles['preview-container']}>
       <div className={styles['preview-title']}>
-        <span>{dataViewInfo?.name || intl.get('Components.dataViewSource.preview')}</span>
-        <span className={styles['preview-tip']}>{intl.get('Components.dataViewSource.previewTip')}</span>
+        <span>{dataViewInfo?.name || intl.get('DataViewSource.preview')}</span>
+        <span className={styles['preview-tip']}>{intl.get('DataViewSource.previewTip')}</span>
       </div>
       <Table loading={loading} scroll={{ y: 380 }} size="small" columns={columns} dataSource={tableData} pagination={false} />
     </div>
   ) : (
     <div className={styles['empty-container']}>
       <img className={styles['empty-img']} src={emptyImg} />
-      <span className={styles['empty-tip']}>{intl.get('Components.dataViewSource.detail')}</span>
+      <span className={styles['empty-tip']}>{intl.get('DataViewSource.detail')}</span>
     </div>
   );
 };

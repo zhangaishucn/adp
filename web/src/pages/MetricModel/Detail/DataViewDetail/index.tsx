@@ -4,6 +4,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import { useAsyncEffect } from 'ahooks';
 import { Collapse, Tag } from 'antd';
 import _ from 'lodash';
+import { formatKeyOfObjectToCamel } from '@/utils/format-objectkey-structure';
 import SERVICE from '@/services';
 import DataFilterDetail from '@/web-library/components/DataFilter/indexDetail';
 import styles from './index.module.less';
@@ -47,8 +48,9 @@ const DataViewDetail = (props: { dataSourceId?: string }) => {
   }, [dataSourceId]);
 
   const getDataSourceById = async (id: any) => {
-    const data = await SERVICE.dataView.getDataViewById(id);
-    return data[0];
+    const data = await SERVICE.dataView.getDataViewDetail(id);
+    const Data = formatKeyOfObjectToCamel(data);
+    return Data[0];
   };
 
   const expandRender = (record: any): React.ReactNode => {

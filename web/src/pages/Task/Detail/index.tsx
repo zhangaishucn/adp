@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Empty } from 'antd';
 import dayjs from 'dayjs';
 import { formatMsToHMS } from '@/utils/time';
-import TaskType from '@/services/task/type';
+import * as TaskType from '@/services/task/type';
 import emptyImage from '@/assets/images/common/empty.png';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
 import ENUMS from '@/enums';
@@ -50,7 +50,7 @@ const Detail: React.FC<DetailProps> = ({ open, knId, taskId, onClose }) => {
       if (name_pattern) params.name_pattern = name_pattern;
       if (concept_type) params.concept_type = concept_type;
       if (state) params.state = state;
-      const result = await SERVICE.task.taskGetDetail(knId, taskId, params);
+      const result = await SERVICE.task.getTaskDetail(knId, taskId, params);
       const { entries = [], total_count = 0 } = result || {};
       setDataSource(entries);
       onUpdateState({ ...params, ..._pageState, count: total_count });
@@ -89,7 +89,7 @@ const Detail: React.FC<DetailProps> = ({ open, knId, taskId, onClose }) => {
       dataIndex: 'concept_type',
       width: 200,
       __selected: true,
-      render: (value: TaskType.conceptTypeEnum) => {
+      render: (value: TaskType.ConceptTypeEnum) => {
         return <div className="g-flex-align-center">{CONCEPT_TYPE_LABELS[value]}</div>;
       },
     },

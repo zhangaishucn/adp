@@ -4,6 +4,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import { useAsyncEffect } from 'ahooks';
 import { Collapse, Tag } from 'antd';
 import _ from 'lodash';
+import { formatKeyOfObjectToCamel } from '@/utils/format-objectkey-structure';
 import SERVICE from '@/services';
 import { Button, IconFont } from '@/web-library/common';
 import DataFilterDetail from '@/web-library/components/DataFilter/indexDetail';
@@ -36,8 +37,9 @@ export const logWareHouseExpandData = (data: any) => {
 };
 
 export const getDataSourceById = async (id: any) => {
-  const data: any = await SERVICE.dataView.getDataViewById(id);
-  return data[0];
+  const data: any = await SERVICE.dataView.getDataViewDetail(id);
+  const Data = formatKeyOfObjectToCamel(data);
+  return Data[0];
 };
 
 const Detail = ({ dataSource: initDataSource, deleteItem }: any) => {

@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { arNotification } from '@/components/ARNotification';
 import { FORM_LAYOUT } from '@/hooks/useConstants';
 import downFile from '@/utils/down-file';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import HOOKS from '@/hooks';
 import { Input, Modal, IconFont } from '@/web-library/common';
 import styles from './index.module.less';
@@ -186,11 +186,10 @@ const SideBar: React.FC<SideBarProps> = (props) => {
   const handleExportGroupClick = async (item: any): Promise<void> => {
     // 获取分组中所有指标模型数据
     const res = await api.getMetricModelExportGroup(item.id);
-    Promise.resolve(res).then((res) => {
-      if (!res.totalCount) return;
+    if (res && res.length > 0) {
       downFile(JSON.stringify(res, null, 2), item.name, 'json');
       arNotification.success(intl.get('Global.exportSuccess'));
-    });
+    }
   };
 
   const handleOperationMenuClick = (data: any, item: any) => {

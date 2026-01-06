@@ -3,19 +3,18 @@
  * @Author: coco.chen
  * @Date: 2023-08-07 11:00:07
  */
-import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { Input, Select } from 'antd';
 import classNames from 'classnames';
 import _ from 'lodash';
 import ObjectSelector from '@/components/ObjectSelector';
-import getLocaleValue from '@/utils/get-locale-value';
 import DateBefore from './components/DateBefore';
 import DateBetween from './components/DateBetween';
 import DateCurrent from './components/DateCurrent';
 import NumberItem from './components/NumberItem';
 import styles from './index.module.less';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 import { Item } from './type';
 
 export const defaultTypeOption = {
@@ -76,6 +75,10 @@ const DataFilterItem = forwardRef(
     }, [value]);
 
     useImperativeHandle(ref, () => ({ validate: () => false }));
+
+    useEffect(() => {
+      intl.load(locales);
+    }, []);
 
     /** 更换对象类 */
     const handleChangeObject = (val: string, objectTarget: ObjectType): void => {
@@ -163,14 +166,7 @@ const DataFilterItem = forwardRef(
         return <DateBetween value={value.value ?? undefined} onChange={handleValueChange} />;
       }
 
-      return (
-        <Input
-          value={value?.value}
-          disabled={disabled}
-          onChange={handleStringValueChange}
-          placeholder={getLocaleValue('pleaseInputValue', { localeZh }, { localeEn })}
-        />
-      );
+      return <Input value={value?.value} disabled={disabled} onChange={handleStringValueChange} placeholder={intl.get('DataFilterNew.pleaseInputValue')} />;
     };
 
     const hasValue =
@@ -186,7 +182,7 @@ const DataFilterItem = forwardRef(
             showSearch
             value={value?.field}
             disabled={disabled}
-            placeholder={getLocaleValue('pleaseSelectValue', { localeZh }, { localeEn })}
+            placeholder={intl.get('DataFilterNew.pleaseSelectValue')}
             getPopupContainer={(triggerNode): HTMLElement => triggerNode.parentNode as HTMLElement}
             onChange={handleChangeField}
             options={_.map(Object.keys(fields), (key) => {
@@ -211,7 +207,7 @@ const DataFilterItem = forwardRef(
                 disabled={disabled}
                 placeholder="请选择"
                 onChange={handleChangeOperation}
-                options={_.map(typeOption[formatType], (item) => ({ value: item, label: getLocaleValue(item, { localeZh }, { localeEn }) }))}
+                options={_.map(typeOption[formatType], (item) => ({ value: item, label: intl.get(`DataFilterNew.${item}`) }))}
               />
             </div>
           )

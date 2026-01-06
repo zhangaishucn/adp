@@ -4,9 +4,9 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { LeftOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
 import { matchPermission, PERMISSION_CODES } from '@/components/ContainerIsVisible';
-import frameworkProps from '@/utils/axios-http/frameworkProps';
-import api from '@/services/Knowledge-network';
-import KnowledgeNetworkType from '@/services/Knowledge-network/type';
+import api from '@/services/knowledgeNetwork';
+import * as KnowledgeNetworkType from '@/services/knowledgeNetwork/type';
+import { baseConfig } from '@/services/request';
 import Action from '@/pages/Action';
 import ConceptGroup from '@/pages/ConceptGroup';
 import Edge from '@/pages/Edge';
@@ -52,16 +52,16 @@ const KnowledgeNetworkOverview = () => {
   const history = useHistory();
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const [detail, setdetail] = useState<KnowledgeNetworkType.Detail>();
+  const [detail, setdetail] = useState<KnowledgeNetworkType.KnowledgeNetwork>();
   const [active, setActive] = useState<string>('overview');
 
   const getDetail = async (val: string) => {
-    const res = await api.detailNetwork({ knIds: [val], include_statistics: true });
-    setdetail(res);
+    const res = await api.getNetworkDetail({ knIds: [val], include_statistics: true });
+    setdetail(res[0]);
   };
 
   const goback = () => {
-    history.push('/');
+    history.push('/ontology');
   };
 
   useEffect(() => {
@@ -70,17 +70,13 @@ const KnowledgeNetworkOverview = () => {
   }, [pathname]);
 
   useEffect(() => {
-    frameworkProps.data.toggleSideBarShow(false);
+    baseConfig.toggleSideBarShow(false);
     const query = new URLSearchParams(window.location.search);
     const id = query.get('id');
     const paramId = id || localStorage.getItem('KnowledgeNetwork.id');
     if (paramId) {
       getDetail(paramId);
     }
-
-    // return () => {
-    //     frameworkProps.data.toggleSideBarShow(true);
-    // };
   }, []);
 
   const isPermission = useMemo(() => {

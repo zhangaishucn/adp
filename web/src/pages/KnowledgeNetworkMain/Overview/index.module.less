@@ -20,20 +20,21 @@
       .header-title-left {
         display: flex;
         gap: 8px;
+        align-items: center;
         width: 100%;
 
         .name-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 24px;
-          height: 24px;
+          width: 32px;
+          height: 32px;
           margin: 0;
           border-radius: 4px;
         }
 
         .name-text {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 400;
           line-height: 1em;
         }
@@ -55,8 +56,11 @@
 
     .header-footer {
       display: flex;
+      align-items: center;
       width: 100%;
       padding: 12px 0;
+      font-size: 13px;
+      line-height: 1;
     }
   }
 
@@ -101,15 +105,19 @@
     background: #fff;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
+
+    .overview-box-content-title {
+      margin-bottom: 8px;
+    }
   }
 }
 
 .name-icon {
   display: flex;
   align-items: center;
-  width: 24px;
-  height: 24px;
-  padding: 4px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   margin-right: 10px;
   border-radius: 4px;
 }

@@ -103,6 +103,22 @@ const PageTable: React.FC<CustomTableProps> = (props) => {
     // 初始化表格列显示控制器数据
     if (_.isEmpty(newColumnsController)) {
       newColumnsController = initSessionColumnsController(newColumns);
+    } else {
+      // 检查是否有新增加的列，如果有则合并到 controller 中
+      _.forEach(newColumns, (item: any, index: number) => {
+        const { dataIndex, title, __selected, __fixed } = item;
+        if (dataIndex === '__empty__') return;
+
+        if (!newColumnsController[dataIndex]) {
+          newColumnsController[dataIndex] = {
+            index,
+            dataIndex,
+            title,
+            checked: !!__selected,
+            disabled: !!__fixed,
+          };
+        }
+      });
     }
 
     // 过滤掉不展示的列，然后添加列的默认属性
@@ -210,8 +226,6 @@ const PageTable: React.FC<CustomTableProps> = (props) => {
     setSessionProxy(SESSION_COLUMNS_WIDTH_KEY, newSessionColumnsWidth);
     onCloseMenu();
   };
-
-  console.log(columns, 'columns');
 
   return (
     <div ref={containerRef} style={{ width: bordered ? 'calc(100% + 2px)' : '100%', height: '100%', overflow: 'hidden' }}>

@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Input, Transfer, Button, Form, Switch } from 'antd';
 import TagsSelector from '@/components/TagsSelector';
 import { INIT_FILTER } from '@/hooks/useConstants';
-import RowColumnPermissionType from '@/services/rowColumnPermission/type';
+import * as RowColumnPermissionType from '@/services/rowColumnPermission/type';
 import noData from '@/assets/images/no-data.svg';
 import HOOKS from '@/hooks';
 import PreviewData from '@/pages/CustomDataView/MainContent/PreviewData';

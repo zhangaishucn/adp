@@ -4,7 +4,7 @@ import { Table, Space, Empty } from 'antd';
 import dayjs from 'dayjs';
 import { PAGINATION_DEFAULT, DATE_FORMAT } from '@/hooks/useConstants';
 import scanManagementApi from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import { Button } from '@/web-library/common';
 import ExcelTableDetail from './detail';
 import type { ColumnsType } from 'antd/es/table';

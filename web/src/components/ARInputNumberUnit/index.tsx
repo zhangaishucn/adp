@@ -3,13 +3,12 @@
  * @author Shaonan.yuan
  * @date 2024/05/09
  */
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { Select, Space, InputNumber } from 'antd';
 import { InputNumberProps } from 'antd/lib/input-number';
-import getLocaleValue from '@/utils/get-locale-value';
 import commonStyles from './index.module.less';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 
 export interface CompactValue {
   num?: number;
@@ -42,18 +41,6 @@ const storageUnit = [
   { label: 'GB', value: 'gb' },
 ];
 
-// 全部时间单位
-export const timeUnit = [
-  { label: getLocaleValue('seconds', { localeZh }, { localeEn }), value: 's' },
-  { label: getLocaleValue('mins', { localeZh }, { localeEn }), value: 'm' },
-  { label: getLocaleValue('hours', { localeZh }, { localeEn }), value: 'h' },
-  { label: getLocaleValue('days', { localeZh }, { localeEn }), value: 'd' },
-  { label: getLocaleValue('week', { localeZh }, { localeEn }), value: 'w' },
-  { label: getLocaleValue('month', { localeZh }, { localeEn }), value: 'M' },
-  { label: getLocaleValue('year', { localeZh }, { localeEn }), value: 'y' },
-  ...storageUnit,
-];
-
 const TIME_VALUE: [number[], string[]] = [
   [1, 60, 60, 24, 7, 30 / 7],
   ['s', 'm', 'h', 'd', 'w', 'M'],
@@ -75,13 +62,30 @@ const InputNumberUnit: React.FC<PropType> = (props: PropType): JSX.Element => {
     inputAfterWidth,
     ...other
   } = props;
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
+  // 全部时间单位
+  const timeUnit = [
+    { label: intl.get('ARInputNumberUnit.seconds'), value: 's' },
+    { label: intl.get('ARInputNumberUnit.mins'), value: 'm' },
+    { label: intl.get('ARInputNumberUnit.hours'), value: 'h' },
+    { label: intl.get('ARInputNumberUnit.days'), value: 'd' },
+    { label: intl.get('ARInputNumberUnit.week'), value: 'w' },
+    { label: intl.get('ARInputNumberUnit.month'), value: 'M' },
+    { label: intl.get('ARInputNumberUnit.year'), value: 'y' },
+    ...storageUnit,
+  ];
+
   // 初始化数值和单位
   const num = useRef<number>();
   const unit = useRef<string>();
   const selOptions = (unitOptions || timeUnit).filter((val) => unitType.includes(val.value)) ?? [];
 
   // 只有输入框后缀是下拉框才指定默认 单位值
-  const defaultUnit = afterType === 'select' ? selOptions[0].value : '';
+  const defaultUnit = afterType === 'select' ? selOptions[0]?.value : '';
   const selOptionsValue = afterType === 'select' ? selOptions.map((val) => val.value) : '';
 
   // 当前值
