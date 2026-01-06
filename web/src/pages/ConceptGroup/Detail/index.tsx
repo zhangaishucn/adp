@@ -5,9 +5,9 @@ import { TableRowSelection } from 'antd/es/table/interface';
 import _ from 'lodash';
 import ObjectIcon from '@/components/ObjectIcon';
 import { renderObjectTypeLabel } from '@/components/ObjectSelector';
-import ActionType from '@/services/action/type';
-import api from '@/services/concept-group';
-import ConceptGroupType from '@/services/concept-group/type';
+import * as ActionType from '@/services/action/type';
+import api from '@/services/conceptGroup';
+import * as ConceptGroupType from '@/services/conceptGroup/type';
 import { ObjectType } from '@/services';
 import { Text, Title, Button, IconFont, Drawer } from '@/web-library/common';
 import styles from './index.module.less';
@@ -213,7 +213,7 @@ const Detail = (props: TDetailProps) => {
   const filteredData = useMemo(() => {
     const data = getCurrentTabData();
     const { searchText } = getCurrentSearchState();
-    return data.filter((item) => {
+    return data.filter((item: any) => {
       const matchSearch = item.name.includes(searchText);
       return matchSearch;
     });

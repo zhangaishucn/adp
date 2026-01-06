@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Form, FormInstance, Input } from 'antd';
 import classnames from 'classnames';
 import { DataViewSource } from '@/components/DataViewSource';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';
 

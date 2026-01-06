@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import intl from 'react-intl-universal';
 import { Table } from 'antd';
 import api from '@/services/customDataView/index';
 import emptyImg from '@/assets/images/customDataView/empty.png';
@@ -51,15 +52,15 @@ const DateViewPreview: React.FC<{ id: string }> = ({ id }) => {
   return !!id ? (
     <div className={styles['preview-container']}>
       <div className={styles['preview-title']}>
-        <span>{dataViewInfo?.name || '预览'}</span>
-        <span className={styles['preview-tip']}>（展示部分数据）</span>
+        <span>{dataViewInfo?.name || intl.get('CustomDataViewSource.preview')}</span>
+        <span className={styles['preview-tip']}>{intl.get('CustomDataViewSource.previewTip')}</span>
       </div>
       <Table rowKey="id" loading={loading} scroll={{ y: 380 }} size="small" columns={columns} dataSource={tableData} pagination={false} />
     </div>
   ) : (
     <div className={styles['empty-container']}>
-      <img className={styles['empty-img']} src={emptyImg} alt="暂无数据预览" />
-      <span className={styles['empty-tip']}>您可点击视图名称查看详情</span>
+      <img className={styles['empty-img']} src={emptyImg} alt={intl.get('CustomDataViewSource.noDataPreview')} />
+      <span className={styles['empty-tip']}>{intl.get('CustomDataViewSource.viewDetailTip')}</span>
     </div>
   );
 };

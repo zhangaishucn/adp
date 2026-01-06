@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import intl from 'react-intl-universal';
 import { Modal, Form, Input } from 'antd';
-import TaskType from '@/services/task/type';
+import * as TaskType from '@/services/task/type';
 import { KnowledgeNetworkType } from '@/services';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';
@@ -16,7 +16,7 @@ interface NewTaskModalProps {
   onCancel: () => void;
   onOk: (values: NewTaskFormValues) => void;
   confirmLoading?: boolean;
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
 }
 
 export const CreateTask: React.FC<NewTaskModalProps> = ({ detail, open, onCancel, onOk, confirmLoading = false }) => {
@@ -51,7 +51,7 @@ export const CreateTask: React.FC<NewTaskModalProps> = ({ detail, open, onCancel
 
   return (
     <Modal title={intl.get('Task.createTask')} open={open} onCancel={handleCancel} onOk={handleOk} confirmLoading={confirmLoading}>
-      <Form form={form} layout="vertical" className={styles.mainContainer} initialValues={{ jobType: TaskType.JobType.full }}>
+      <Form form={form} layout="vertical" className={styles.mainContainer} initialValues={{ jobType: TaskType.JobType.Full }}>
         <Form.Item
           label={intl.get('Task.taskName')}
           name="name"
@@ -66,8 +66,8 @@ export const CreateTask: React.FC<NewTaskModalProps> = ({ detail, open, onCancel
           <div className={styles.buildTypeContainer}>
             {/* 全量构建选项 */}
             <div
-              className={`${styles.buildTypeOption}  ${jobType === TaskType.JobType.full ? styles.selected : ''}`}
-              onClick={() => handleJobTypeSelect(TaskType.JobType.full)}
+              className={`${styles.buildTypeOption}  ${jobType === TaskType.JobType.Full ? styles.selected : ''}`}
+              onClick={() => handleJobTypeSelect(TaskType.JobType.Full)}
             >
               <div className="g-flex-align-center">
                 <IconFont type="icon-dip-color-quanliang" className={styles.buildTypeIcon} />
@@ -76,12 +76,12 @@ export const CreateTask: React.FC<NewTaskModalProps> = ({ detail, open, onCancel
                   <div className={styles.buildTypeDescription}>{intl.get('Task.fullBuildDescription')}</div>
                 </div>
               </div>
-              <div className={`${styles.radioCustom} ${jobType === TaskType.JobType.full ? styles.radioSelected : styles.radioNormal}`} />
+              <div className={`${styles.radioCustom} ${jobType === TaskType.JobType.Full ? styles.radioSelected : styles.radioNormal}`} />
             </div>
             {/* 增量更新选项 */}
             <div
-              className={`${styles.buildTypeOption}  ${jobType === TaskType.JobType.incremental ? styles.selected : ''}`}
-              onClick={() => handleJobTypeSelect(TaskType.JobType.incremental)}
+              className={`${styles.buildTypeOption}  ${jobType === TaskType.JobType.Incremental ? styles.selected : ''}`}
+              onClick={() => handleJobTypeSelect(TaskType.JobType.Incremental)}
             >
               <div className="g-flex-align-center">
                 <IconFont type="icon-dip-color-zengliang" className={styles.buildTypeIcon} />
@@ -90,7 +90,7 @@ export const CreateTask: React.FC<NewTaskModalProps> = ({ detail, open, onCancel
                   <div className={styles.buildTypeDescription}>{intl.get('Task.incrementalUpdateDescription')}</div>
                 </div>
               </div>
-              <div className={`${styles.radioCustom} ${jobType === TaskType.JobType.incremental ? styles.radioSelected : styles.radioNormal}`} />
+              <div className={`${styles.radioCustom} ${jobType === TaskType.JobType.Incremental ? styles.radioSelected : styles.radioNormal}`} />
             </div>
           </div>
         </Form.Item>

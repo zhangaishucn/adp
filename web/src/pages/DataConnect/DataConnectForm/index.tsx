@@ -5,7 +5,7 @@ import { Form, Spin, Button } from 'antd';
 import HeaderSteps from '@/components/HeaderSteps';
 import { encryptData } from '@/utils/encrypt-RSA';
 import api from '@/services/dataConnect';
-import ConnectType from '@/services/dataConnect/type';
+import * as ConnectType from '@/services/dataConnect/type';
 import HOOKS from '@/hooks';
 import DataConnectConfig from './DataConnectConfig';
 import DataConnectType from './DataConnectType';
@@ -16,7 +16,7 @@ const DataSourceForm = (): JSX.Element => {
   const urlPrefix = `/data-connect`;
   const [current, setCurrent] = useState<number>(0);
   const { resetFields } = form;
-  const [initialValue, setInitialValue] = useState<ConnectType.Data>();
+  const [initialValue, setInitialValue] = useState<ConnectType.DataSource>();
   const [checkDataSource, setCheckDataSource] = useState<ConnectType.Connector>();
   const [updateSecretKey, setUpdateSecretKey] = useState<boolean>(false);
   const [connectors, setConnectors] = useState<ConnectType.Connector[]>([]);

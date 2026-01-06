@@ -3,10 +3,10 @@ import intl from 'react-intl-universal';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { Modal, Table, Input, Tag, Button, Space, message } from 'antd';
 import { TableRowSelection } from 'antd/es/table/interface';
-import api from '@/services/concept-group';
-import ConceptGroupType from '@/services/concept-group/type';
+import api from '@/services/conceptGroup';
+import * as ConceptGroupType from '@/services/conceptGroup/type';
 import objectApi from '@/services/object';
-import ObjectType from '@/services/object/type';
+import * as ObjectType from '@/services/object/type';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';
 

@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Form } from 'antd';
 import TagsSelector from '@/components/TagsSelector';
 import { METRIC_ID_REGEX } from '@/hooks/useConstants';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import { Input, Select } from '@/web-library/common';
 import styles from './index.module.less';
 

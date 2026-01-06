@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Button, IconFont, Input } from '@/web-library/common';
 import UTILS from '@/web-library/utils';
 import styles from './index.module.less';
+import locales from './locales';
 
 const TagItem = (props: any) => {
   const { data, onDelete, onSort } = props;
@@ -22,13 +23,13 @@ const TagItem = (props: any) => {
         <Button.Icon
           size="small"
           onClick={() => onSort('desc')}
-          title={intl.get('Global.desc')}
+          title={intl.get('AddTagBySort.desc')}
           icon={<IconFont type="icon-dip-sort-descending" style={{ fontSize: 16, color: data?.direction === 'desc' ? '#126EE3' : 'rgba(0, 0, 0, 0.65)' }} />}
         />
         <Button.Icon
           size="small"
           onClick={() => onSort('asc')}
-          title={intl.get('Global.asc')}
+          title={intl.get('AddTagBySort.asc')}
           icon={<IconFont type="icon-dip-shengxupaixu" style={{ fontSize: 16, color: data?.direction === 'asc' ? '#126EE3' : 'rgba(0, 0, 0, 0.65)' }} />}
         />
         <div className={styles['tag-item-operate-line']}></div>
@@ -51,6 +52,10 @@ const AddTagBySort = (props: AddTagBySortProps) => {
   const { value = [], onChange, options, onAddBtnClick } = props;
 
   const [filterOptions, setFilterOptions] = useState(_.cloneDeep(options));
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   useEffect(() => {
     setFilterOptions(options);
@@ -106,7 +111,7 @@ const AddTagBySort = (props: AddTagBySortProps) => {
         getPopupContainer={(triggerNode): HTMLElement => triggerNode.parentNode as HTMLElement}
         popupRender={() => (
           <div className="g-dropdown-menu-root" style={{ width: 260 }}>
-            <Input.Search className="g-mt-2 g-mb-4" allowClear placeholder={intl.get('Global.search')} onChange={onSearchChange} />
+            <Input.Search className="g-mt-2 g-mb-4" allowClear placeholder={intl.get('AddTagBySort.search')} onChange={onSearchChange} />
             <div className={styles['vega-form-tag-options-container']}>
               {_.map(filterOptions, (item, index) => {
                 const icon = UTILS.formatIconByType(item?.type);
@@ -135,7 +140,7 @@ const AddTagBySort = (props: AddTagBySortProps) => {
         )}
       >
         <Button className="g-mr-2 g-mb-2" icon={<IconFont type="icon-add" />} onClick={() => onAddBtnClick?.()}>
-          {intl.get('Global.add')}
+          {intl.get('AddTagBySort.add')}
         </Button>
       </Dropdown>
     </div>

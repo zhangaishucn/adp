@@ -24,7 +24,7 @@ type CAETypeType = 'create' | 'edit';
  * ✓ 2、删除接口没有返回，需要在request里统一处理
  */
 interface TProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission?: boolean;
 }
 
@@ -69,7 +69,7 @@ const Edge = (props: TProps) => {
         if (tag !== 'all') postData.tag = tag;
         if (group_id !== 'all') postData.group_id = group_id;
       }
-      const result = await SERVICE.edge.edgeGet(knId, postData);
+      const result = await SERVICE.edge.getEdgeList(knId, postData);
       const { entries = [], total_count = 0 } = result || {};
       setDataSource(entries);
       onUpdateState({ ...postData, ..._pageState, count: total_count });
@@ -143,7 +143,7 @@ const Edge = (props: TProps) => {
   const onDelete = async (items: any, isBatch?: boolean) => {
     try {
       const edgesIds = _.map(items, (item) => item?.id);
-      await SERVICE.edge.edgeDelete(knId, edgesIds);
+      await SERVICE.edge.deleteEdge(knId, edgesIds);
       getList();
       message.success(intl.get('Global.deleteSuccess'));
       if (isBatch) setSelectedRowKeys([]);
@@ -157,7 +157,7 @@ const Edge = (props: TProps) => {
     const name = _.map(items, (item) => `「${item?.name}」`).join('、');
     const length = items.length || 0;
     modal.confirm({
-      title: intl.get('Global.deleteConfirm'),
+      title: intl.get('Global.tipTitle'),
       closable: true,
       icon: <ExclamationCircleFilled />,
       content: length > 1 ? intl.get('Global.deleteConfirmMultiple', { count: length }) : intl.get('Global.deleteConfirm', { name }),

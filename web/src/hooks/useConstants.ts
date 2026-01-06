@@ -1,7 +1,7 @@
 import intl from 'react-intl-universal';
-import ActionType from '@/services/action/type';
-import OntologyObjectType from '@/services/object/type';
-import TaskType from '@/services/task/type';
+import * as ActionType from '@/services/action/type';
+import * as OntologyObjectType from '@/services/object/type';
+import * as TaskType from '@/services/task/type';
 import type { MenuProps } from 'antd';
 
 /**
@@ -25,53 +25,53 @@ export const useConstants = () => {
 
   // KnowledgeNetwork 排序菜单项(使用 Global 通用字段)
   const KN_MENU_SORT_ITEMS: MenuProps['items'] = [
-    { key: 'name', label: intl.get('Global.sortByName') },
-    { key: 'update_time', label: intl.get('Global.sortByUpdateTime') },
+    { key: 'name', label: intl.get('Global.sortByNameLabel') },
+    { key: 'update_time', label: intl.get('Global.sortByUpdateTimeLabel') },
   ];
 
   // Object 排序菜单项(使用 Global 通用字段)
   const OBJECT_MENU_SORT_ITEMS: MenuProps['items'] = [
-    { key: 'name', label: intl.get('Global.sortByName') },
-    { key: 'update_time', label: intl.get('Global.sortByUpdateTime') },
+    { key: 'name', label: intl.get('Global.sortByNameLabel') },
+    { key: 'update_time', label: intl.get('Global.sortByUpdateTimeLabel') },
   ];
 
   const JOB_TYPE_LABELS: Record<TaskType.JobType, string> = {
-    [TaskType.JobType.full]: intl.get('Task.buildTypeFull'),
-    [TaskType.JobType.incremental]: intl.get('Task.buildTypeIncremental'),
+    [TaskType.JobType.Full]: intl.get('Task.buildTypeFull'),
+    [TaskType.JobType.Incremental]: intl.get('Task.buildTypeIncremental'),
   };
 
   const JOB_TYPE_OPTIONS = [
     { value: '', label: intl.get('Global.all') },
-    { value: TaskType.JobType.full, label: JOB_TYPE_LABELS[TaskType.JobType.full] },
-    { value: TaskType.JobType.incremental, label: JOB_TYPE_LABELS[TaskType.JobType.incremental] },
+    { value: TaskType.JobType.Full, label: JOB_TYPE_LABELS[TaskType.JobType.Full] },
+    { value: TaskType.JobType.Incremental, label: JOB_TYPE_LABELS[TaskType.JobType.Incremental] },
   ];
 
   const TASK_STATE_LABELS: Record<TaskType.StateEnum, string> = {
-    [TaskType.StateEnum.pending]: intl.get('Global.statusPending'),
-    [TaskType.StateEnum.running]: intl.get('Global.statusRunning'),
-    [TaskType.StateEnum.completed]: intl.get('Global.statusCompleted'),
-    [TaskType.StateEnum.failed]: intl.get('Global.statusFailed'),
-    [TaskType.StateEnum.canceled]: intl.get('Global.statusCanceled'),
+    [TaskType.StateEnum.Pending]: intl.get('Global.statusPending'),
+    [TaskType.StateEnum.Running]: intl.get('Global.statusRunning'),
+    [TaskType.StateEnum.Completed]: intl.get('Global.statusCompleted'),
+    [TaskType.StateEnum.Failed]: intl.get('Global.statusFailed'),
+    [TaskType.StateEnum.Canceled]: intl.get('Global.statusCanceled'),
   };
 
   const TASK_STATE_OPTIONS = [
     { value: '', label: intl.get('Global.all') },
-    { value: TaskType.StateEnum.pending, label: TASK_STATE_LABELS[TaskType.StateEnum.pending] },
-    { value: TaskType.StateEnum.running, label: TASK_STATE_LABELS[TaskType.StateEnum.running] },
-    { value: TaskType.StateEnum.completed, label: TASK_STATE_LABELS[TaskType.StateEnum.completed] },
-    { value: TaskType.StateEnum.failed, label: TASK_STATE_LABELS[TaskType.StateEnum.failed] },
-    { value: TaskType.StateEnum.canceled, label: TASK_STATE_LABELS[TaskType.StateEnum.canceled] },
+    { value: TaskType.StateEnum.Pending, label: TASK_STATE_LABELS[TaskType.StateEnum.Pending] },
+    { value: TaskType.StateEnum.Running, label: TASK_STATE_LABELS[TaskType.StateEnum.Running] },
+    { value: TaskType.StateEnum.Completed, label: TASK_STATE_LABELS[TaskType.StateEnum.Completed] },
+    { value: TaskType.StateEnum.Failed, label: TASK_STATE_LABELS[TaskType.StateEnum.Failed] },
+    { value: TaskType.StateEnum.Canceled, label: TASK_STATE_LABELS[TaskType.StateEnum.Canceled] },
   ];
 
   // Task Detail 概念类型标签
-  const CONCEPT_TYPE_LABELS: Record<TaskType.conceptTypeEnum, string> = {
-    [TaskType.conceptTypeEnum.object]: intl.get('Task.objectClass'),
+  const CONCEPT_TYPE_LABELS: Record<TaskType.ConceptTypeEnum, string> = {
+    [TaskType.ConceptTypeEnum.Object]: intl.get('Task.objectClass'),
   };
 
   // Task Detail 概念类型选项
   const CONCEPT_TYPE_OPTIONS = [
     { value: '', label: intl.get('Global.all') },
-    { value: TaskType.conceptTypeEnum.object, label: CONCEPT_TYPE_LABELS[TaskType.conceptTypeEnum.object] },
+    { value: TaskType.ConceptTypeEnum.Object, label: CONCEPT_TYPE_LABELS[TaskType.ConceptTypeEnum.Object] },
   ];
 
   // ObjectCreateAndEdit - LogicAttribute 值来源选项
@@ -105,8 +105,8 @@ export const useConstants = () => {
 
   // Action 排序菜单项
   const ACTION_MENU_SORT_ITEMS: MenuProps['items'] = [
-    { key: 'name', label: intl.get('Global.sortByName') },
-    { key: 'update_time', label: intl.get('Global.sortByUpdateTime') },
+    { key: 'name', label: intl.get('Global.sortByNameLabel') },
+    { key: 'update_time', label: intl.get('Global.sortByUpdateTimeLabel') },
   ];
 
   // Action 行动类型标签
@@ -139,8 +139,8 @@ export const useConstants = () => {
 
   // Edge 排序菜单项(使用 Global 通用字段)
   const EDGE_MENU_SORT_ITEMS: MenuProps['items'] = [
-    { key: 'name', label: intl.get('Global.sortByName') },
-    { key: 'update_time', label: intl.get('Global.sortByUpdateTime') },
+    { key: 'name', label: intl.get('Global.sortByNameLabel') },
+    { key: 'update_time', label: intl.get('Global.sortByUpdateTimeLabel') },
   ];
 
   // EdgeCreateAndEdit - 关系关联类型选项

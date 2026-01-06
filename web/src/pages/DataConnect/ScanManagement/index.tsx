@@ -8,9 +8,9 @@ import ContainerIsVisible, { getTypePermissionOperation, matchPermission, PERMIS
 import { PAGINATION_DEFAULT, DATE_FORMAT } from '@/hooks/useConstants';
 import { StateConfigType } from '@/hooks/usePageState';
 import api from '@/services/dataConnect';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import scanManagementApi from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import HOOKS from '@/hooks';
 import { Table, Button, IconFont, Select } from '@/web-library/common';
 import { DatabaseTableSelect } from '../Components/DatabaseTableSelect';
@@ -43,8 +43,8 @@ const ScanManagement = (props: ScanManagementProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [filterValues, setFilterValues] = useState<{ keyword: string; status: ScanTaskType.Status }>({ keyword: '', status: 'all' }); // 表格的筛选条件
   const { message } = HOOKS.useGlobalContext();
-  const [allDataSource, setAllDataSource] = useState<DataConnectType.Data[]>([]);
-  const [dataSourceTree, setDataSourceTree] = useState<DataConnectType.Data[]>([]);
+  const [allDataSource, setAllDataSource] = useState<DataConnectType.DataSource[]>([]);
+  const [dataSourceTree, setDataSourceTree] = useState<DataConnectType.DataSource[]>([]);
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [databaseTableSelectOpen, setDatabaseTableSelectOpen] = useState(false);
   const [scanDetailVisible, setScanDetailVisible] = useState(false);
@@ -76,7 +76,7 @@ const ScanManagement = (props: ScanManagementProps): JSX.Element => {
   // 获取分组列表
   const getDataSourceList = async (): Promise<void> => {
     const res = await api.getDataSourceList({ limit: -1 });
-    const cur: DataConnectType.Data[] = res.entries
+    const cur: DataConnectType.DataSource[] = res.entries
       .filter((val) => !val.is_built_in && val.type != 'excel' && matchPermission(PERMISSION_CODES.SACN, val.operations))
       .map((val) => ({
         ...val.bin_data,

@@ -4,7 +4,7 @@ import { LeftOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
 import classNames from 'classnames';
 import { METRIC_TAB_KEYS } from '@/hooks/useConstants';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import { Drawer, Button, Title } from '@/web-library/common';
 import Detail from '../Detail';
 import Preview from '../Preview';
@@ -49,7 +49,7 @@ const DetailAndPreviewDrawer = (props: any) => {
   const getDetailData = async () => {
     try {
       setLoading(true);
-      const result = await api.getMetricModelById([previewData?._previewId]);
+      const result = await api.getMetricModelById(previewData?._previewId);
       setLoading(false);
       setSourceData({ ...result, _previewId: result?.id });
     } catch (error) {

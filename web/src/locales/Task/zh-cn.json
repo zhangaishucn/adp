@@ -18,6 +18,7 @@
     "searchClassName": "搜索类名",
     "sortByDuration": "按任务总耗时排序",
     "errorTitle": "错误信息",
-    "emptyDescription": "暂无任务数据"
+    "emptyDescription": "暂无任务数据",
+    "emptyCreate": "还没有任务数据？"
   }
 }

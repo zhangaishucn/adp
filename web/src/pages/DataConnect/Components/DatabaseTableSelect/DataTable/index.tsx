@@ -4,7 +4,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Input, Pagination, Checkbox } from 'antd';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
 import api from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import emptyImg from '@/assets/images/customDataView/empty.png';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';

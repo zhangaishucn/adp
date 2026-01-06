@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import intl from 'react-intl-universal';
 import { Form, FormInstance, Input, InputNumber, Radio, Select } from 'antd';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import { SCHEMA_REQUIRED_TYPES, USER_ID_REQUIRED_TYPES } from '../../utils';
 import styles from '../index.module.less';
 

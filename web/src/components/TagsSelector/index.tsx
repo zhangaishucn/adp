@@ -29,42 +29,36 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { Select } from 'antd';
-import getLocaleValue from '@/utils/get-locale-value/getLocaleValue';
-import Request from '@/services/request';
-import english from './locale/en-US';
-import chinese from './locale/zh-CN';
-
-const getIntl = getLocaleValue.bind(null, chinese, english); // 国际化
+import { getObjectTags } from '@/services/tag';
+import locales from './locales'; // 国际化
 
 const TagsSelector: React.FC<any> = (props: any) => {
-  const [tagsData, setTagsData] = useState<Array<{ tag: string; count: number }>>([]); // 从标签管理服务中get到的tags数据
+  const [tagsData, setTagsData] = useState<Array<{ tag: string; count: number }>>([]);
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   useEffect(() => {
     const getAllTags = async (): Promise<void> => {
-      const tagURL = 'api/mdl-data-model/v1/object-tags/';
-      const params = {
-        sort: 'tag', // 根据标签名排序
-        direction: 'asc', // 升序
-        limit: -1, // 不分页，返回所有标签
-      };
-      const res: any = await Request.get(tagURL, params);
-
-      setTagsData(res.entries);
+      const res = await getObjectTags({
+        sort: 'tag',
+        direction: 'asc',
+        limit: -1,
+      });
+      setTagsData(res.entries.map((item) => ({ tag: item.tag, count: item.count || 0 })));
     };
 
-    // 如果是老模块，则不接入新标签管理服务，下拉列表为空
     if (!props.isOld) getAllTags();
   }, []);
 
   const handleChange = (val: Array<string>): void => {
-    // val：组件接收到的用户输入的值
-    // newVal：经过处理后的值，传递给外部onChange事件（props.onChange）
-    // 外部validator接收到的value即为此处的newVal
     const newVal = val
-      .map((i) => i.trim()) // 标签前后不能有空格
-      .filter((i) => i) // 标签不能为空字符串
-      .sort(); // 排序
+      .map((i) => i.trim())
+      .filter((i) => i)
+      .sort();
 
     if (props.onChange) {
       props.onChange(newVal);
@@ -74,9 +68,9 @@ const TagsSelector: React.FC<any> = (props: any) => {
   return (
     <Select
       mode="tags"
-      value={props.value} // 组件展示的value，为外部传入的value，即props.onChange接收到的value
+      value={props.value}
       onChange={handleChange}
-      placeholder={props.placeholder ?? getIntl('addTags')} // placeholder可选，若外部不传入，则为“添加标签”
+      placeholder={props.placeholder ?? intl.get('TagsSelector.addTags')}
       allowClear
       style={{ width: '100%' }}
     >
@@ -93,15 +87,13 @@ const TagsSelector: React.FC<any> = (props: any) => {
 export default TagsSelector;
 
 export const tagsSelectorValidator = (_rule: any, value: Array<string> | undefined) => {
-  if (value && value.length > 5) return Promise.reject(new Error(getIntl('tagQuantityLimitInfo')));
+  if (value && value.length > 5) return Promise.reject(new Error(intl.get('TagsSelector.tagQuantityLimitInfo')));
   if (value && value.length) {
-    const regex = /^[^/:?\\"<>|：?“”？！‘’,.'《》[\]%&*$^!=#{}]*$/;
+    const regex = /^[^/:?\\"<>|：?""？！《》,#[]{}%&*$^!=.'']*$/;
     value.forEach((tag) => {
-      if (tag.length > 40) return Promise.reject(new Error(getIntl('tagLengthLimitInfo')));
-      if (!regex.test(tag)) return Promise.reject(new Error(getIntl('tagParticularCharacter')));
+      if (tag.length > 40) return Promise.reject(new Error(intl.get('TagsSelector.tagLengthLimitInfo')));
+      if (!regex.test(tag)) return Promise.reject(new Error(intl.get('TagsSelector.tagParticularCharacter')));
     });
   }
   return Promise.resolve();
 };
-
-export const tagQuantityLimitInfo = getIntl('tagQuantityLimitInfo');

@@ -5,7 +5,8 @@ import { Dropdown, Empty, Modal } from 'antd';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import { formatMsToHMS } from '@/utils/time';
-import TaskType from '@/services/task/type';
+import * as TaskType from '@/services/task/type';
+import createImage from '@/assets/images/common/create.svg';
 import emptyImage from '@/assets/images/common/empty.png';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
 import ENUMS from '@/enums';
@@ -17,7 +18,7 @@ import Detail from './Detail';
 import styles from './index.module.less';
 
 interface TProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission: boolean;
 }
 
@@ -30,7 +31,7 @@ export const StateItem = ({ state, error }: { state: TaskType.StateEnum; error?:
       <div className={styles['task-state']}>
         <div className={classnames(styles['task-state-icon'], styles[state])}></div>
         <div className={styles['task-state']}>{TASK_STATE_LABELS[state]}</div>
-        {(state === TaskType.StateEnum.failed || state === TaskType.StateEnum.canceled) && (
+        {(state === TaskType.StateEnum.Failed || state === TaskType.StateEnum.Canceled) && (
           <IconFont type="icon-dip-Details" onClick={() => setErrorOpen(true)} />
         )}
       </div>
@@ -59,7 +60,7 @@ const Task = (props: TProps) => {
   const { sort, direction } = pageState || {};
 
   // 使用全局 Hook 获取国际化常量
-  const { TASK_MENU_SORT_ITEMS, JOB_TYPE_LABELS, JOB_TYPE_OPTIONS, TASK_STATE_LABELS, TASK_STATE_OPTIONS } = HOOKS.useConstants();
+  const { TASK_MENU_SORT_ITEMS, JOB_TYPE_LABELS, JOB_TYPE_OPTIONS, TASK_STATE_OPTIONS } = HOOKS.useConstants();
 
   useEffect(() => {
     if (!knId) return;
@@ -76,7 +77,7 @@ const Task = (props: TProps) => {
       if (name_pattern) params.name_pattern = name_pattern;
       if (job_type) params.job_type = job_type;
       if (state) params.state = state;
-      const result = await SERVICE.task.taskGet(knId, params);
+      const result = await SERVICE.task.getTaskList(knId, params);
       const { entries = [], total_count = 0 } = result || {};
       setDataSource(entries);
       onUpdateState({ ...params, ..._pageState, count: total_count });
@@ -118,7 +119,7 @@ const Task = (props: TProps) => {
   const onCreateTask = async (values: NewTaskFormValues) => {
     try {
       setCreateLoading(true);
-      const res = await SERVICE.task.taskPost(knId, {
+      const res = await SERVICE.task.createTask(knId, {
         name: values.name,
         job_type: values.jobType,
       });
@@ -147,7 +148,7 @@ const Task = (props: TProps) => {
   /** 删除 */
   const onDelete = async (taskId: string) => {
     try {
-      await SERVICE.task.taskDelete(knId, taskId);
+      await SERVICE.task.deleteTask(knId, taskId);
       getList();
       message.success(intl.get('Global.deleteSuccess'));
     } catch (error) {
@@ -159,7 +160,7 @@ const Task = (props: TProps) => {
   const onDeleteConfirm = (record: any) => {
     if (!record?.id) return;
     modal.confirm({
-      title: intl.get('Global.deleteConfirm'),
+      title: intl.get('Global.tipTitle'),
       closable: true,
       icon: <ExclamationCircleFilled />,
       content: intl.get('Global.deleteConfirm', { name: `"${record?.name}"` }),
@@ -283,9 +284,28 @@ const Task = (props: TProps) => {
         pagination={pagination}
         onChange={onTableChange}
         locale={{
+          // emptyText:
+          //   filterValues.name_pattern || filterValues.state !== 'all' || filterValues.job_type !== 'all' ? (
+          //     <Empty image={noSearchResultImage} description={intl.get('Global.emptyNoSearchResult')} />
+          //   ) : (
+          //     <Empty image={emptyImage} description={intl.get('Task.emptyDescription')} />
+          //   ),
           emptyText:
-            filterValues.name_pattern || filterValues.state !== 'all' || filterValues.job_type !== 'all' ? (
+            filterValues.name_pattern || filterValues.state !== '' || filterValues.job_type !== '' ? (
               <Empty image={noSearchResultImage} description={intl.get('Global.emptyNoSearchResult')} />
+            ) : isPermission ? (
+              <Empty
+                image={createImage}
+                description={
+                  <span>
+                    {intl.get('Task.emptyCreate')}
+                    <Button type="link" style={{ padding: 0 }} onClick={() => onOpenCreateTask()}>
+                      {intl.get('Global.emptyCreateButton')}
+                    </Button>
+                    {intl.get('Global.emptyCreateTip')}
+                  </span>
+                }
+              />
             ) : (
               <Empty image={emptyImage} description={intl.get('Task.emptyDescription')} />
             ),

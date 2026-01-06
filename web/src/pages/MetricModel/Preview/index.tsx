@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import arGuid from '@/utils/ar-guid';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import { Button, Title } from '@/web-library/common';
 import { queryType as QUERY_TYPE, METRIC_TYPE } from '../type';
 import Filter from './Filter';

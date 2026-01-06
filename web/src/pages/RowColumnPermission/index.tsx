@@ -10,7 +10,7 @@ import useAuthorization from '@/hooks/useAuthorization';
 import { DATE_FORMAT } from '@/hooks/useConstants';
 import { formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
 import SERVICE from '@/services/index';
-import RowColumnPermissionType from '@/services/rowColumnPermission/type';
+import * as RowColumnPermissionType from '@/services/rowColumnPermission/type';
 import HOOKS from '@/hooks';
 import { Button, Table, IconFont } from '@/web-library/common';
 import CreateRuleDrawer from './CreateRuleDrawer';

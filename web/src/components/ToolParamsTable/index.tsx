@@ -3,7 +3,7 @@ import { Select, Table, Empty, Space, Input, Tooltip } from 'antd';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { extractParamsByToolList } from '@/utils/extractSchemaParams';
-import ActionType from '@/services/action/type';
+import * as ActionType from '@/services/action/type';
 import objectApi from '@/services/object';
 import toolApi from '@/services/tool';
 import toolParamEmpty from '@/assets/images/action/action_type_tool_param_empty.svg';

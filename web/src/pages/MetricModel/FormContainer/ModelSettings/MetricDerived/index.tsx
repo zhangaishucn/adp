@@ -8,7 +8,7 @@ import AddTagBySort from '@/components/AddTagBySort';
 import ResultFilter from '@/components/ResultFilter';
 import { INIT_FILTER } from '@/hooks/useConstants';
 import { formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import { Text, Button, IconFont } from '@/web-library/common';
 import DataFilter from '@/web-library/components/DataFilter';
 import UTILS from '@/web-library/utils';

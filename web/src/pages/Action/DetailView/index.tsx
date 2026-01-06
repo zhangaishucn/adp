@@ -10,7 +10,7 @@ import DataFilterNew from '@/components/DataFilterNew';
 import { renderObjectTypeLabel } from '@/components/ObjectSelector';
 import ToolParamsTable from '@/components/ToolParamsTable';
 import actionApi from '@/services/action';
-import ActionType from '@/services/action/type';
+import * as ActionType from '@/services/action/type';
 import api from '@/services/tool';
 import viewImage from '@/assets/images/action/action_view.svg';
 import HOOKS from '@/hooks';

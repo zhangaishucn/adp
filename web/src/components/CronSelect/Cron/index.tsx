@@ -1,10 +1,10 @@
 /** 生成 cron 字符串的 React 组件 */
 import React, { useEffect, useMemo, useState } from 'react';
+import intl from 'react-intl-universal';
 import { useDeepCompareEffect, useSetState } from 'ahooks';
 import { Button, Card, Tabs } from 'antd';
 import classNames from 'classnames';
 import { compact, defaultTo, map, zipObject } from 'lodash';
-import { getIntl } from '../CronSelect';
 import DayConfigPanel from './components/DayConfigPanel';
 import HourPane from './components/HourPane';
 import MinutePane from './components/MinutePane';
@@ -107,43 +107,43 @@ const Cron = React.memo<CronProps>((props): JSX.Element => {
   const tabItems = useMemo((): any => {
     const items = compact([
       panesShow.second && {
-        label: getIntl('second'),
+        label: intl.get('CronSelect.second'),
         key: SECOND,
         value: SECOND,
         children: renderPane(SecondPane, second, SECOND),
       },
       panesShow.minute && {
-        label: getIntl('minute'),
+        label: intl.get('CronSelect.minute'),
         key: MINUTE,
         value: MINUTE,
         children: renderPane(MinutePane, minute, MINUTE),
       },
       panesShow.hour && {
-        label: getIntl('hour'),
+        label: intl.get('CronSelect.hour'),
         key: HOUR,
         value: HOUR,
         children: renderPane(HourPane, hour, HOUR),
       },
       panesShow.day && {
-        label: getIntl('day'),
+        label: intl.get('CronSelect.day'),
         key: DAY,
         value: DAY,
         children: renderPane(DayConfigPanel, day, DAY),
       },
       panesShow.week && {
-        label: getIntl('week'),
+        label: intl.get('CronSelect.week'),
         key: WEEK,
         value: WEEK,
         children: renderPane(WeekPane, week, WEEK),
       },
       panesShow.month && {
-        label: getIntl('month'),
+        label: intl.get('CronSelect.month'),
         key: MONTH,
         value: MONTH,
         children: renderPane(MonthPane, month, MONTH),
       },
       panesShow.year && {
-        label: getIntl('year'),
+        label: intl.get('CronSelect.year'),
         key: YEAR,
         value: YEAR,
         children: renderPane(YearPane, year, YEAR),

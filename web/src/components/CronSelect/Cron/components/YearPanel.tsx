@@ -1,7 +1,8 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useState } from 'react';
+import intl from 'react-intl-universal';
 import { InputNumber, Radio } from 'antd';
-import { getIntl } from '../../CronSelect';
+import locales from '../../locales';
 import { useStateContext } from '../Context';
 
 const RadioGroup = Radio.Group;
@@ -33,6 +34,10 @@ function YearPane(props: any): JSX.Element {
   if (isFirstRender.current !== false) {
     isFirstRender.current = true;
   }
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   useEffect(() => {
     if (value === '*') {
@@ -119,30 +124,30 @@ function YearPane(props: any): JSX.Element {
   return (
     <RadioGroup name="radiogroup" value={currentRadio} onChange={onChangeRadio}>
       <Radio style={radioStyle} value={1}>
-        {getIntl('everyYear')}
+        {intl.get('CronSelect.everyYear')}
       </Radio>
 
       <Radio style={radioStyle} value={2}>
-        {getIntl('noSpecify')}
+        {intl.get('CronSelect.noSpecify')}
       </Radio>
 
       <Radio style={radioStyle} value={3}>
         <>
-          {getIntl('from')}&nbsp;
+          {intl.get('CronSelect.from')}&nbsp;
           {aTobA}
           &nbsp;-&nbsp;
           {aTobB}
-          &nbsp;{getIntl('excuteOnceEveryYear')}
+          &nbsp;{intl.get('CronSelect.excuteOnceEveryYear')}
         </>
       </Radio>
 
       <Radio style={radioStyle} value={4}>
         <>
-          {getIntl('from')}&nbsp;
+          {intl.get('CronSelect.from')}&nbsp;
           {aStartTobA}
-          &nbsp;{getIntl('yearStart')}&nbsp;
+          &nbsp;{intl.get('CronSelect.yearStart')}&nbsp;
           {aStartTobB}
-          &nbsp;{getIntl('yearExcuteOnce')}
+          &nbsp;{intl.get('CronSelect.yearExcuteOnce')}
         </>
       </Radio>
     </RadioGroup>

@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import { Collapse } from 'antd';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import DataAttribute from './DataAttribute';
 import styles from './index.module.less';
 import LogicAttribute from './LogicAttribute';

@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import Tags from '@/components/Tags';
 import api from '@/services/object';
-import ObjectType from '@/services/object/type';
+import * as ObjectType from '@/services/object/type';
 import createImage from '@/assets/images/common/create.svg';
 import emptyImage from '@/assets/images/common/empty.png';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
@@ -21,7 +21,7 @@ import Detail from './Detail';
 import styles from './index.module.less';
 
 interface TProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission: boolean;
 }
 
@@ -109,7 +109,7 @@ const KnowledgeNetwork = (props: TProps) => {
     const name = _.map(items, (item) => `「${item?.name}」`).join('、');
     const length = items.length || 0;
     modal.confirm({
-      title: intl.get('Global.deleteConfirm'),
+      title: intl.get('Global.tipTitle'),
       closable: true,
       icon: <ExclamationCircleFilled />,
       content: length > 1 ? intl.get('Global.deleteConfirmMultiple', { count: length }) : intl.get('Global.deleteConfirm', { name }),

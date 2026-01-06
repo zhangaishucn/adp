@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { Handle, Position } from '@xyflow/react';
 import { Input } from 'antd';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';
 

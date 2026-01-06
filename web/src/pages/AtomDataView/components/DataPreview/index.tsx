@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { Table, Button, Switch, Form, Space, Input } from 'antd';
 import atomDataViewApi from '@/services/atomDataView';
-import AtomDataViewType from '@/services/atomDataView/type';
+import * as AtomDataViewType from '@/services/atomDataView/type';
 import { Drawer } from '@/web-library/common';
 import styles from './index.module.less';
 

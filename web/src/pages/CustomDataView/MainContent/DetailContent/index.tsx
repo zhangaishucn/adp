@@ -29,7 +29,7 @@ export const getInitDataScope = () => [
   {
     id: 'node-output',
     type: NodeType.OUTPUT,
-    title: intl.get('CustomDataView.GraphBox.outputView'),
+    title: intl.get('CustomDataView.outputView'),
     input_nodes: [],
     output_nodes: [],
     config: {},

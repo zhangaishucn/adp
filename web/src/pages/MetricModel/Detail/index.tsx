@@ -10,6 +10,7 @@ import AddTag from '@/components/AddTag';
 import JsonCodeInput from '@/components/JsonCodeInput';
 import { formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
 import DataFilter from '@/web-library/components/DataFilter';
+import { METRIC_TYPE_LABEL } from '..';
 import { getNewStr, getNewStrAry } from '../FormContainer/utils';
 import { queryType as QueryType, METRIC_TYPE, getTaskStatus, isPersistenceTaskStatus, persistenceTaskStatus, persistenceTaskStatusColor } from '../type';
 import Collapse from './Collapse';
@@ -176,7 +177,7 @@ const Detail = (props: any) => {
     return {
       title: intl.get('MetricModel.modelConfig'),
       content: [
-        { name: intl.get('MetricModel.metricType'), value: intl.get(`MetricModel.${metricType}`) || '--' },
+        { name: intl.get('MetricModel.metricType'), value: METRIC_TYPE_LABEL[metricType] || '--' },
         { name: intl.get('MetricModel.queryType'), value: queryType },
         { name: intl.get('Global.dataView'), value: <DataViewDetail dataSourceId={dataSource?.id} />, isOneLine: true },
         ...formulaFieldCol,
@@ -246,7 +247,7 @@ const Detail = (props: any) => {
     return {
       title: intl.get('MetricModel.modelConfig'),
       content: [
-        { name: intl.get('MetricModel.metricType'), value: intl.get(`MetricModel.${metricType}`) || '--' },
+        { name: intl.get('MetricModel.metricType'), value: METRIC_TYPE_LABEL[metricType] || '--' },
         { name: intl.get('MetricModel.atomicMetric'), value: <MetricModelDetail dataSourceId={dependMetricModel?.id} />, isOneLine: true },
         { name: intl.get('MetricModel.unit'), value: unit || '--' },
         { name: intl.get('MetricModel.unitType'), value: unitType || '--' },
@@ -281,7 +282,7 @@ const Detail = (props: any) => {
     return {
       title: intl.get('MetricModel.modelConfig'),
       content: [
-        { name: intl.get('MetricModel.metricType'), value: intl.get(`MetricModel.${metricType}`) || '--' },
+        { name: intl.get('MetricModel.metricType'), value: METRIC_TYPE_LABEL[metricType] || '--' },
         ...analysisDimensionsCol,
         { name: intl.get('MetricModel.compoundExpression'), isOneLine: true, value: <Input.TextArea value={formula} readOnly autoSize /> },
         { name: intl.get('MetricModel.unit'), value: unit || '--' },
