@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import intl from 'react-intl-universal';
 import { useHistory } from 'react-router-dom';
 import { LeftOutlined } from '@ant-design/icons';
@@ -5,6 +6,7 @@ import { Divider } from 'antd';
 import HOOKS from '@/hooks';
 import { Text, Title, Steps } from '@/web-library/common';
 import styles from './index.module.less';
+import locales from './locales';
 
 interface TProps {
   title?: string;
@@ -18,10 +20,14 @@ const HeaderSteps = (props: TProps) => {
   const history = useHistory();
   const { modal } = HOOKS.useGlobalContext();
 
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   const goBack = () => {
     modal.confirm({
-      title: intl.get('Global.confirmBackTitle'),
-      content: intl.get('Global.confirmBackContent'),
+      title: intl.get('HeaderSteps.confirmBackTitle'),
+      content: intl.get('HeaderSteps.confirmBackContent'),
       onOk: () => {
         goBackProp ? goBackProp() : history.goBack();
       },
@@ -33,7 +39,7 @@ const HeaderSteps = (props: TProps) => {
       <div className={styles['box-exit']}>
         <div className="g-pointer g-flex-align-center" onClick={goBack}>
           <LeftOutlined style={{ marginTop: 2, marginRight: 6 }} />
-          <Text>{intl.get('Global.exit')}</Text>
+          <Text>{intl.get('HeaderSteps.exit')}</Text>
         </div>
         <Divider type="vertical" style={{ margin: '0 12px' }} />
         <Title>{title}</Title>

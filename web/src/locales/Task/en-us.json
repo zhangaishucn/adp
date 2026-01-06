@@ -18,6 +18,7 @@
     "searchClassName": "Search Class Name",
     "sortByDuration": "Sort by Task Total Duration",
     "errorTitle": "Error Information",
-    "emptyDescription": "No task data available"
+    "emptyDescription": "No task data available",
+    "emptyCreate": "No task data available?"
   }
 }

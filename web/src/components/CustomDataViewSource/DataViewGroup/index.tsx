@@ -87,7 +87,7 @@ const DataViewGroup: React.FC<{ onSelect: (selectedKeys: any, info?: any) => voi
   return (
     <div className={styles['data-group-box']}>
       <div className={`${styles['all-item']} ${!(selectedKeys.length > 0) && styles['all-item-active']}`} onClick={() => onSelect([])}>
-        {intl.get('Global.all')}
+        {intl.get('CustomDataViewSource.all')}
       </div>
       <Tree
         blockNode

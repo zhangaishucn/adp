@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Form } from 'antd';
 import _ from 'lodash';
 import api from '@/services/action';
-import ActionType from '@/services/action/type';
+import * as ActionType from '@/services/action/type';
 import HOOKS from '@/hooks';
 import { Button } from '@/web-library/common';
 import BasicInformation from './BasicInformation';

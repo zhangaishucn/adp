@@ -50,7 +50,7 @@ const EdgeCreateAndEdit = () => {
   /** 获取edge详情信息，用于编辑 */
   const getEdgeDetail = async () => {
     try {
-      const result = await SERVICE.edge.edgeGetDetail(knId, id);
+      const result = await SERVICE.edge.getEdgeDetail(knId, id);
       const data = result?.[0];
       if (!data) return;
       // 构建基本信息的值
@@ -100,11 +100,11 @@ const EdgeCreateAndEdit = () => {
     setLoading(true);
     try {
       if (isEditPage) {
-        await SERVICE.edge.edgePut(knId, id, postData);
+        await SERVICE.edge.updateEdge(knId, id, postData);
         message.success(intl.get('Global.editSuccess'));
         goBack();
       } else {
-        const result = await SERVICE.edge.edgePost(knId, postData);
+        const result = await SERVICE.edge.createEdge(knId, postData);
         message.success(intl.get('Global.createSuccess'));
         if (result?.[0]?.id) goBack();
       }
@@ -159,8 +159,8 @@ const EdgeCreateAndEdit = () => {
           </Button>
           <Button
             onClick={() => {
-              if (Request.cancels?.edgePost) Request.cancels.edgePost();
-              if (Request.cancels?.edgePut) Request.cancels.edgePut();
+              if (Request.cancels?.createEdge) Request.cancels.createEdge();
+              if (Request.cancels?.updateEdge) Request.cancels.updateEdge();
               goBack();
             }}
           >

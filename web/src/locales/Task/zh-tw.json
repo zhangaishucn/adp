@@ -18,6 +18,7 @@
     "searchClassName": "搜索類名",
     "sortByDuration": "按任務總耗時排序",
     "errorTitle": "錯誤信息",
-    "emptyDescription": "暫無任務數據"
+    "emptyDescription": "暫無任務數據",
+    "emptyCreate": "還沒有任務數據？"
   }
 }

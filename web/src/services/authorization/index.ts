@@ -1,33 +1,31 @@
-import API from '@/services/api';
 import Request from '../request';
+import * as AuthorizationType from './type';
 
-/** 获取资源操作 */
-export type AuthorizationGetResourceType = { id: string; type: string }[];
+const BASE_URL = '/api/authorization/v1';
 
-const resourceTypes = [
-  'knowledge_network',
-  'metric_model',
-  'objective_model',
-  'event_model',
-  'data_dict',
-  'trace_model',
-  'data_view',
-  'vega_logic_view',
-  'field_model',
-  'index_base',
-  'index_base_policy',
-  'repository',
-  'stream_data_pipeline',
-  'data_connection',
+const DEFAULT_RESOURCE_TYPES = [
+  AuthorizationType.ResourceType.KnowledgeNetwork,
+  AuthorizationType.ResourceType.MetricModel,
+  AuthorizationType.ResourceType.ObjectiveModel,
+  AuthorizationType.ResourceType.EventModel,
+  AuthorizationType.ResourceType.DataDict,
+  AuthorizationType.ResourceType.TraceModel,
+  AuthorizationType.ResourceType.DataView,
+  AuthorizationType.ResourceType.VegaLogicView,
+  AuthorizationType.ResourceType.FieldModel,
+  AuthorizationType.ResourceType.IndexBase,
+  AuthorizationType.ResourceType.IndexBasePolicy,
+  AuthorizationType.ResourceType.Repository,
+  AuthorizationType.ResourceType.StreamDataPipeline,
+  AuthorizationType.ResourceType.DataConnection,
 ];
 
-const authorizationGetResourceType: any = async (data?: AuthorizationGetResourceType) => {
-  const res = await Request.post(API.authorizationGetResourceType, { method: 'GET', resource_types: data || resourceTypes });
-
-  return res;
+export const getResourceTypeOperation = async (data?: AuthorizationType.GetResourceTypeRequest): Promise<AuthorizationType.GetResourceTypeResponse> => {
+  const resourceTypes = data?.map((item) => item.type) || DEFAULT_RESOURCE_TYPES;
+  return Request.post(`${BASE_URL}/resource-type-operation`, { method: 'GET', resource_types: resourceTypes });
 };
 
 export default {
-  resourceTypes,
-  authorizationGetResourceType,
+  DEFAULT_RESOURCE_TYPES,
+  getResourceTypeOperation,
 };

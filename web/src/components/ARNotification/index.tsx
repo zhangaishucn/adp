@@ -1,11 +1,10 @@
 import React from 'react';
+import intl from 'react-intl-universal';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
-import getLocaleValue from '@/utils/get-locale-value';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 
 notification.config({
   getContainer: () => document.getElementById('vega-root') as HTMLElement, // 子应用的根容器
@@ -27,6 +26,11 @@ interface NotificationParams extends Omit<ArgsProps, 'type'> {
   detail?: string;
 }
 class Collapse extends React.Component<Pick<NotificationParams, 'description' | 'detail' | 'message'>, { isShow: boolean }> {
+  constructor(props: any) {
+    super(props);
+    intl.load(locales);
+  }
+
   public state = {
     isShow: false,
   };
@@ -45,7 +49,7 @@ class Collapse extends React.Component<Pick<NotificationParams, 'description' | 
         {!!detail && (
           <>
             <p onClick={this.onClick} className={styles['detail-title']}>
-              {getLocaleValue('detail', { localeZh }, { localeEn })}
+              {intl.get('ARNotification.detail')}
               <span id="notification-detail-icon" className={`${isShow ? styles['icon-collapse-open'] : styles['icon-collapse-close']}`}>
                 <IconFont type="icon-down"></IconFont>
               </span>

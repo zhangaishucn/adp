@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, Descriptions, Drawer, Table } from 'antd';
+import { Collapse, Descriptions, Table } from 'antd';
 import api from '@/services/customDataView/index';
+import { Drawer } from '@/web-library/common';
 
 const DataViewDetail: React.FC<{
   id: string;

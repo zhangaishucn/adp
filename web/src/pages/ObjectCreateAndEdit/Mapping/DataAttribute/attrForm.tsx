@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import intl from 'react-intl-universal';
 import { Form, Radio, Switch } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import { IconFont, Input } from '@/web-library/common';
 import styles from './index.module.less';
 

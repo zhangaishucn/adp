@@ -11,7 +11,7 @@ import { PAGINATION_DEFAULT, DATE_FORMAT } from '@/hooks/useConstants';
 import { StateConfigType } from '@/hooks/usePageState';
 import atomDataViewApi from '@/services/atomDataView';
 import api from '@/services/dataConnect';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import scanApi from '@/services/scanManagement';
 import HOOKS from '@/hooks';
 import { Table, Button, Select } from '@/web-library/common';
@@ -34,11 +34,11 @@ const DataSource = (props: DataSourceProps): JSX.Element => {
   const history = useHistory();
   const { pageState, pagination, onUpdateState } = HOOKS.usePageState({ sort: 'updated_at' }); // 分页信息
   const { connectors, getTableType } = props;
-  const [tableData, setTableData] = useState<DataConnectType.Data[]>([]);
+  const [tableData, setTableData] = useState<DataConnectType.DataSource[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filterValues, setFilterValues] = useState<{ keyword: string; type: string }>({ keyword: '', type: 'all' }); // 表格的筛选条件
   const [detailDrawerData, setDetailDrawerData] = useState<DataItem[] | null>(null);
-  const [detail, setDetail] = useState<DataConnectType.Data>();
+  const [detail, setDetail] = useState<DataConnectType.DataSource>();
   const [excelFormOpen, setExcelFormOpen] = useState<boolean>(false);
   const { sort, direction } = pageState || {};
   const { message } = HOOKS.useGlobalContext();
@@ -240,7 +240,7 @@ const DataSource = (props: DataSourceProps): JSX.Element => {
     setDetailDrawerData(cur);
   };
 
-  const createScanTask = async (record: DataConnectType.Data) => {
+  const createScanTask = async (record: DataConnectType.DataSource) => {
     await scanApi.createScanTask({
       scan_name: record.name,
       ds_info: { ds_id: record.id, ds_type: record.type },
@@ -249,7 +249,7 @@ const DataSource = (props: DataSourceProps): JSX.Element => {
     message.success(intl.get('Global.scanTaskSuccess'));
   };
 
-  const postTestConnect = async (record: DataConnectType.Data): Promise<void> => {
+  const postTestConnect = async (record: DataConnectType.DataSource): Promise<void> => {
     const { bin_data, type } = record;
 
     const res = await api.postTestConnect({
@@ -263,7 +263,7 @@ const DataSource = (props: DataSourceProps): JSX.Element => {
   };
 
   /** 操作按钮 */
-  const onOperate = (key: string, record: DataConnectType.Data) => {
+  const onOperate = (key: string, record: DataConnectType.DataSource) => {
     if (key === 'view') {
       getModalContent(record.id);
     }
@@ -303,7 +303,7 @@ const DataSource = (props: DataSourceProps): JSX.Element => {
       minWidth: 80,
       __fixed: true,
       __selected: true,
-      render: (_value: unknown, record: DataConnectType.Data) => {
+      render: (_value: unknown, record: DataConnectType.DataSource) => {
         const allOperations = [
           { key: 'view', label: intl.get('Global.view'), visible: matchPermission(PERMISSION_CODES.VIEW, record.operations) },
           {
@@ -353,7 +353,7 @@ const DataSource = (props: DataSourceProps): JSX.Element => {
       minWidth: 220,
       __fixed: true,
       __selected: true,
-      render: (_: string, row: DataConnectType.Data): string => row.bin_data.host || '--',
+      render: (_: string, row: DataConnectType.DataSource): string => row.bin_data.host || '--',
     },
     {
       title: intl.get('Global.operationUser'),

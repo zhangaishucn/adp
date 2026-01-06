@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { PAGINATION_DEFAULT, DATE_FORMAT } from '@/hooks/useConstants';
 import { getScanTaskInfo, retryScanTask } from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import { Drawer } from '@/web-library/common';
 import styles from './index.module.less';
 import { getScanStatusColor } from '../../utils';

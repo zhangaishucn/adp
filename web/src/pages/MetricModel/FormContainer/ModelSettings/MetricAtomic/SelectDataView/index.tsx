@@ -4,6 +4,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import { useAsyncEffect } from 'ahooks';
 import _ from 'lodash';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
+import { formatKeyOfObjectToCamel } from '@/utils/format-objectkey-structure';
 import SERVICE from '@/services';
 import { Button, Drawer, Input, Table, IconFont, Title, Text } from '@/web-library/common';
 import Detail, { logWareHouseExpandData } from './Detail';
@@ -12,7 +13,7 @@ import styles from './index.module.less';
 const SelectDataView = (props: any) => {
   const { value, onChange } = props;
   const [open, setOpen] = useState(false); // 侧边栏控制字段
-  const [filter, setFilter] = useState({ namePattern: '' });
+  const [filter, setFilter] = useState({ name_pattern: '' });
   const [dataSource, setDataSource] = useState<any>([]); // 表格数据
   const [selectedRow, setSelectedRow] = useState<any>([]); // 选中行
   const [selectedRowKeys, setSelectedRowKeys] = useState<any>([]); // 选中行 keys
@@ -24,8 +25,8 @@ const SelectDataView = (props: any) => {
 
   /** 获取选择数据视图 */
   const getDataViewList: any = async (filter = {}) => {
-    const res = await SERVICE.dataView.getDataList({ limit: -1, ...filter });
-    const { totalCount: total, entries } = res;
+    const res = await SERVICE.dataView.getDataViewList({ limit: -1, ...filter });
+    const { total_count: total, entries } = res;
     return { data: entries, total };
   };
 
@@ -55,7 +56,7 @@ const SelectDataView = (props: any) => {
 
   const onChangeFilterName = _.debounce((data) => {
     const value = data.target.value;
-    const newFilter = { ...filter, namePattern: value };
+    const newFilter = { ...filter, name_pattern: value };
     setFilter(newFilter);
     getDataList({ pageSize: 10, current: 1, _filter: newFilter });
   }, 300);
@@ -63,7 +64,7 @@ const SelectDataView = (props: any) => {
   /** 切换侧边栏的的展示状态 */
   const toggleDrawer = (visible: boolean) => {
     setOpen(visible);
-    if (!visible) setFilter({ namePattern: '' });
+    if (!visible) setFilter({ name_pattern: '' });
   };
 
   /** 表格的选中状态 */
@@ -82,8 +83,9 @@ const SelectDataView = (props: any) => {
   }, [value]);
   /** 确定选择 */
   const handleClickConfirm = async (value?: any) => {
-    const data = await SERVICE.dataView.getDataViewById(value ? [value] : selectedRowKeys);
-    const newData = _.map(data, (item: any) => {
+    const data = await SERVICE.dataView.getDataViewDetail(value ? [value] : selectedRowKeys);
+    const Data = formatKeyOfObjectToCamel(data);
+    const newData = _.map(Data, (item: any) => {
       if (value) item.__isEdit = true;
       return item;
     });
@@ -100,8 +102,9 @@ const SelectDataView = (props: any) => {
 
   useAsyncEffect(async () => {
     if (expandedRowKeys.length) {
-      const data = await SERVICE.dataView.getDataViewById(expandedRowKeys);
-      setExpandedRowData(data);
+      const data = await SERVICE.dataView.getDataViewDetail(expandedRowKeys[0]);
+      const Data = formatKeyOfObjectToCamel(data);
+      setExpandedRowData(Data);
     }
   }, [expandedRowKeys]);
 

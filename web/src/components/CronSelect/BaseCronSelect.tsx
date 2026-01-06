@@ -1,11 +1,12 @@
 /** 基于 Cron 封装的基础组件 */
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { useControllableValue } from 'ahooks';
 import { Button } from 'antd';
 import classNames from 'classnames';
 import { defaultTo } from 'lodash';
 import Cron from './Cron';
-import { getIntl } from './CronSelect';
+import locales from './locales';
 import type { CronFns } from './Cron/types';
 import type { BaseCronSelectProps } from './types';
 
@@ -15,6 +16,10 @@ const BaseCronSelect = React.memo<BaseCronSelectProps>((props): JSX.Element => {
   const [value, setValue] = useControllableValue<string>(props, {
     defaultValue,
   });
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   const handleOk = useCallback(() => {
     if (cronRef.current) {
@@ -31,10 +36,10 @@ const BaseCronSelect = React.memo<BaseCronSelectProps>((props): JSX.Element => {
   const footerContent = (): React.ReactNode => (
     <React.Fragment>
       <Button className="g-mr-2" type="default" onClick={onClose}>
-        {getIntl('cancel')}
+        {intl.get('CronSelect.cancel')}
       </Button>
       <Button type="primary" onClick={handleOk}>
-        {getIntl('confirm')}
+        {intl.get('CronSelect.confirm')}
       </Button>
     </React.Fragment>
   );

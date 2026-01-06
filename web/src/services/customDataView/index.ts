@@ -1,88 +1,47 @@
-import apiService from '@/utils/axios-http';
-import { formatCamelToLine, formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
-import { GroupType } from '@/pages/CustomDataView/type';
-import { transformData } from '../data-analysis/data-dict/transformData';
+import { formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
 import Request from '../request';
-
-interface PaginationParams {
-  limit?: number;
-  offset?: number;
-  sort?: string;
-  direction?: 'asc' | 'desc';
-}
-
-interface DataViewListParams extends PaginationParams {
-  namePattern?: string;
-  queryType?: string[];
-  tag?: string;
-  groupId?: string | null;
-  simpleInfo?: boolean;
-  type?: string;
-}
-
-interface AtomViewListParams extends PaginationParams {
-  excelFileName?: string;
-  dataSourceType?: string;
-  dataSourceId?: string;
-  name?: string;
-  tag?: string;
-  type?: string;
-  queryType?: string;
-}
+import * as CustomDataViewType from './type';
+import { getObjectTags } from '../tag';
 
 // API URL 常量
 const API_BASE_URL = '/api/mdl-data-model/v1';
 const GROUP_API_URL = `${API_BASE_URL}/data-view-groups`;
 const DATA_VIEW_API_URL = `${API_BASE_URL}/data-views`;
-const TAG_API_URL = `${API_BASE_URL}/object-tags`;
+const DATA_VIEW_PREVIEW_API_URL = '/api/mdl-uniquery/v1/data-views';
 
 /**
- * 构建查询参数字符串的工具函数
+ * 处理查询参数
+ * 1. 过滤 null/undefined
+ * 2. 数组转逗号分隔字符串
  * @param params 参数对象
- * @returns URL查询字符串
  */
-const buildQueryString = (params: Record<string, any>): string => {
-  const result: string[] = [];
+const processQueryParams = (params: Record<string, any>): Record<string, any> => {
+  const result: Record<string, any> = {};
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
+    if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value)) {
-        const arrayValue = value.map((item) => (typeof item === 'string' ? item : String(item))).join(',');
-        result.push(`${key}=${arrayValue}`);
+        result[key] = value.map((item) => String(item)).join(',');
       } else {
-        const stringValue = typeof value === 'string' ? value : String(value);
-        result.push(`${key}=${stringValue}`);
+        result[key] = value;
       }
     }
   });
 
-  return result.join('&');
+  return result;
 };
-
-/**
- * 构建完整的URL
- * @param baseUrl 基础URL
- * @param params 参数对象
- * @returns 完整的URL
- */
-const buildUrl = (baseUrl: string, params: Record<string, any> = {}): string => {
-  const queryString = buildQueryString(params);
-  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
-};
-
-// ==================== 数据视图分组相关接口 ====================
 
 /**
  * 获取分组列表
  * @returns 分组列表数据
  */
-const getGroupList = async (): Promise<{ entries: GroupType[]; total_count: number }> => {
+const getGroupList = async (): Promise<CustomDataViewType.GetGroupListResponse> => {
   const params = {
     limit: -1, // 不分页
     builtin: false, // 不返回系统内置的指标模型
   };
 
-  return await apiService.axiosGet(GROUP_API_URL, { params });
+  return await Request.get(GROUP_API_URL, params);
 };
 
 /**
@@ -91,8 +50,7 @@ const getGroupList = async (): Promise<{ entries: GroupType[]; total_count: numb
  * @returns 创建结果
  */
 const createGroup = async (name: string) => {
-  const data = { name };
-  return await apiService.axiosPost(GROUP_API_URL, data);
+  return await Request.post(GROUP_API_URL, { name });
 };
 
 /**
@@ -102,8 +60,7 @@ const createGroup = async (name: string) => {
  * @returns 更新结果
  */
 const updateGroup = async (id: string, name: string) => {
-  const data = { name };
-  return await apiService.axiosPut(`${GROUP_API_URL}/${id}`, data);
+  return await Request.put(`${GROUP_API_URL}/${id}`, { name });
 };
 
 /**
@@ -112,11 +69,8 @@ const updateGroup = async (id: string, name: string) => {
  * @param force 是否强制删除（同时删除分组下的视图）
  * @returns 删除结果
  */
-const deleteGroup = async (id: string, force: boolean) => {
-  const params = {
-    delete_views: force,
-  };
-  return await apiService.axiosDelete(`${GROUP_API_URL}/${id}`, { params });
+const deleteGroup = async (id: string, force: boolean): Promise<any> => {
+  return await Request.delete(`${GROUP_API_URL}/${id}?delete_views=${force}`);
 };
 
 /**
@@ -125,50 +79,45 @@ const deleteGroup = async (id: string, force: boolean) => {
  * @returns 导出的数据
  */
 const exportGroup = async (id: string): Promise<any> => {
-  const res = await apiService.axiosGet(`${GROUP_API_URL}/${id}/data-views`);
-  return transformData(res);
+  return await Request.get(`${GROUP_API_URL}/${id}/data-views`);
 };
-
-// ==================== 自定义数据视图相关接口 ====================
 
 /**
  * 获取自定义数据视图列表
  * @param params 查询参数
  * @returns 数据视图列表
  */
-const getCustomDataViewList = async (params: DataViewListParams): Promise<any> => {
+const getCustomDataViewList = async (params: CustomDataViewType.DataViewListParams): Promise<CustomDataViewType.GetCustomDataViewListResponse> => {
   const {
     limit = -1,
     offset = 0,
     sort = 'update_time',
     direction = 'desc',
-    namePattern = '',
-    queryType = [],
+    name_pattern = '',
+    query_type = [],
     tag = '',
-    groupId,
-    simpleInfo = false,
+    group_id,
+    simple_info = false,
     type = 'custom',
   } = params;
 
   // 处理groupId特殊值
-  const groupIdVal = groupId === undefined || groupId === null ? '__all' : groupId || '';
+  const group_id_val = group_id === undefined || group_id === null ? '__all' : group_id || '';
 
-  const queryParams = {
-    name_pattern: namePattern,
-    sort: formatCamelToLine(sort),
-    query_type: queryType,
+  const queryParams = processQueryParams({
+    name_pattern,
+    sort,
+    query_type,
     direction,
     offset,
     limit,
     tag,
-    group_id: groupIdVal,
-    simple_info: simpleInfo,
+    group_id: group_id_val,
+    simple_info,
     type,
-  };
+  });
 
-  const url = buildUrl(DATA_VIEW_API_URL, queryParams);
-  const res = await apiService.axiosGet(url);
-  return transformData(res);
+  return await Request.get(DATA_VIEW_API_URL, queryParams);
 };
 
 /**
@@ -177,9 +126,9 @@ const getCustomDataViewList = async (params: DataViewListParams): Promise<any> =
  * @param importMode 导入模式
  * @returns 创建结果
  */
-const createCustomDataView = async (data: Record<string, any>, importMode?: string) => {
-  const url = importMode ? `${DATA_VIEW_API_URL}?import_mode=${importMode}` : DATA_VIEW_API_URL;
-  return await apiService.axiosPost(url, formatKeyOfObjectToLine(data));
+const createCustomDataView = async (data: Record<string, any>, importMode?: string): Promise<any> => {
+  const params = importMode ? { import_mode: importMode } : undefined;
+  return await Request.post(DATA_VIEW_API_URL, formatKeyOfObjectToLine(data), { params });
 };
 
 /**
@@ -189,7 +138,7 @@ const createCustomDataView = async (data: Record<string, any>, importMode?: stri
  * @returns 更新结果
  */
 const updateCustomDataView = async (id: string, data: Record<string, any>) => {
-  return await apiService.axiosPut(`${DATA_VIEW_API_URL}/${id}`, formatKeyOfObjectToLine(data));
+  return await Request.put(`${DATA_VIEW_API_URL}/${id}`, formatKeyOfObjectToLine(data));
 };
 
 /**
@@ -197,8 +146,8 @@ const updateCustomDataView = async (id: string, data: Record<string, any>) => {
  * @param id 视图ID
  * @returns 删除结果
  */
-const deleteCustomDataView = async (id: string) => {
-  return await apiService.axiosDelete(`${DATA_VIEW_API_URL}/${id}`);
+const deleteCustomDataView = async (id: string): Promise<any> => {
+  return await Request.delete(`${DATA_VIEW_API_URL}/${id}`);
 };
 
 /**
@@ -207,10 +156,9 @@ const deleteCustomDataView = async (id: string) => {
  * @param includeDataScopeViews 是否包含数据作用域视图
  * @returns 视图详情
  */
-const getCustomDataViewDetails = async (ids: string[], includeDataScopeViews = false) => {
+const getCustomDataViewDetails = async (ids: string[], includeDataScopeViews = false): Promise<CustomDataViewType.CustomDataView[]> => {
   const params = { include_data_scope_views: includeDataScopeViews };
-  const url = buildUrl(`${DATA_VIEW_API_URL}/${ids.join(',')}`, params);
-  return await apiService.axiosGet(url);
+  return await Request.get(`${DATA_VIEW_API_URL}/${ids.join(',')}`, params);
 };
 
 /**
@@ -220,39 +168,17 @@ const getCustomDataViewDetails = async (ids: string[], includeDataScopeViews = f
  * @returns 修改结果
  */
 const changeCustomDataViewGroup = async (ids: string[], groupName: string) => {
-  return await apiService.axiosPut(`${DATA_VIEW_API_URL}/${ids.join(',')}/attrs/group_name`, { group_name: groupName });
+  return await Request.put(`${DATA_VIEW_API_URL}/${ids.join(',')}/attrs/group_name`, { group_name: groupName });
 };
-
-// ==================== 数据源相关接口 ====================
-
-/**
- * 获取数据源列表
- * @param params 查询参数
- * @returns 数据源列表
- */
-const getDatasource = async (params: any): Promise<any> => {
-  const url = buildUrl(`${API_BASE_URL}/data-sources`, params);
-  return await apiService.axiosGet(url);
-};
-
-/**
- * 查询Excel数据源文件列表
- * @param fileName 文件名
- * @returns Excel文件列表
- */
-const getExcelFiles = async (fileName: string): Promise<{ data: string[] }> => {
-  return await apiService.axiosGet(`/api/vega-data-source/v1/excel/files/${fileName}`);
-};
-
-// ==================== 原子视图相关接口 ====================
 
 /**
  * 获取原子视图列表
  * @param params 查询参数
  * @returns 原子视图列表
  */
-const getAtomViewList = async (params: AtomViewListParams): Promise<any> => {
+const getAtomViewList = async (params: CustomDataViewType.AtomViewListParams): Promise<any> => {
   const {
+    type = 'atomic',
     excelFileName = '',
     dataSourceType,
     dataSourceId,
@@ -262,40 +188,25 @@ const getAtomViewList = async (params: AtomViewListParams): Promise<any> => {
     direction = 'desc',
     name = '',
     tag = '',
-    type = 'atomic',
     queryType = '',
   } = params;
 
-  const queryParams = {
-    name_pattern: encodeURIComponent(name),
-    sort,
+  const queryParams = processQueryParams({
+    type,
+    name_pattern: name,
     direction,
     offset,
     limit,
-    tag: tag || '',
+    sort,
+    tag,
     file_name: excelFileName,
     data_source_type: dataSourceType,
     data_source_id: dataSourceId,
-    type,
     query_type: queryType,
-  };
+  });
 
-  // 过滤掉空值参数
-  const filteredParams = Object.entries(queryParams).reduce(
-    (acc, [key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        acc[key] = value;
-      }
-      return acc;
-    },
-    {} as Record<string, any>
-  );
-
-  const url = buildUrl(DATA_VIEW_API_URL, filteredParams);
-  return await apiService.axiosGet(url);
+  return await Request.get(DATA_VIEW_API_URL, queryParams);
 };
-
-// ==================== 数据预览相关接口 ====================
 
 /**
  * 获取视图数据预览
@@ -306,11 +217,12 @@ const getAtomViewList = async (params: AtomViewListParams): Promise<any> => {
 const getViewDataPreview = async (ids: string | string[], values: Record<string, any>): Promise<any> => {
   const idStr = Array.isArray(ids) ? ids.join(',') : ids;
   const params = { include_view: true };
-  const url = buildUrl(`/api/mdl-uniquery/v1/data-views/${idStr}`, params);
-  const res = await Request.post(url, formatKeyOfObjectToLine(values), {
-    headers: { 'x-http-method-override': 'GET' },
+  const url = `${DATA_VIEW_PREVIEW_API_URL}/${idStr}`;
+
+  // 使用 Request.post 并通过 config 传入 headers 和 params
+  return await Request.postOverrideGet(url, formatKeyOfObjectToLine(values), {
+    params,
   });
-  return res;
 };
 
 /**
@@ -320,31 +232,22 @@ const getViewDataPreview = async (ids: string | string[], values: Record<string,
  */
 const getNodeDataPreview = async (values: Record<string, any>): Promise<any> => {
   const params = { include_view: false };
-  const url = buildUrl(`/api/mdl-uniquery/v1/data-views`, params);
-  return await apiService.axiosPostOverrideGet(url, formatKeyOfObjectToLine(values));
+  return await Request.postOverrideGet(DATA_VIEW_PREVIEW_API_URL, formatKeyOfObjectToLine(values), {
+    params,
+  });
 };
-
-// ==================== 标签相关接口 ====================
 
 /**
  * 获取标签列表
  * @returns 标签列表数据
  */
 const getTagList = async (): Promise<any> => {
-  const params = {
-    sort: 'tag',
-    direction: 'asc',
-    limit: -1,
-    module: 'metric-model',
-  };
-  return await apiService.axiosGet(TAG_API_URL, { params });
+  return await getObjectTags({ module: 'metric-model' });
 };
-
-// ==================== 导出接口 ====================
 
 /**
  * 自定义数据视图服务模块
- * 提供数据视图分组、自定义数据视图、数据源、原子视图、数据预览和标签相关的API接口
+ * 提供数据视图分组、自定义数据视图、原子视图、数据预览和标签相关的API接口
  */
 export default {
   // 数据视图分组相关
@@ -361,10 +264,6 @@ export default {
   deleteCustomDataView,
   getCustomDataViewDetails,
   changeCustomDataViewGroup,
-
-  // 数据源相关
-  // getDatasource,
-  // getExcelFiles,
 
   // 原子视图相关
   getAtomViewList,

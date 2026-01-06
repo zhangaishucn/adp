@@ -2,20 +2,19 @@
  * @description 代码编辑器组件
  */
 import { useRef, forwardRef, useImperativeHandle } from 'react';
-import Editor, { loader } from '@monaco-editor/react';
-import UTILS from '@/utils';
+import Editor from '@monaco-editor/react';
 import Compound from './Compound';
 import type { EditorProps } from '@monaco-editor/react';
 
 // 配置 monaco-editor 引用本地资源
-loader.config({
-  paths: {
-    vs: `${process.env.NODE_ENV === 'development' ? ((window as any).__POWERED_BY_QIANKUN__ ? '/mmdl' : `http://${window.location.host}`) : '/mmdl'}/monaco/vs`,
-  },
-  'vs/nls': {
-    availableLanguages: { '*': (UTILS.SessionStorage.get('language') || 'zh-cn') === 'en-us' ? '' : 'zh-cn' }, // 国际化
-  },
-});
+// loader.config({
+//   paths: {
+//     vs: `${process.env.NODE_ENV === 'development' ? ((window as any).__POWERED_BY_QIANKUN__ ? '/mmdl' : `http://${window.location.host}`) : '/mmdl'}/monaco/vs`,
+//   },
+//   'vs/nls': {
+//     availableLanguages: { '*': (UTILS.SessionStorage.get('language') || 'zh-cn') === 'en-us' ? '' : 'zh-cn' }, // 国际化
+//   },
+// });
 
 const CustomMonacoEditor: React.FC<any> = forwardRef((props, ref) => {
   const { onChange: propOnChange, ...otherProps } = props;

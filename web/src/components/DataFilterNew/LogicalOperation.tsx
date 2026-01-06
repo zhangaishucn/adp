@@ -1,12 +1,11 @@
+import { useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { SwapOutlined } from '@ant-design/icons';
 import { Divider } from 'antd';
-import getLocaleValue from '@/utils/get-locale-value/getLocaleValue';
 import classNames from './classNames';
 import styles from './index.module.less';
-import english from './locale/en-US';
-import chinese from './locale/zh-CN';
+import locales from './locales';
 
-const getIntl = getLocaleValue.bind(null, chinese, english);
 const cs = classNames.bind(styles);
 
 interface Props {
@@ -17,6 +16,10 @@ interface Props {
 }
 
 const LogicalOperation = ({ value = 'and', onChange, className, disabled = false }: Props): JSX.Element => {
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   const onClick = (): void => {
     onChange && !disabled && onChange(value === 'and' ? 'or' : 'and');
   };
@@ -25,7 +28,7 @@ const LogicalOperation = ({ value = 'and', onChange, className, disabled = false
     <div className={cs('logical-content', { 'logical-content-disabled': disabled }, className ?? '')}>
       <Divider type="vertical" />
       <div onClick={onClick} className={cs('logical-select', { 'logical-select-disabled': disabled })}>
-        {getIntl(value)}
+        {intl.get(`DataFilterNew.${value}`)}
         <SwapOutlined className={cs('swap-icon')} />
       </div>
       <Divider type="vertical" />

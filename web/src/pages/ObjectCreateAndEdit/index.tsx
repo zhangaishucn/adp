@@ -5,12 +5,11 @@ import { Form } from 'antd';
 import { nanoid } from 'nanoid';
 import { DataViewSource } from '@/components/DataViewSource';
 import HeaderSteps from '@/components/HeaderSteps';
-import frameworkProps from '@/utils/axios-http/frameworkProps';
 import { deduplicateObjects } from '@/utils/object';
-import { queryConceptGroups } from '@/services/concept-group';
-import ConceptGroupType from '@/services/concept-group/type';
-import OntologyObjectType from '@/services/object/type';
-import Request from '@/services/request';
+import { queryConceptGroups } from '@/services/conceptGroup';
+import * as ConceptGroupType from '@/services/conceptGroup/type';
+import * as OntologyObjectType from '@/services/object/type';
+import Request, { baseConfig } from '@/services/request';
 import HOOKS from '@/hooks';
 import SERVICE from '@/services';
 import { Button } from '@/web-library/common';
@@ -81,7 +80,7 @@ const ObjectCreateAndEdit = () => {
   }, []);
 
   useEffect(() => {
-    frameworkProps.data.toggleSideBarShow(false);
+    baseConfig.toggleSideBarShow(false);
     fetchConceptGroups();
     if (!id) return;
     getObjectDetail();
@@ -91,7 +90,7 @@ const ObjectCreateAndEdit = () => {
   const getDataViewDetail = async (dataViewId: string) => {
     if (!dataViewId) return;
     try {
-      const result = await SERVICE.dataView.dataViewGetDetail(dataViewId);
+      const result = await SERVICE.dataView.getDataViewDetail(dataViewId);
       if (result?.[0]) {
         const fields = result?.[0]?.fields || [];
         fields.forEach((item: OntologyObjectType.Field) => {
@@ -117,7 +116,7 @@ const ObjectCreateAndEdit = () => {
   const handleChooseOk = async (e: any[]) => {
     const dataView = e?.[0] || {};
     if (!dataView.id) return;
-    const result = await SERVICE.dataView.dataViewGetDetail(dataView.id);
+    const result = await SERVICE.dataView.getDataViewDetail(dataView.id);
     if (result?.[0]) {
       const fields = result?.[0]?.fields || [];
       fields.forEach((item: any) => {
@@ -175,7 +174,7 @@ const ObjectCreateAndEdit = () => {
       setAttrData(mergeData as any);
       if (data_source?.id) {
         setDataViewId(data_source?.id || '');
-        const result = await SERVICE.dataView.dataViewGetDetail(data_source?.id);
+        const result = await SERVICE.dataView.getDataViewDetail(data_source?.id);
         const { fields = [] } = result?.[0] || {};
         setFields(fields);
       }
@@ -425,8 +424,8 @@ const ObjectCreateAndEdit = () => {
           )}
           <Button
             onClick={() => {
-              if (Request.cancels?.edgePost) Request.cancels.edgePost();
-              if (Request.cancels?.edgePut) Request.cancels.edgePut();
+              if (Request.cancels?.createEdge) Request.cancels.createEdge();
+              if (Request.cancels?.updateEdge) Request.cancels.updateEdge();
               goBack();
             }}
           >

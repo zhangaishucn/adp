@@ -3,17 +3,17 @@ import intl from 'react-intl-universal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Empty, Tooltip, Tree } from 'antd';
 import { DATABASE_ICON_MAP } from '@/hooks/useConstants';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import ScanManagementApi from '@/services/scanManagement';
 import { Input } from '@/web-library/common';
 import styles from '../index.module.less';
 
 interface GroupSidebarPropsType {
-  allDataSource: DataConnectType.Data[];
-  dataSourceTree: DataConnectType.Data[];
+  allDataSource: DataConnectType.DataSource[];
+  dataSourceTree: DataConnectType.DataSource[];
   setTableParams: (arg0: any) => void;
-  setDataSourceTree: (val: DataConnectType.Data[]) => void;
-  setCheckDatasource: (val?: DataConnectType.Data) => void;
+  setDataSourceTree: (val: DataConnectType.DataSource[]) => void;
+  setCheckDatasource: (val?: DataConnectType.DataSource) => void;
 }
 
 const GroupSidebar = (props: GroupSidebarPropsType): JSX.Element => {
@@ -64,7 +64,7 @@ const GroupSidebar = (props: GroupSidebarPropsType): JSX.Element => {
     const excelDataSourceTree = dataSourceTree.find((val) => val.key === 'excel');
     if (excelDataSourceTree) {
       const res = await ScanManagementApi.getExcelFiles(treeNode.props.catalog_name);
-      const children: DataConnectType.Data[] =
+      const children: DataConnectType.DataSource[] =
         (res.data.map((item) => ({
           title: item,
           key: `${item}☎☎${treeNode.props.id}`,
@@ -75,7 +75,7 @@ const GroupSidebar = (props: GroupSidebarPropsType): JSX.Element => {
           catalog_name: treeNode.props.catalog_name,
           icon: treeNode.props.icon,
           ...DATABASE_ICON_MAP.excel,
-        })) as unknown as DataConnectType.Data[]) || [];
+        })) as unknown as DataConnectType.DataSource[]) || [];
       const newExcelDataSourceTree = excelDataSourceTree?.children?.map((val) => {
         if (val.id === treeNode.props.id) {
           return {

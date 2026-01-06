@@ -1,7 +1,7 @@
 import React from 'react';
 import intl from 'react-intl-universal';
 import { Input } from 'antd';
-import dataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import { IconFont } from '@/web-library/common';
 import { getConnectorIcon, getConnectorTypes } from '../../utils';
 import styles from '../index.module.less';
@@ -11,9 +11,9 @@ const DataSourceType = ({
   setCheckDataSource,
   connectors,
 }: {
-  checkDataSource?: dataConnectType.Connector;
-  setCheckDataSource: (connector: dataConnectType.Connector) => void;
-  connectors: dataConnectType.Connector[];
+  checkDataSource?: DataConnectType.Connector;
+  setCheckDataSource: (connector: DataConnectType.Connector) => void;
+  connectors: DataConnectType.Connector[];
 }): JSX.Element => {
   const [activeTab, setActiveTab] = React.useState<string>('');
   const [searchVal, setSearchVal] = React.useState<string>('');
@@ -41,7 +41,7 @@ const DataSourceType = ({
           )}
         </div>
         <div className={styles['search-bar']}>
-          <Input.Search placeholder={intl.get('DataConnect.searchTypeName')} onSearch={(val): void => setSearchVal(val)} />
+          <Input.Search placeholder={intl.get('DataConnect.searchTypeName')} onChange={(e): void => setSearchVal(e.target.value)} />
         </div>
       </div>
       <div className={styles['box-context']}>

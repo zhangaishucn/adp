@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Tabs } from 'antd';
 import classnames from 'classnames';
 import dataConnectApi from '@/services/dataConnect';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import { IconFont } from '@/web-library/common';
 import styles from './index.module.less';
 import ScanManagement from './ScanManagement';

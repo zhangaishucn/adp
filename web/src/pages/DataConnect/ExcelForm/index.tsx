@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Radio, Select, Tooltip, message } from 'antd';
 import { FormProps } from 'antd/lib/form';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import ScanManagement from '@/services/scanManagement';
 import excelExample from '@/assets/images/excelExample.svg';
 import CellRangeSelect from './CellRangeSelect';
@@ -76,7 +76,7 @@ export const wordNumberRegex = /^[a-zA-Z0-9]+$/;
 export const excelCellRangeRegex = /^[A-Z]{1,2}[1-9][0-9]*$/;
 
 interface EditExcelDataRangeProps extends FormProps {
-  detail?: DataConnectType.Data;
+  detail?: DataConnectType.DataSource;
   open: boolean;
   onCancel: () => void;
 }

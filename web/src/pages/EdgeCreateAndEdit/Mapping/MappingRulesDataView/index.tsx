@@ -82,7 +82,7 @@ const MappingRulesDataView = (props: any) => {
   /** 获取数据视图详情 */
   const getDataViewDetail = async () => {
     try {
-      const result = await SERVICE.dataView.dataViewGetDetail(value?.backing_data_source?.id);
+      const result = await SERVICE.dataView.getDataViewDetail(value?.backing_data_source?.id);
       setViewData(result?.[0]);
     } catch (event) {
       console.log('getDataViewDetail event: ', event);

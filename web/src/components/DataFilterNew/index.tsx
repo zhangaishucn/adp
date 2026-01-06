@@ -1,20 +1,18 @@
 /** @Description: 多级过滤器 */
 
 import React, { useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
+import intl from 'react-intl-universal';
 import { useDynamicList } from 'ahooks';
 import classNames from 'classnames';
 import _ from 'lodash';
-import getLocaleValue from '@/utils/get-locale-value';
 import { Button, IconFont } from '@/web-library/common';
 import DataFilterItem from './DataFilterItem';
 import styles from './index.module.less';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 import LogicalOperation from './LogicalOperation';
 import { DataFilterProps, PrimaryFilterItem, PrimaryFilterValue, DataFilterValue } from './type';
 import { transformType as defaultTransformType } from './utils';
 
-// eslint-disable-next-line react/display-name
 const MultistageFilter = forwardRef((props: DataFilterProps, ref) => {
   const {
     objectOptions,
@@ -45,6 +43,10 @@ const MultistageFilter = forwardRef((props: DataFilterProps, ref) => {
   };
 
   useImperativeHandle(ref, () => ({ validate }));
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   useEffect(() => {
     onProxyChange();
@@ -157,7 +159,7 @@ const MultistageFilter = forwardRef((props: DataFilterProps, ref) => {
         {_.map(list, (item, index) => RowItem(item, index, list.length))}
         {(isShowAdd || isShowHidden) && !disabled ? (
           <Button.Link icon={<IconFont type="icon-add" />} onClick={() => push(defaultValue)}>
-            {btnText || getLocaleValue('addFilter', { localeZh }, { localeEn })}
+            {btnText || intl.get('DataFilterNew.addFilter')}
           </Button.Link>
         ) : null}
       </div>

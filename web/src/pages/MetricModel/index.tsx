@@ -9,8 +9,7 @@ import _ from 'lodash';
 import { arNotification } from '@/components/ARNotification';
 import ContainerIsVisible, { getTypePermissionOperation, matchPermission, PERMISSION_CODES } from '@/components/ContainerIsVisible';
 import { DATE_FORMAT, PAGINATION_DEFAULT } from '@/hooks/useConstants';
-import apiService from '@/utils/axios-http';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import HOOKS from '@/hooks';
 import { Text, Table, Button, Select, IconFont } from '@/web-library/common';
 import ExportFile from '@/web-library/components/ExportFile';
@@ -18,7 +17,7 @@ import DetailAndPreviewDrawer from './DetailAndPreviewDrawer';
 import SideBar from './SideBar';
 import { GroupType, MetricModelItem, MetricModelList, queryType as QUERY_TYPE, METRIC_TYPE } from './type';
 
-const METRIC_TYPE_LABEL: any = {
+export const METRIC_TYPE_LABEL: any = {
   [METRIC_TYPE.ATOMIC]: intl.get('MetricModel.atomicMetric'),
   [METRIC_TYPE.DERIVED]: intl.get('MetricModel.derivedMetric'),
   [METRIC_TYPE.COMPOSITE]: intl.get('MetricModel.compositeMetric'),
@@ -52,9 +51,7 @@ const MetricModel = () => {
   useEffect(() => {
     // 从标签管理服务中get当前模块已经使用过的tag
     const getMetricModelTags = async (): Promise<void> => {
-      const tagURL = 'api/mdl-data-model/v1/object-tags/';
-      const params = { sort: 'tag', direction: 'asc', limit: -1, module: 'metric-model' };
-      const res = await apiService.axiosGet(tagURL, { params });
+      const res = await api.getMetricModelTags();
       setTagsData(_.map(res.entries, (item) => ({ value: item.tag, label: item.tag })));
     };
 
@@ -72,11 +69,11 @@ const MetricModel = () => {
         limit: pageSize,
         sort: sorter?.field || 'update_time',
         direction: sorter?.order === 'ascend' ? 'asc' : 'desc',
-        queryType: filters?.queryType || [],
-        metricType: filters?.metricType || '',
-        namePattern: searchValue,
+        query_type: filters?.queryType || [],
+        metric_type: filters?.metricType || [],
+        name_pattern: searchValue,
         tag: selectedTag === 'all' ? '' : selectedTag,
-        groupId: currentSelectGroup.id,
+        group_id: currentSelectGroup.id,
       });
 
       const { totalCount, entries } = res;
@@ -121,7 +118,6 @@ const MetricModel = () => {
         await getData();
         setReloadGroup(!reloadGroup);
       } else {
-        // 此处因为没使用 axios-http，所以如果请求失败得手动添加 error 提示
         arNotification.error(resConfirm.description);
       }
     };
@@ -149,7 +145,6 @@ const MetricModel = () => {
         ),
       });
     } else if (res?.error_code) {
-      // 此处因为没使用 axios-http，所以如果请求失败得手动添加 error 提示
       arNotification.error(res.description);
     } else {
       arNotification.success(intl.get('Global.importSuccess'));

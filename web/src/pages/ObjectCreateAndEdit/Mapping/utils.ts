@@ -1,5 +1,5 @@
 import intl from 'react-intl-universal';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 
 /**
  * 数据属性转换画布数据

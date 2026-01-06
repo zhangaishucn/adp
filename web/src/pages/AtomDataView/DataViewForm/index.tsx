@@ -3,8 +3,8 @@ import intl from 'react-intl-universal';
 import { Button, Col, Form, Input, Row } from 'antd';
 import { FORM_LAYOUT } from '@/hooks/useConstants';
 import api from '@/services/atomDataView';
-import AtomDataViewType from '@/services/atomDataView/type';
-import DataConnectType from '@/services/dataConnect/type';
+import * as AtomDataViewType from '@/services/atomDataView/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import HOOKS from '@/hooks';
 import { Drawer } from '@/web-library/common';
 import FieldTable from './fieldTable';
@@ -13,7 +13,7 @@ import styles from './index.module.less';
 interface PropType {
   id: string;
   visible: boolean;
-  checkDatasource?: DataConnectType.Data & { excel_file_name: string };
+  checkDatasource?: DataConnectType.DataSource & { excel_file_name: string };
   onClose: (val?: boolean) => void;
 }
 

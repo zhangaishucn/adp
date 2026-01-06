@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import intl from 'react-intl-universal';
 import { Checkbox, Upload } from 'antd';
 import Cookie from '@/utils/cookie';
-import api from '@/services/concept-group';
+import api from '@/services/conceptGroup';
 import HOOKS from '@/hooks';
 import { Button, IconFont } from '@/web-library/common';
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import { Input, Table } from 'antd';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
-import AtomDataViewType from '@/services/atomDataView/type';
+import * as AtomDataViewType from '@/services/atomDataView/type';
 import styles from './index.module.less';
 
 interface TProps {

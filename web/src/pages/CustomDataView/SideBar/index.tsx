@@ -6,13 +6,13 @@ import _ from 'lodash';
 import { arNotification } from '@/components/ARNotification';
 import downFile from '@/utils/down-file';
 import api from '@/services/customDataView/index';
+import { GroupType } from '@/services/customDataView/type';
 import HOOKS from '@/hooks';
 import { Input, IconFont } from '@/web-library/common';
 import styles from './index.module.less';
 import { useCustomDataViewContext } from '../context';
 import { GroupItem } from './GroupItem';
 import { GroupModal } from './GroupModal';
-import { type GroupType } from '../type';
 
 export const SideBar: React.FC = () => {
   const { modal } = HOOKS.useGlobalContext();

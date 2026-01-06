@@ -1,8 +1,9 @@
 // TODO: 开源社区Cory过来的，待重构
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import intl from 'react-intl-universal';
 import { Checkbox, Col, InputNumber, Radio, Row } from 'antd';
-import { getIntl } from '../../CronSelect';
+import locales from '../../locales';
 
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
@@ -25,6 +26,10 @@ function MinutePane(props: any): JSX.Element {
   if (isFirstRender.current !== false) {
     isFirstRender.current = true;
   }
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   useEffect(() => {
     if (value === '*') {
@@ -140,34 +145,34 @@ function MinutePane(props: any): JSX.Element {
   return (
     <RadioGroup name="radiogroup" value={currentRadio} onChange={onChangeRadio}>
       <Radio style={radioStyle} value={1}>
-        {getIntl('everyMinute')}
+        {intl.get('CronSelect.everyMinute')}
       </Radio>
       {/* <Radio style={radioStyle} value={5}>
-        {getIntl('noSpecify')}
+        {intl.get('CronSelect.noSpecify')}
       </Radio> */}
 
       <Radio style={radioStyle} value={2}>
         <>
-          {getIntl('from')}&nbsp;
+          {intl.get('CronSelect.from')}&nbsp;
           {aTobA}
           &nbsp;-&nbsp;
           {aTobB}
-          &nbsp;{getIntl('excuteOnceEveryMinute')}
+          &nbsp;{intl.get('CronSelect.excuteOnceEveryMinute')}
         </>
       </Radio>
 
       <Radio style={radioStyle} value={3}>
         <>
-          {getIntl('from')}&nbsp;
+          {intl.get('CronSelect.from')}&nbsp;
           {aStartTobA}
-          &nbsp;{getIntl('minuteStart')}&nbsp;
+          &nbsp;{intl.get('CronSelect.minuteStart')}&nbsp;
           {aStartTobB}
-          &nbsp;{getIntl('minuteExcuteOnce')}
+          &nbsp;{intl.get('CronSelect.minuteExcuteOnce')}
         </>
       </Radio>
 
       <Radio style={radioStyle} value={4}>
-        {getIntl('specify')}
+        {intl.get('CronSelect.specify')}
         <br />
       </Radio>
       <CheckboxGroup value={selected} onChange={onChangeSelected}>

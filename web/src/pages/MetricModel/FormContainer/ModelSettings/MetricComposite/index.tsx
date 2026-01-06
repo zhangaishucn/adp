@@ -6,7 +6,7 @@ import AddTag from '@/components/AddTag';
 import AddTagBySort from '@/components/AddTagBySort';
 import ResultFilter from '@/components/ResultFilter';
 import { TEMPLATE_REGEX } from '@/hooks/useConstants';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import CompoundExpression from './CompoundExpression';
 import styles from './index.module.less';
 
@@ -64,7 +64,7 @@ const MetricComposite = (props: any) => {
   const getMetricList = async (name: string = '') => {
     try {
       setLoading(true);
-      const result: any = await api.getMetricModelList({ limit: -1, queryType: ['', 'sql'], namePattern: name });
+      const result: any = await api.getMetricModelList({ limit: -1, query_type: ['', 'sql'], name_pattern: name });
       if (result?.code) return;
       const { entries } = result;
       setMenuItems(entries);
