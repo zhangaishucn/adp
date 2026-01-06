@@ -41,7 +41,6 @@ interface AppProps {
 }
 
 const TITLE: Record<string, string> = { 'zh-cn': '工作站', 'en-us': 'Studio', 'zh-tw': '工作站' };
-intl.init({ currentLocale: 'zh-cn', locales, warningHandler: () => '' });
 const App = (props: AppProps) => {
   const [modal, modalContextHolder] = Modal.useModal();
   const [messageApi, messageContextHolder] = message.useMessage();

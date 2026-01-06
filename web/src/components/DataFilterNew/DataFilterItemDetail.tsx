@@ -1,11 +1,10 @@
 import { useMemo, useEffect, useState } from 'react';
+import intl from 'react-intl-universal';
 import { Tag } from 'antd';
 import dayjs from 'dayjs';
-import getLocaleValue from '@/utils/get-locale-value';
 import classNames from './classNames';
 import styles from './index.module.less';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 import { FieldList, Item } from './type';
 
 const cs = classNames.bind(styles);
@@ -57,6 +56,10 @@ interface DataFilterItemProps {
 }
 
 const DataFilterItemDetail = ({ fieldList, value, onChange, transformType, typeOption = defaultTypeOption }: DataFilterItemProps): JSX.Element => {
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   const fieldListFilter = (val: any): FieldList => {
     return fieldList?.filter((i) => (i.displayName && i.displayName === val) || i.name === val)[0];
   };
@@ -125,9 +128,9 @@ const DataFilterItemDetail = ({ fieldList, value, onChange, transformType, typeO
       <div className={cs('field-col', 'detail-col')} title={value?.field}>
         {value?.field}
       </div>
-      <div className={cs('operation-col', 'detail-col')}>{value?.operation ? getLocaleValue(value?.operation, { localeZh }, { localeEn }) : ''}</div>
+      <div className={cs('operation-col', 'detail-col')}>{value?.operation ? intl.get(`DataFilterNew.${value?.operation}`) : ''}</div>
       {value?.operation !== 'exist' && value?.operation !== 'not_exist' && value.operation !== 'not_empty' && value.operation !== 'empty' && (
-        <div className={cs('operation-col', 'detail-col')}>{getLocaleValue(valueFroms[0], { localeZh }, { localeEn })}</div>
+        <div className={cs('operation-col', 'detail-col')}>{intl.get(`DataFilterNew.${valueFroms[0]}`)}</div>
       )}
       <div className={cs('value-col')}>{renderItem(formatType, value)}</div>
     </div>

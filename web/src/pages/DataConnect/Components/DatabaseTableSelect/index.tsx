@@ -4,8 +4,8 @@ import { CloseOutlined, DownOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Empty, Modal, Splitter } from 'antd';
 import { matchPermission, PERMISSION_CODES } from '@/components/ContainerIsVisible';
 import api from '@/services/dataConnect';
-import DataConnectType from '@/services/dataConnect/type';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as DataConnectType from '@/services/dataConnect/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import { dataBaseIconList, transformAndMapDataSources } from '@/pages/DataConnect/utils';
 import { IconFont } from '@/web-library/common';
 import Database from './Database';
@@ -34,9 +34,9 @@ export const DatabaseTableSelect: React.FC<{
   const [treeData, setTreeData] = useState<any[]>([]);
   const getTreeData = async (): Promise<void> => {
     const res = await api.getDataSourceList({});
-    const cur: DataConnectType.Data[] = res.entries
+    const cur: DataConnectType.DataSource[] = res.entries
       .filter((val) => val.allow_multi_table_scan && matchPermission(PERMISSION_CODES.SACN, val.operations))
-      .map((val: DataConnectType.Data) => ({
+      .map((val: DataConnectType.DataSource) => ({
         ...val.bin_data,
         ...val,
         title: val.name,

@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import { renderObjectTypeLabel } from '@/components/ObjectSelector';
 import api from '@/services/action';
-import ActionType from '@/services/action/type';
+import * as ActionType from '@/services/action/type';
 import createImage from '@/assets/images/common/create.svg';
 import emptyImage from '@/assets/images/common/empty.png';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
@@ -27,7 +27,7 @@ enum OperationEnum {
 }
 
 interface TProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission: boolean;
 }
 
@@ -303,9 +303,9 @@ const Action: FC<TProps> = ({ detail, isPermission }) => {
   /** 跳转创建和编辑弹窗 */
   const goToCreateAndEditPage = (type: 'create' | 'edit', id?: string) => {
     if (type === 'edit') {
-      history.push(`/action/${type}/${id}`);
+      history.push(`/ontology/action/${type}/${id}`);
     } else {
-      history.push(`/action/${type}`);
+      history.push(`/ontology/action/${type}`);
     }
   };
 

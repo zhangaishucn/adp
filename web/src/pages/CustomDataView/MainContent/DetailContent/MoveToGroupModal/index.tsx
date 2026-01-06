@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { Modal, Form, Select } from 'antd';
 import { FORM_LAYOUT } from '@/hooks/useConstants';
 import api from '@/services/customDataView';
-import { GroupType } from '../../../type';
+import { GroupType } from '@/services/customDataView/type';
 
 interface Props {
   visible: boolean;
@@ -18,10 +18,12 @@ export const MoveToGroupModal: React.FC<Props> = ({ visible, title, onOk, onCanc
 
   // 获取分组列表
   useEffect(() => {
-    visible &&
+    if (visible) {
       api.getGroupList().then((res) => {
         setAllGroupList(res.entries);
       });
+      form.setFieldsValue({ moveToGroupName: undefined });
+    }
   }, [visible]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,8 +36,8 @@ export const MoveToGroupModal: React.FC<Props> = ({ visible, title, onOk, onCanc
   return (
     <Modal title={title} width={600} open={visible} onOk={handleSubmit} onCancel={onCancel}>
       <Form form={form} {...FORM_LAYOUT}>
-        <Form.Item name="moveToGroupName" label={intl.get('Global.targetGroupName')}>
-          <Select showSearch optionFilterProp="children">
+        <Form.Item name="moveToGroupName" initialValue={undefined} label={intl.get('Global.targetGroupName')}>
+          <Select showSearch optionFilterProp="children" placeholder={intl.get('Global.pleaseSelect')}>
             {allGroupList
               .filter((v) => v.name && !v.builtin)
               .map((item) => {

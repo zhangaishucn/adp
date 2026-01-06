@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { Button, IconFont, Input } from '@/web-library/common';
 import UTILS from '@/web-library/utils';
 import styles from './index.module.less';
+import locales from './locales';
 
 interface TagItemProps {
   data: { type?: string; displayName?: string; display_name?: string; comment?: string };
@@ -34,6 +35,11 @@ const AddTag = (props: any) => {
 
   const [showConstant, setShowConstant] = useState(true);
   const [filterOptions, setFilterOptions] = useState(_.cloneDeep(options));
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   useEffect(() => {
     setFilterOptions(options);
   }, [options]);
@@ -80,7 +86,7 @@ const AddTag = (props: any) => {
           getPopupContainer={(triggerNode): HTMLElement => triggerNode.parentNode as HTMLElement}
           popupRender={() => (
             <div className="g-dropdown-menu-root" style={{ width: 260 }}>
-              <Input.Search className="g-mt-2 g-mb-4" allowClear placeholder={intl.get('Global.search')} onChange={onSearchChange} />
+              <Input.Search className="g-mt-2 g-mb-4" allowClear placeholder={intl.get('AddTag.search')} onChange={onSearchChange} />
               <div className={styles['vega-form-tag-options-container']}>
                 {_.map(filterOptions, (item, index) => {
                   const icon = UTILS.formatIconByType(item?.type);
@@ -109,7 +115,7 @@ const AddTag = (props: any) => {
           )}
         >
           <Button className="g-mr-2 g-mb-2" disabled={disabled} icon={<IconFont type="icon-add" />}>
-            {intl.get('Global.add')}
+            {intl.get('AddTag.add')}
           </Button>
         </Dropdown>
       )}

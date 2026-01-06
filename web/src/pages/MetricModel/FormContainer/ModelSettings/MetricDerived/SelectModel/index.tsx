@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { useAsyncEffect } from 'ahooks';
 import _ from 'lodash';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import { Button, Drawer, Input, Table, IconFont, Title, Text } from '@/web-library/common';
 import Detail, { logWareHouseExpandData } from './Detail';
 import styles from './index.module.less';
@@ -21,7 +21,7 @@ const paginationDefault = {
 const SelectModel = (props: any) => {
   const { value, onChange } = props;
   const [open, setOpen] = useState(false); // 侧边栏控制字段
-  const [filter, setFilter] = useState({ namePattern: '' });
+  const [filter, setFilter] = useState({ name_pattern: '' });
   const [dataSource, setDataSource] = useState<any>([]); // 表格数据
   const [selectedRow, setSelectedRow] = useState<any>([]); // 选中行
   const [selectedRowKeys, setSelectedRowKeys] = useState<any>([]); // 选中行 keys
@@ -29,7 +29,7 @@ const SelectModel = (props: any) => {
 
   /** 获取选择数据视图 */
   const getDataViewList: any = async (filter = {}) => {
-    const res = await api.getMetricModelList({ limit: -1, queryType: ['sql'], ...filter });
+    const res = await api.getMetricModelList({ limit: -1, query_type: ['sql'], ...filter });
     const { totalCount: total, entries } = res;
     return { data: entries, total };
   };
@@ -58,7 +58,7 @@ const SelectModel = (props: any) => {
 
   const onChangeFilterName = _.debounce((data) => {
     const value = data.target.value;
-    const newFilter = { ...filter, namePattern: value };
+    const newFilter = { ...filter, name_pattern: value };
     setFilter(newFilter);
     getDataList({ pageSize: 10, current: 1, _filter: newFilter });
   }, 300);
@@ -66,7 +66,7 @@ const SelectModel = (props: any) => {
   /** 切换侧边栏的的展示状态 */
   const toggleDrawer = (visible: boolean) => {
     setOpen(visible);
-    if (!visible) setFilter({ namePattern: '' });
+    if (!visible) setFilter({ name_pattern: '' });
   };
 
   /** 表格的选中状态 */
@@ -107,7 +107,7 @@ const SelectModel = (props: any) => {
 
   useAsyncEffect(async () => {
     if (expandedRowKeys.length) {
-      const data = await api.getMetricModelById(expandedRowKeys);
+      const data = await api.getMetricModelById(expandedRowKeys[0]);
       setExpandedRowData([data]);
     }
   }, [expandedRowKeys]);

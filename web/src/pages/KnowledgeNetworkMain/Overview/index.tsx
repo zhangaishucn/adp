@@ -49,7 +49,7 @@ const BarItem = (props: TBarItem) => {
 };
 
 interface TProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission: boolean;
   callback: (id: string) => void;
 }
@@ -171,7 +171,7 @@ const Overview = (props: TProps) => {
         />
       </div>
       <div className={styles['overview-box-content']}>
-        <Title>{intl.get('KnowledgeNetwork.recentlyModifiedObjectType')}</Title>
+        <Title className={styles['overview-box-content-title']}>{intl.get('KnowledgeNetwork.recentlyModifiedObjectType')}</Title>
         <Table size="small" dataSource={tableData} columns={columns} pagination={false} />
       </div>
       <CreateAndEditForm open={open} onCancel={onCancel} id={checkId} callBack={() => callback(localStorage.getItem('KnowledgeNetwork.id') || '')} />

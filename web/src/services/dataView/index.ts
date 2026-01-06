@@ -1,90 +1,123 @@
-import _ from 'lodash';
-import apiService from '@/utils/axios-http';
-import Service from '@/utils/axios-http/service';
-import { formatKeyOfObjectToCamel, formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
-import API from '@/services/api';
-import Request from '@/services/request';
-import DataViewType from './type';
+import { formatKeyOfObjectToLine } from '@/utils/format-objectkey-structure';
+import UTILS from '@/utils';
+import Request from '../request';
+import * as DataViewType from './type';
 
-/** 获取对象类类列表 */
-const dataViewGet = async (data: any): Promise<DataViewType.DataViewGet_ResultType> => {
-  return await Request.get(API.dataViewGet, data);
+// API URL 常量
+const MDL_BASE_URL = '/api/mdl-data-model/v1';
+const DATA_CONNECTION_BASE_URL = '/api/data-connection/v1';
+const UNIQUERY_BASE_URL = '/api/mdl-uniquery/v1';
+
+const API_URLS = {
+  DATA_VIEWS: `${MDL_BASE_URL}/data-views`,
+  DATA_SOURCES: `${MDL_BASE_URL}/data-sources`,
+  DATA_VIEW_GROUPS: `${MDL_BASE_URL}/data-view-groups`,
+  DATASOURCE_CONNECTION: `${DATA_CONNECTION_BASE_URL}/datasource`,
+  EXCEL_FILES: `${DATA_CONNECTION_BASE_URL}/gateway/excel/files`,
+  PREVIEW: `${UNIQUERY_BASE_URL}/data-views`,
 };
 
-/** 获取数据视图详情 */
-const dataViewGetDetail = async (id: string): Promise<DataViewType.DataViewGetDetail_ResultType> => {
-  return await Request.get(API.getDataViewById(id));
+/**
+ * 获取数据源列表
+ */
+const getDataSourceList = async (params: DataViewType.GetDataSourceListParams = {}): Promise<DataViewType.List<DataViewType.DataSource>> => {
+  return await Request.get(API_URLS.DATA_SOURCES, params);
 };
 
-const modelUrl = '/api/data-connection/v1';
-
-// 获取视图分组信息
-const getDatasource = async (params: any): Promise<any> => {
-  return await Request.get(`${modelUrl}/datasource`, params);
+/**
+ * 获取数据视图详情
+ * @param id 视图ID
+ */
+const getDataViewDetail = async (id: string): Promise<any> => {
+  return await Request.get(`${API_URLS.DATA_VIEWS}/${id}`);
 };
 
-// 查询excel 数据源
+/**
+ * 获取数据连接的数据源信息
+ * @param params 查询参数
+ */
+const getDatasourceConnection = async (params: Record<string, any>): Promise<any> => {
+  return await Request.get(API_URLS.DATASOURCE_CONNECTION, params);
+};
+
+/**
+ * 查询 Excel 数据源文件
+ * @param fileName 文件名
+ */
 const getExcelFiles = async (fileName: string): Promise<{ data: string[] }> => {
-  return await Request.get(`${modelUrl}/gateway/excel/files/${fileName}`, {}, { timeout: 60000 });
+  return await Request.get(`${API_URLS.EXCEL_FILES}/${fileName}`, {}, { timeout: 60000 });
 };
 
-// 获取原子视图列表
-const getAtomViewList = async ({
-  excelFileName = '',
-  dataSourceType,
-  dataSourceId,
-  offset,
-  limit,
-  sort = 'update_time',
-  direction = 'desc',
-  name = '',
-  tag = '',
-}: any): Promise<any> => {
-  const fileName = excelFileName ? `&file_name=${excelFileName}` : '';
-  const dataSourceTypeStr = dataSourceType ? `&data_source_type=${dataSourceType}` : '';
-  const dataSourceIdStr = dataSourceId ? `&data_source_id=${dataSourceId}` : '';
-  const res = await Request.get(
-    `/api/mdl-data-model/v1/data-views?name_pattern=${encodeURIComponent(name)}&sort=${sort}&direction=${direction}&offset=${offset}&limit=${limit}&tag=${
-      tag || ''
-    }${fileName}${dataSourceTypeStr}${dataSourceIdStr}`
-  );
+/**
+ * 获取原子视图列表
+ */
+const getAtomViewList = async (params: DataViewType.GetAtomViewListParams): Promise<DataViewType.List<DataViewType.DataView>> => {
+  const {
+    excelFileName,
+    dataSourceType,
+    dataSourceId,
+    offset = 0,
+    limit = 10,
+    sort = 'update_time',
+    direction = 'desc',
+    name = '',
+    tag = '',
+    queryType,
+  } = params;
 
-  return res;
-};
-
-// 数据预览
-const getViewDataPreview = async (ids: any, values: any): Promise<any> => {
-  return await Request.post(`/api/mdl-uniquery/v1/data-views/${ids}?include_view=${true}`, formatKeyOfObjectToLine(values), {
-    headers: { 'x-http-method-override': 'GET' },
+  const queryParams = UTILS.filterEmptyFields({
+    name_pattern: name,
+    sort,
+    direction,
+    offset,
+    limit,
+    tag,
+    file_name: excelFileName,
+    data_source_type: dataSourceType,
+    data_source_id: dataSourceId,
+    query_type: queryType,
   });
+
+  return await Request.get(API_URLS.DATA_VIEWS, queryParams);
 };
 
-/** 获取数据视图列表 */
-const { getDataList } = new Service(API.getDataView);
-
-/** 通过 ID 获取数据视图详情 */
-const getDataViewById = async (id: any): Promise<any> => {
-  const res = await apiService.axiosGet(API.getDataViewById(id));
-  if (res.code) return res;
-  const result = _.map(res, (item) => formatKeyOfObjectToCamel(item));
-  return result;
+/**
+ * 数据预览
+ * @param ids 视图ID或ID列表
+ * @param values 预览参数
+ */
+const getViewDataPreview = async (ids: string | string[], values: Record<string, any>): Promise<any> => {
+  const idStr = Array.isArray(ids) ? ids.join(',') : ids;
+  return await Request.postOverrideGet(`${API_URLS.PREVIEW}/${idStr}?include_view=true`, formatKeyOfObjectToLine(values));
 };
 
-/** 获取数据视图分组 */
-const getDataViewGroup = async () => {
+/**
+ * 获取数据视图列表
+ */
+const getDataViewList = async (params: DataViewType.GetDataViewListParams): Promise<DataViewType.List<DataViewType.DataView>> => {
+  const queryParams = UTILS.filterEmptyFields({
+    ...params,
+    sort: params.sort || 'update_time',
+    direction: params.direction || 'desc',
+  });
+  return await Request.get(API_URLS.DATA_VIEWS, queryParams);
+};
+
+/**
+ * 获取数据视图分组
+ */
+const getDataViewGroup = async (): Promise<DataViewType.List<DataViewType.Group>> => {
   const params = { limit: -1 };
-  const res = await apiService.axiosGet(API.getDataViewGroup, { params });
-  return formatKeyOfObjectToCamel(res);
+  return await Request.get(API_URLS.DATA_VIEW_GROUPS, params);
 };
 
 export default {
-  dataViewGet,
-  dataViewGetDetail,
-  getDatasource,
+  getDataSourceList,
+  getDataViewDetail,
+  getDatasourceConnection,
   getExcelFiles,
   getAtomViewList,
   getViewDataPreview,
-  getDataList,
-  getDataViewById,
+  getDataViewList,
   getDataViewGroup,
 };

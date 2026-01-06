@@ -30,7 +30,6 @@ const ImportCom = (props: TProps) => {
         message.success(intl.get('Global.importSuccess'));
         await callback();
       } else {
-        // 此处因为没使用 axios-http，所以如果请求失败得手动添加 error 提示
         message.error(resConfirm.description);
       }
     };

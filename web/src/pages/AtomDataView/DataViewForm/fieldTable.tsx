@@ -1,6 +1,6 @@
 import intl from 'react-intl-universal';
 import { Table, Input, Form, Button, Select } from 'antd';
-import AtomDataViewType from '@/services/atomDataView/type';
+import * as AtomDataViewType from '@/services/atomDataView/type';
 import HOOKS from '@/hooks';
 import styles from './index.module.less';
 

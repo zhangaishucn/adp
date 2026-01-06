@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { QuestionCircleFilled } from '@ant-design/icons';
 import { Button, InputNumber, Popover, Select, Switch, Tooltip } from 'antd';
 import { useImmer } from 'use-immer';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import HOOKS from '@/hooks';
 import SERVICE from '@/services';
 import { Drawer } from '@/web-library/common';

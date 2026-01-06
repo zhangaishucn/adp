@@ -1,78 +1,41 @@
-/**
- * 行列权限管理服务
- * 提供行列权限规则的查询、创建、更新、删除等接口
- * 基于 '/api/mdl-data-model/v1/data-view-row-column-rules' 基础路径
- */
 import Request from '../request';
-import RowColumnPermissionType from './type';
+import * as RowColumnPermission from './type';
 
-const baseUrl = '/api/mdl-data-model/v1/data-view-row-column-rules';
+const BASE_URL = '/api/mdl-data-model/v1/data-view-row-column-rules';
 
-/**
- * 根据视图ID查询视图行列规则列表
- * @param ids 视图ID或多个ID（逗号分隔）
- * @param params 查询参数
- * @returns 行列规则列表数据
- */
-export const getRowColumnRulesByViewId = (params?: RowColumnPermissionType.QueryParams): Promise<RowColumnPermissionType.List> => {
+export const getRowColumnRulesByViewId = (params?: RowColumnPermission.QueryParams): Promise<RowColumnPermission.List> => {
+  console.log(params);
   const queryParams = {
     view_id: params?.view_id || '',
     sort: params?.sort || 'update_time',
     direction: params?.direction || 'desc',
     limit: params?.limit || 20,
     offset: params?.offset || 0,
-    keyword: params?.keyword || '',
+    name_pattern: params?.name_pattern,
   };
 
-  return Request.get<RowColumnPermissionType.List>(`${baseUrl}`, queryParams);
+  return Request.get<RowColumnPermission.List>(`${BASE_URL}`, queryParams);
 };
 
-/**
- * 创建行列规则
- * @param data 规则数据
- * @returns 创建结果
- */
-export const createRowColumnRule = (data: RowColumnPermissionType.CreateRuleParams[]): Promise<{ id: string }> => {
-  return Request.post<{ id: string }>(baseUrl, data);
+export const createRowColumnRule = (data: RowColumnPermission.CreateRuleParams[]): Promise<{ id: string }> => {
+  return Request.post<{ id: string }>(BASE_URL, data);
 };
 
-/**
- * 更新行列规则
- * @param id 规则ID
- * @param data 更新数据
- * @returns 更新结果
- */
-export const updateRowColumnRule = (id: string, data: RowColumnPermissionType.CreateRuleParams): Promise<any> => {
-  return Request.put<any>(`${baseUrl}/${id}`, data);
+export const updateRowColumnRule = (id: RowColumnPermission.RuleID, data: RowColumnPermission.CreateRuleParams): Promise<any> => {
+  return Request.put<any>(`${BASE_URL}/${id}`, data);
 };
 
-/**
- * 删除行列规则
- * @param ids 规则ID或多个ID数组
- * @returns 删除结果
- */
-export const deleteRowColumnRule = (ids: string | string[]): Promise<any> => {
+export const deleteRowColumnRule = (ids: RowColumnPermission.RuleID | RowColumnPermission.RuleID[]): Promise<any> => {
   const ruleIds = Array.isArray(ids) ? ids.join(',') : ids;
-  return Request.delete<any>(`${baseUrl}/${ruleIds}`);
+  return Request.delete<any>(`${BASE_URL}/${ruleIds}`);
 };
 
-/**
- * 根据ID查询单个行列规则详情
- * @param id 规则ID
- * @returns 规则详情
- */
-export const getRowColumnRuleById = (id: string): Promise<RowColumnPermissionType.Rule> => {
-  return Request.get<RowColumnPermissionType.Rule>(`${baseUrl}/${id}`);
+export const getRowColumnRuleById = (id: RowColumnPermission.RuleID): Promise<RowColumnPermission.Rule> => {
+  return Request.get<RowColumnPermission.Rule>(`${BASE_URL}/${id}`);
 };
 
-/**
- * 复制行列规则
- * @param id 规则ID
- * @param newName 新规则名称
- * @returns 复制结果
- */
-export const copyRowColumnRule = (id: string, newName: string): Promise<{ id: string }> => {
-  return Request.post<{ id: string }>(`${baseUrl}/${id}/copy`, { name: newName });
+export const copyRowColumnRule = (id: RowColumnPermission.RuleID, newName: string): Promise<{ id: string }> => {
+  return Request.post<{ id: string }>(`${BASE_URL}/${id}/copy`, { name: newName });
 };
 
 export default {

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react';
-import { CustomDataViewContextType, GroupType } from './type';
+import { GroupType } from '@/services/customDataView/type';
+import { CustomDataViewContextType } from './type';
 
 const CustomDataViewContext = createContext<CustomDataViewContextType>({
   currentSelectGroup: undefined,

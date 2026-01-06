@@ -34,7 +34,7 @@ const Detail = (props: any) => {
   }, [id]);
 
   const getDetail = async () => {
-    const result = await SERVICE.edge.edgeGetDetail(knId, id);
+    const result = await SERVICE.edge.getEdgeDetail(knId, id);
     if (result[0]) setSource(result[0]);
   };
 

@@ -1,9 +1,10 @@
 // TODO: 开源社区Cory过来的，待重构
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import intl from 'react-intl-universal';
 import { Checkbox, Col, Radio, Row } from 'antd';
 import WeekSelect, { weekOptionsObj } from './WeekSelect';
-import { getIntl } from '../../CronSelect';
+import locales from '../../locales';
 
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
@@ -30,6 +31,10 @@ function WeekPane(props: any): JSX.Element {
   if (isFirstRender.current !== false) {
     isFirstRender.current = true;
   }
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
   useEffect(() => {
     if (value === '*') {
       setCurrentRadio(1);
@@ -168,43 +173,43 @@ function WeekPane(props: any): JSX.Element {
   return (
     <RadioGroup name="radiogroup" value={currentRadio} onChange={onChangeRadio}>
       <Radio style={radioStyle} value={1}>
-        {getIntl('everyWeek')}
+        {intl.get('CronSelect.everyWeek')}
       </Radio>
 
       <Radio style={radioStyle} value={2}>
-        {getIntl('noSpecify')}
+        {intl.get('CronSelect.noSpecify')}
       </Radio>
 
       <Radio style={radioStyle} value={3}>
         <>
-          {getIntl('from')}&nbsp;
+          {intl.get('CronSelect.from')}&nbsp;
           {aTobA}
           &nbsp;-&nbsp;
           {aTobB}
-          &nbsp;{getIntl('excuteOnceEveryWeek')}
+          &nbsp;{intl.get('CronSelect.excuteOnceEveryWeek')}
         </>
       </Radio>
 
       {/* <Radio style={radioStyle} value={4}>
         <>
-          {getIntl('thisMonthAt')}&nbsp;
+          {intl.get('CronSelect.thisMonthAt')}&nbsp;
           {aStartTobA}
-          &nbsp;{getIntl('weeks')}&nbsp;
+          &nbsp;{intl.get('CronSelect.weeks')}&nbsp;
           {aStartTobB}
-          &nbsp;{getIntl('excuteOnce')}
+          &nbsp;{intl.get('CronSelect.excuteOnce')}
         </>
       </Radio> */}
 
       {/* <Radio style={radioStyle} value={5}>
         <>
-          {getIntl('thisMonthAtLast')}&nbsp;
+          {intl.get('CronSelect.thisMonthAtLast')}&nbsp;
           {aStartTob2A}
-          &nbsp;{getIntl('excuteOnce')}
+          &nbsp;{intl.get('CronSelect.excuteOnce')}
         </>
       </Radio> */}
 
       <Radio style={radioStyle} value={6}>
-        {getIntl('specify')}
+        {intl.get('CronSelect.specify')}
         <br />
         <CheckboxGroup value={selected} onChange={onChangeSelected}>
           <Row gutter={8}>{checkList}</Row>

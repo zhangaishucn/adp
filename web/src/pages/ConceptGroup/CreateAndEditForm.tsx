@@ -4,7 +4,7 @@ import { Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import ColorSelect from '@/components/ColorSelect';
 import TagsSelector, { tagsSelectorValidator } from '@/components/TagsSelector';
-import api from '@/services/concept-group';
+import api from '@/services/conceptGroup';
 import HOOKS from '@/hooks';
 import { Input, Modal } from '@/web-library/common';
 

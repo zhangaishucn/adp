@@ -18,7 +18,7 @@ const getIconCom = (type: string): JSX.Element => {
 const DataViewGroup: React.FC<{ onSelect: (selectedKeys: any, info?: any) => void; selectedKeys: any[] }> = ({ onSelect, selectedKeys }) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const getTreeData = async (): Promise<void> => {
-    const res = await api.getDatasource({});
+    const res = await api.getDatasourceConnection({});
     const cur: TDatasource[] = res.entries.map((val: { bin_data: any; name: any; id: any; type: string }) => ({
       ...val.bin_data,
       ...val,
@@ -77,7 +77,7 @@ const DataViewGroup: React.FC<{ onSelect: (selectedKeys: any, info?: any) => voi
   return (
     <div className={styles['data-group-box']}>
       <div className={`${styles['all-item']} ${!(selectedKeys.length > 0) && styles['all-item-active']}`} onClick={() => onSelect([])}>
-        {intl.get('Global.all')}
+        {intl.get('DataViewSource.all')}
       </div>
       <Tree
         blockNode

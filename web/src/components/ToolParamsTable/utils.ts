@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import ActionType from '@/services/action/type';
+import * as ActionType from '@/services/action/type';
 
 interface InputItem {
   name: string;

@@ -1,5 +1,5 @@
+import intl from 'react-intl-universal';
 import { defaultsDeep } from 'lodash';
-import { getIntl } from '../CronSelect';
 import type { BaseDetailConfig, CronProps, Options } from './types';
 
 /**
@@ -67,7 +67,7 @@ export const defaultValue: Options = {
   defaultTab: CronFieldName.MINUTE,
   minYear: 2000,
   maxYear: 2100,
-  panelTitle: getIntl('pleaseSelect'),
+  panelTitle: intl.get('CronSelect.pleaseSelect'),
   showPreviewValue: true,
   panesShow: {
     [CronFieldName.SECOND]: true,

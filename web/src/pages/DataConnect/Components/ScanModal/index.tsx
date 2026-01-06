@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import intl from 'react-intl-universal';
 import { Button, Empty, Tree, Checkbox, Modal } from 'antd';
 import classnames from 'classnames';
-import DataConnectType from '@/services/dataConnect/type';
+import * as DataConnectType from '@/services/dataConnect/type';
 import scanManagementApi from '@/services/scanManagement';
 import HOOKS from '@/hooks';
 import { IconFont, Input } from '@/web-library/common';
@@ -11,14 +11,14 @@ import styles from './styles.module.less';
 interface TScanModal {
   open: boolean;
   onClose: (isOk?: boolean) => void;
-  allDataSource?: DataConnectType.Data[];
-  dataSourceTree?: DataConnectType.Data[];
+  allDataSource?: DataConnectType.DataSource[];
+  dataSourceTree?: DataConnectType.DataSource[];
   isEmpty?: boolean;
 }
 
 const ScanModal = ({ open, onClose, allDataSource = [], dataSourceTree = [], isEmpty = false }: TScanModal): JSX.Element => {
   const { message } = HOOKS.useGlobalContext();
-  const [data, setData] = useState<DataConnectType.Data[]>([]);
+  const [data, setData] = useState<DataConnectType.DataSource[]>([]);
   const [checkedList, setCheckedList] = useState<string[]>([]);
   const [indeterminate, setIndeterminate] = useState<boolean>(false);
   const [checkAll, setCheckAll] = useState<boolean>(false);

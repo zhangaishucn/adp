@@ -3,9 +3,9 @@ import intl from 'react-intl-universal';
 import { Graph } from '@antv/g6';
 import { Empty } from 'antd';
 import edgeApi from '@/services/edge';
-import KnowledgeNetworkType from '@/services/Knowledge-network/type';
+import * as KnowledgeNetworkType from '@/services/knowledgeNetwork/type';
 import objectApi from '@/services/object';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import '@/assets/iconfont/dip/iconfont.css';
 import fonts from '@/assets/iconfont/dip/iconfont.json';
 import noSearchResultImage from '@/assets/images/common/no_search_result.svg';
@@ -25,7 +25,7 @@ interface GraphEdge {
 }
 
 interface TProps {
-  detail?: KnowledgeNetworkType.Detail;
+  detail?: KnowledgeNetworkType.KnowledgeNetwork;
   isPermission?: boolean;
 }
 
@@ -108,7 +108,7 @@ const KnowledgeNetworkPreview: React.FC<TProps> = (props) => {
     if (!knId) return;
 
     try {
-      const response = await edgeApi.edgeGet(knId, {
+      const response = await edgeApi.getEdgeList(knId, {
         limit: -1, // 增加边数量上限
       });
 

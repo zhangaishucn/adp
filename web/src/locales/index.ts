@@ -4,9 +4,6 @@ import Action_tw from './Action/zh-tw.json';
 import AtomDataView_us from './AtomDataView/en-us.json';
 import AtomDataView_cn from './AtomDataView/zh-cn.json';
 import AtomDataView_tw from './AtomDataView/zh-tw.json';
-import Component_us from './Component/en-us.json';
-import Component_cn from './Component/zh-cn.json';
-import Component_tw from './Component/zh-tw.json';
 import ConceptGroup_us from './ConceptGroup/en-us.json';
 import ConceptGroup_cn from './ConceptGroup/zh-cn.json';
 import ConceptGroup_tw from './ConceptGroup/zh-tw.json';
@@ -43,7 +40,6 @@ const en_us = {
   ...Edge_us,
   ...Global_us,
   ...KnowledgeNetwork_us,
-  ...Component_us,
   ...Action_us,
   ...Task_us,
   ...MetricModel_us,
@@ -58,7 +54,6 @@ const zh_cn = {
   ...Edge_cn,
   ...Global_cn,
   ...KnowledgeNetwork_cn,
-  ...Component_cn,
   ...Action_cn,
   ...Task_cn,
   ...MetricModel_cn,
@@ -73,7 +68,6 @@ const zh_tw = {
   ...Edge_tw,
   ...Global_tw,
   ...KnowledgeNetwork_tw,
-  ...Component_tw,
   ...Action_tw,
   ...Task_tw,
   ...MetricModel_tw,

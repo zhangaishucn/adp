@@ -6,7 +6,7 @@ import { Divider, Steps as Antd_Steps } from 'antd';
 import _ from 'lodash';
 import { arNotification } from '@/components/ARNotification';
 import { SCHEDULE_TYPE } from '@/hooks/useConstants';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import { Text, Title, Button } from '@/web-library/common';
 import BasicInfo from './BasicInfo';
 import styles from './index.module.less';
@@ -163,7 +163,7 @@ const FormContainer = () => {
     }
   };
   const getMetricModel = useCallback(async (id: any): Promise<void> => {
-    const result = await api.getMetricModelById([id]);
+    const result = await api.getMetricModelById(id);
     //基本配置的回填
     const basicInfoData = backfillBasicData(result);
     setBasicInfoData(basicInfoData);

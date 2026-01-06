@@ -4,7 +4,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import { useAsyncEffect } from 'ahooks';
 import { Collapse, Tag } from 'antd';
 import _ from 'lodash';
-import api from '@/services/data-analysis/metric-model';
+import api from '@/services/metricModel';
 import styles from './index.module.less';
 
 export const logWareHouseExpandData = (data: any) => {
@@ -38,8 +38,8 @@ const MetricModelDetail = (props: any) => {
     }
   }, [dataSourceId]);
 
-  const getDataSourceById = async (id: any) => {
-    const data = await await api.getMetricModelById([id]);
+  const getDataSourceById = async (id: string) => {
+    const data = await api.getMetricModelById(id);
     return data;
   };
 

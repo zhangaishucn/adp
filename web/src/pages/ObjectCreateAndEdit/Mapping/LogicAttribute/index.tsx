@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import { SettingOutlined } from '@ant-design/icons';
 import { Input } from 'antd';
 import { deduplicateObjects } from '@/utils/object';
-import OntologyObjectType from '@/services/object/type';
+import * as OntologyObjectType from '@/services/object/type';
 import { IconFont } from '@/web-library/common';
 import EditDrawer from './EditDrawer';
 import styles from './index.module.less';

@@ -6,8 +6,8 @@ import { useForm } from 'antd/es/form/Form';
 import ColorSelect from '@/components/ColorSelect';
 import IconSelect from '@/components/IconSelect';
 import TagsSelector, { tagsSelectorValidator } from '@/components/TagsSelector';
-import frameworkProps from '@/utils/axios-http/frameworkProps';
-import api from '@/services/Knowledge-network';
+import api from '@/services/knowledgeNetwork';
+import { baseConfig } from '@/services/request';
 import ENUMS from '@/enums';
 import HOOKS from '@/hooks';
 import { Input, Modal } from '@/web-library/common';
@@ -29,7 +29,7 @@ const CreateAndEditForm = (props: any) => {
   const [createMode, setCreateMode] = useState<'standard' | 'ai'>('standard');
 
   const getDetail = async () => {
-    const res = await api.detailNetwork({ knIds: [id] });
+    const res = await api.getNetworkDetail({ knIds: [id] });
     setTimeout(() => {
       form.setFieldsValue(res);
     });
@@ -51,21 +51,21 @@ const CreateAndEditForm = (props: any) => {
       if (createMode === 'ai' && !id) {
         try {
           const aiDescription = e.aiDescription;
-          const microApp = frameworkProps.data;
+
           // 隐藏侧边栏
-          microApp?.toggleSideBarShow?.(false);
+          baseConfig?.toggleSideBarShow(false);
 
           // 跳转到智能体页面
-          microApp.history?.getBasePathByName('agent-web-dataagent')?.then((res: any) => {
+          baseConfig?.history?.getBasePathByName('agent-web-dataagent')?.then((res: any) => {
             const params = new URLSearchParams({
               id: '01KC3E3TTFWJQ5FC8ZEZHX9KQQ', // 智能体Key(唯一的，导入导出不会改变)
               version: 'v0',
               agentAppType: 'common',
-              preRoute: microApp.history.getBasePath,
+              preRoute: baseConfig.history.getBasePath,
               preRouteIsMicroApp: 'true',
             });
 
-            microApp.navigate(`${res}/usage?${params.toString()}`, { state: { inputValue: aiDescription, fileList: [] } });
+            baseConfig?.navigate(`${res}/usage?${params.toString()}`, { state: { inputValue: aiDescription, fileList: [] } });
           });
 
           onCancel();

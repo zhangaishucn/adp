@@ -1,11 +1,10 @@
-import { forwardRef, useMemo, useCallback, useImperativeHandle } from 'react';
+import { forwardRef, useMemo, useCallback, useImperativeHandle, useEffect } from 'react';
+import intl from 'react-intl-universal';
 import { MinusOutlined } from '@ant-design/icons';
 import { InputNumber, Select } from 'antd';
 import _ from 'lodash';
-import getLocaleValue from '@/utils/get-locale-value';
 import styles from './index.module.less';
-import localeEn from './locale/en-US';
-import localeZh from './locale/zh-CN';
+import locales from './locales';
 
 interface ResultFilterProps {
   value?: {
@@ -28,7 +27,10 @@ const rangeOperation = ['range', 'out_range'];
 const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
   const { value = { operation: '==', value: '', field: '__value' }, onChange, layout = 'horizontal' } = props;
 
-  // 使用 useCallback 优化事件处理函数，避免不必要的重新创建
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
+
   const handleChangeOperation = useCallback(
     (e: string) => {
       onChange?.({ operation: e, value: '', field: value.field });
@@ -43,19 +45,15 @@ const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
     [onChange, value.operation]
   );
 
-  // 校验函数，检查操作符和值是否都已填写
   const validate = useCallback(() => {
-    // 如果没有选择操作符，则校验失败
     if (!value?.operation) {
       return false;
     }
 
-    // 如果是数组类型的操作符，检查值是否为数组且不为空
     if (aryOperation.includes(value?.operation)) {
       return Array.isArray(value.value) && value.value.length > 0;
     }
 
-    // 对于其他操作符，检查值是否不为空
     return value.value !== '' && value.value !== null && value.value !== undefined;
   }, [value]);
 
@@ -63,7 +61,6 @@ const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
     validate,
   }));
 
-  // 使用 useMemo 优化 ValueInput 组件，避免每次渲染都重新创建
   const ValueInput = useMemo(() => {
     if (!value?.operation) {
       return null;
@@ -83,7 +80,7 @@ const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
               .filter((item: any) => !isNaN(item));
             handleValueChange(values);
           }}
-          placeholder={getLocaleValue('pleaseInputValue', { localeZh }, { localeEn })}
+          placeholder={intl.get('ResultFilter.pleaseInputValue')}
         />
       );
     } else if (rangeOperation.includes(value?.operation)) {
@@ -113,7 +110,7 @@ const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
           style={{ width: '100%' }}
           value={value?.value}
           onChange={handleValueChange}
-          placeholder={getLocaleValue('pleaseInputValue', { localeZh }, { localeEn })}
+          placeholder={intl.get('ResultFilter.pleaseInputValue')}
         />
       );
     }
@@ -126,7 +123,7 @@ const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
         value={value?.operation}
         placeholder="请选择"
         onChange={handleChangeOperation}
-        options={_.map(operateOption, (item) => ({ value: item, label: getLocaleValue(item, { localeZh }, { localeEn }) }))}
+        options={_.map(operateOption, (item) => ({ value: item, label: intl.get(`ResultFilter.${item}`) }))}
       />
       {ValueInput}
     </div>
@@ -137,7 +134,7 @@ const ResultFilter = forwardRef((props: ResultFilterProps, ref) => {
         value={value?.operation}
         placeholder="请选择"
         onChange={handleChangeOperation}
-        options={_.map(operateOption, (item) => ({ value: item, label: getLocaleValue(item, { localeZh }, { localeEn }) }))}
+        options={_.map(operateOption, (item) => ({ value: item, label: intl.get(`ResultFilter.${item}`) }))}
       />
       {ValueInput}
     </div>

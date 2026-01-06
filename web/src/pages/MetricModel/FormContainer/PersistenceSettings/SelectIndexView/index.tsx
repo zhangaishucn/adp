@@ -3,8 +3,8 @@ import intl from 'react-intl-universal';
 import { Tag } from 'antd';
 import _ from 'lodash';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
-import apiService from '@/utils/axios-http';
 import { formatKeyOfObjectToCamel } from '@/utils/format-objectkey-structure';
+import api from '@/services/metricModel';
 import { Button, Drawer, Title, Text, Input } from '@/web-library/common';
 import ExpandTable from './ExpandTable';
 import styles from './index.module.less';
@@ -27,7 +27,7 @@ const SelectIndexView = (props: any) => {
       process_status: '',
       ...filter,
     };
-    const res = await apiService.axiosGetEncode('/api/mdl-index-base/v1/index_bases', queryData);
+    const res = await api.getIndexBaseList(queryData);
 
     const { totalCount: total, entries: data } = formatKeyOfObjectToCamel(res);
     return { total, data };

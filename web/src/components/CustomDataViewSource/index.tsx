@@ -6,6 +6,7 @@ import DataViewGroup from './DataViewGroup';
 import DataViewList from './DataViewList';
 import DateViewPreview from './DateViewPreview';
 import styles from './index.module.less';
+import locales from './locales';
 
 export enum DataViewQueryType {
   SQL = 'SQL',
@@ -26,12 +27,16 @@ export const DataViewSource: React.FC<{
   const [previewId, setPreviewId] = useState<string>('');
 
   useEffect(() => {
+    intl.load(locales);
+  }, []);
+
+  useEffect(() => {
     const initailItem = {
       label: (
         <div className={styles['checked-box-title']} onClick={(e) => e.stopPropagation()}>
-          <div className={styles['title']}>{intl.get('CustomDataView.checkedListTitle', { count: checkedList.length })}</div>
+          <div className={styles['title']}>{intl.get('CustomDataViewSource.checkedListTitle', { count: checkedList.length })}</div>
           <a className={styles['clear']} onClick={() => removeDropList('all')}>
-            {intl.get('Global.clearAll')}
+            {intl.get('CustomDataViewSource.clearAll')}
           </a>
         </div>
       ),
@@ -62,8 +67,8 @@ export const DataViewSource: React.FC<{
 
   const title = (
     <div className={styles['title-box']}>
-      <span className={styles['title-box-text']}>{intl.get('CustomDataView.DataViewSource.addDataViewTitle')}</span>
-      <span className={styles['title-box-tip']}>{intl.get('CustomDataView.DataViewSource.dataViewSourceTip')}</span>
+      <span className={styles['title-box-text']}>{intl.get('CustomDataViewSource.addDataViewTitle')}</span>
+      <span className={styles['title-box-tip']}>{intl.get('CustomDataViewSource.dataViewSourceTip')}</span>
     </div>
   );
 
@@ -81,7 +86,7 @@ export const DataViewSource: React.FC<{
     () => (
       <div className={styles['footer-box']}>
         {checkedList.length === 0 ? (
-          <div className={styles['footer-text']}>{intl.get('CustomDataView.checkedListTitle', { count: checkedList.length })}</div>
+          <div className={styles['footer-text']}>{intl.get('CustomDataViewSource.checkedListTitle', { count: checkedList.length })}</div>
         ) : (
           <Dropdown
             menu={{
@@ -91,15 +96,15 @@ export const DataViewSource: React.FC<{
             getPopupContainer={(n) => n}
           >
             <div className={styles['footer-text-active']}>
-              {intl.get('CustomDataView.checkedListTitle', { count: checkedList.length })} <DownOutlined />
+              {intl.get('CustomDataViewSource.checkedListTitle', { count: checkedList.length })} <DownOutlined />
             </div>
           </Dropdown>
         )}
         <div className={styles['footer-btn']}>
           <Button type="primary" disabled={checkedList.length === 0} onClick={() => handleSubmit()}>
-            {intl.get('Global.ok')}
+            {intl.get('CustomDataViewSource.ok')}
           </Button>
-          <Button onClick={() => onCancel()}>{intl.get('Global.cancel')}</Button>
+          <Button onClick={() => onCancel()}>{intl.get('CustomDataViewSource.cancel')}</Button>
         </div>
       </div>
     ),

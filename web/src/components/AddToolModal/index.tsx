@@ -8,9 +8,7 @@ import api from '@/services/tool';
 import HOOKS from '@/hooks';
 import { IconFont, Input } from '@/web-library/common';
 import styles from './index.module.less';
-import enUS from './locale/en-us.json';
-import zhCN from './locale/zh-cn.json';
-import zhTW from './locale/zh-tw.json';
+import locales from './locales';
 
 interface DataNode {
   title: string;
@@ -83,9 +81,9 @@ const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]):
 const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) => {
   const { message } = HOOKS.useGlobalContext();
 
-  // 初始化国际化
-  intl.load({ 'zh-cn': zhCN, 'en-us': enUS, 'zh-tw': zhTW });
-  const getIntl = (key: string) => intl.get(`AddToolModal.${key}`);
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'tool' | 'mcp'>(initialValue?.type || 'tool');
   const [treeData, setTreeData] = useState<any[]>([]);
@@ -258,7 +256,7 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
       open
       centered
       maskClosable={false}
-      title={getIntl('title')}
+      title={intl.get('AddToolModal.title')}
       width={800}
       okButtonProps={{ disabled: activeTab === 'tool' ? !selectedNode : !mcpSelectedNode }}
       footer={(_, { OkBtn, CancelBtn }) => (
@@ -294,11 +292,11 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
           items={[
             {
               key: 'tool',
-              label: getIntl('tool'),
+              label: intl.get('AddToolModal.tool'),
               children: (
                 <>
                   <Input.Search
-                    placeholder={getIntl('searchToolPlaceholder')}
+                    placeholder={intl.get('AddToolModal.searchToolPlaceholder')}
                     allowClear
                     value={searchValue}
                     onChange={(e: any) => {
@@ -319,7 +317,7 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
                       <div className={styles['tree-title-line']}>
                         {!node.isLeaf && <IconFont type="icon-dip-color-suanzitool" style={{ fontSize: 22 }} />}
                         <div>
-                          <div className={classNames(styles['tree-title'], styles['overflow-hidden'])} title={node.title}>
+                          <div className={classNames(styles['tree-title'], styles['overflow-hidden'])} title={node.title as string}>
                             {node.title}
                           </div>
                           <div className={classNames(styles['overflow-hidden'], styles['tree-desc'])} title={node.description}>
@@ -331,7 +329,7 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
                     onSelect={(__, { node }) => {
                       if (!node.isLeaf) {
                         if (!node.expanded) {
-                          setExpandedKeys((prev) => [...prev, node.key]);
+                          setExpandedKeys((prev) => [...prev, node.key as string]);
                         } else {
                           setExpandedKeys((prev) => prev.filter((item) => item !== node.key));
                         }
@@ -347,11 +345,11 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
             },
             {
               key: 'mcp',
-              label: getIntl('mcp'),
+              label: intl.get('AddToolModal.mcp'),
               children: (
                 <>
                   <Input.Search
-                    placeholder={getIntl('searchMcpPlaceholder')}
+                    placeholder={intl.get('AddToolModal.searchMcpPlaceholder')}
                     allowClear
                     value={searchValue}
                     onChange={(e: any) => {
@@ -372,7 +370,7 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
                       <div className={styles['tree-title-line']}>
                         {!node.isLeaf && <IconFont type="icon-dip-color-suanzi" style={{ fontSize: 22 }} />}
                         <div>
-                          <div className={classNames(styles['tree-title'], styles['overflow-hidden'])} title={node.title}>
+                          <div className={classNames(styles['tree-title'], styles['overflow-hidden'])} title={node.title as string}>
                             {node.title}
                           </div>
                           <div className={classNames(styles['overflow-hidden'], styles['tree-desc'])} title={node.description}>
@@ -384,7 +382,7 @@ const AddToolModal: FC<AddToolModalProps> = ({ onCancel, onOk, initialValue }) =
                     onSelect={(__, { node }) => {
                       if (!node.isLeaf) {
                         if (!node.expanded) {
-                          setMcpExpandedKeys((prev) => [...prev, node.key]);
+                          setMcpExpandedKeys((prev) => [...prev, node.key as string]);
                         } else {
                           setMcpExpandedKeys((prev) => prev.filter((item) => item !== node.key));
                         }

@@ -1,9 +1,10 @@
 // TODO: 开源社区Cory过来的，待重构
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import intl from 'react-intl-universal';
 import { Checkbox, InputNumber, Radio, Row, Col } from 'antd';
 import { isEmpty } from 'lodash';
-import { getIntl } from '../../CronSelect';
+import locales from '../../locales';
 import type { BaseConfigProps } from '../types';
 import type { InputNumberProps } from 'antd';
 
@@ -50,6 +51,10 @@ const DayConfigPanel = React.memo<BaseConfigProps>((props): JSX.Element => {
 
     return checks;
   }, [currentRadioValue, selected]);
+
+  useEffect(() => {
+    intl.load(locales);
+  }, []);
 
   useEffect(() => {
     if (value === '*') {
@@ -138,32 +143,32 @@ const DayConfigPanel = React.memo<BaseConfigProps>((props): JSX.Element => {
     <Radio.Group value={currentRadioValue} onChange={onChangeRadio}>
       <>
         <Radio value={1} style={radioStyle}>
-          {getIntl('everyDay')}
+          {intl.get('CronSelect.everyDay')}
         </Radio>
         <Radio value={2} style={radioStyle}>
-          {getIntl('noSpecify')}
+          {intl.get('CronSelect.noSpecify')}
         </Radio>
         <Radio value={3} style={radioStyle}>
           <div>
-            {getIntl('from')}&nbsp;
+            {intl.get('CronSelect.from')}&nbsp;
             <InputNumber {...commonInputNumberProps} disabled={currentRadioValue !== 3} value={fromValue} onChange={onChangeFrom} />
             &nbsp;-&nbsp;
             <InputNumber {...commonInputNumberProps} disabled={currentRadioValue !== 3} value={toValue} onChange={onChangeTo} />
-            &nbsp;{getIntl('excuteOnceEveryDay')}
+            &nbsp;{intl.get('CronSelect.excuteOnceEveryDay')}
           </div>
         </Radio>
         <Radio value={4} style={radioStyle}>
           <div>
-            {getIntl('from')}&nbsp;
+            {intl.get('CronSelect.from')}&nbsp;
             <InputNumber {...commonInputNumberProps} disabled={currentRadioValue !== 4} value={offsetFrom} onChange={onChangeOffsetFrom} />
-            &nbsp;{getIntl('dayStart')}&nbsp;
+            &nbsp;{intl.get('CronSelect.dayStart')}&nbsp;
             <InputNumber {...commonInputNumberProps} disabled={currentRadioValue !== 4} value={offset} onChange={onChangeOffset} />
-            &nbsp;{getIntl('dayExcuteOnce')}
+            &nbsp;{intl.get('CronSelect.dayExcuteOnce')}
           </div>
         </Radio>
         <>
           <Radio value={5} style={radioStyle}>
-            {getIntl('specify')}
+            {intl.get('CronSelect.specify')}
             <br />
           </Radio>
           <Checkbox.Group value={selected} onChange={handleCheckboxChange}>

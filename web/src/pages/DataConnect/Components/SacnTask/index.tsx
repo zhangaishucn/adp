@@ -4,7 +4,7 @@ import { EllipsisOutlined } from '@ant-design/icons';
 import { Table, Space, Dropdown, Typography, Empty, Badge } from 'antd';
 import { PAGINATION_DEFAULT } from '@/hooks/useConstants';
 import scanManagementApi from '@/services/scanManagement';
-import ScanTaskType from '@/services/scanManagement/type';
+import * as ScanTaskType from '@/services/scanManagement/type';
 import { Button } from '@/web-library/common';
 import ScanDetail from './detail';
 import { getScanStatusColor } from '../../utils';

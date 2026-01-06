@@ -1,36 +1,33 @@
-import { base_url_knowledge } from '@/services/api';
 import Request from '@/services/request';
-import TaskType from './type';
+import * as Task from './type';
 
-/** 创建任务 */
-const taskPost = async (
+const BASE_URL = '/api/ontology-manager/v1/knowledge-networks';
+
+export const createTask = async (
   knId: string,
   data: {
     name: string;
-    job_type: TaskType.JobType;
+    job_type: Task.JobType;
   }
 ): Promise<{ id: string }> => {
-  return await Request.post(`${base_url_knowledge}/${knId}/jobs`, data);
+  return await Request.post(`${BASE_URL}/${knId}/jobs`, data);
 };
 
-/** 删除任务 */
-const taskDelete = async (knId: string, taskId: string) => {
-  return await Request.delete(`${base_url_knowledge}/${knId}/jobs/${taskId}`);
+export const deleteTask = async (knId: string, taskId: string) => {
+  return await Request.delete(`${BASE_URL}/${knId}/jobs/${taskId}`);
 };
 
-/** 获取任务列表 */
-const taskGet = async (knId: string, params: any): Promise<TaskType.TaskList> => {
-  return Request.get(`${base_url_knowledge}/${knId}/jobs`, params);
+export const getTaskList = async (knId: string, params: any): Promise<Task.TaskList> => {
+  return Request.get(`${BASE_URL}/${knId}/jobs`, params);
 };
 
-/** 获取任务详情 */
-const taskGetDetail = async (knId: string, rtId: string, params: any): Promise<any> => {
-  return await Request.get(`${base_url_knowledge}/${knId}/jobs/${rtId}/tasks`, params);
+export const getTaskDetail = async (knId: string, rtId: string, params: any): Promise<Task.TaskChildList> => {
+  return await Request.get(`${BASE_URL}/${knId}/jobs/${rtId}/tasks`, params);
 };
 
 export default {
-  taskPost,
-  taskDelete,
-  taskGet,
-  taskGetDetail,
+  createTask,
+  deleteTask,
+  getTaskList,
+  getTaskDetail,
 };
