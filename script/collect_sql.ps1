@@ -15,10 +15,15 @@ $SrcDirs = @(
     "vega\mdl-data-model\migrations",
     "vega\vega-gateway\migrations",
     "vega\vega-metadata\migrations"
+    "autoflow\coderunner\migrations"
+    "autoflow\ecron\migrations"
+    "autoflow\flow-automation\migrations"
+    "autoflow\workflow\migrations"
+    "autoflow\flow-stream-data-pipeline\migrations"
 )
 
 # 数据库类型列表
-$DbTypes = @("dm8", "mariadb")
+$DbTypes = @("dm8", "mariadb", "kdb9")
 
 # 目标目录（与 script 同级）
 $DstDir = Join-Path $AdpDir "sql"

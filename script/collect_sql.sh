@@ -15,10 +15,15 @@ SRC_DIRS=(
     "vega/mdl-data-model/migrations"
     "vega/vega-gateway/migrations"
     "vega/vega-metadata/migrations"
+    "autoflow/coderunner/migrations"
+    "autoflow/ecron/migrations"
+    "autoflow/flow-automation/migrations"
+    "autoflow/workflow/migrations"
+    "autoflow/flow-stream-data-pipeline/migrations"
 )
 
 # 数据库类型列表
-DB_TYPES=("dm8" "mariadb")
+DB_TYPES=("dm8" "mariadb" "kdb9")
 
 # 目标目录（与 script 同级）
 DST_DIR="$ADP_DIR/sql"
