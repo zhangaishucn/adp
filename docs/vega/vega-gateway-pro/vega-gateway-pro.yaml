@@ -31,15 +31,15 @@ definitions:
         example: 1
         type: integer
     required:
-    - data_source_id
-    - sql
-    - type
+      - data_source_id
+      - sql
+      - type
     type: object
   interfaces.FetchResp:
     properties:
       columns:
         items:
-          $ref: '#/definitions/interfaces.Column'
+          $ref: "#/definitions/interfaces.Column"
         type: array
       entries:
         items:
@@ -71,7 +71,7 @@ definitions:
   rest.HTTPError:
     properties:
       baseError:
-        $ref: '#/definitions/rest.BaseError'
+        $ref: "#/definitions/rest.BaseError"
       httpcode:
         type: integer
       language:
@@ -83,72 +83,72 @@ paths:
   /fetch:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 查询数据
       parameters:
-      - description: 查询数据请求
-        in: body
-        name: req
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.FetchQueryReq'
+        - description: 查询数据请求
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: "#/definitions/interfaces.FetchQueryReq"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 查询数据响应
           schema:
-            $ref: '#/definitions/interfaces.FetchResp'
+            $ref: "#/definitions/interfaces.FetchResp"
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: "#/definitions/rest.HTTPError"
         "500":
           description: 内部服务器错误
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: "#/definitions/rest.HTTPError"
       tags:
-      - fetch
+        - fetch
   /fetch/{query_id}/{slug}/{token}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 查询下一页数据
       parameters:
-      - description: 查询ID
-        in: path
-        name: query_id
-        required: true
-        type: string
-      - description: 查询签名
-        in: path
-        name: slug
-        required: true
-        type: string
-      - description: 查询令牌
-        in: path
-        name: token
-        required: true
-        type: string
-      - description: 每页数据量
-        in: query
-        name: batch_size
-        type: integer
+        - description: 查询ID
+          in: path
+          name: query_id
+          required: true
+          type: string
+        - description: 查询签名
+          in: path
+          name: slug
+          required: true
+          type: string
+        - description: 查询令牌
+          in: path
+          name: token
+          required: true
+          type: string
+        - description: 每页数据量
+          in: query
+          name: batch_size
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 查询下一页数据响应
           schema:
-            $ref: '#/definitions/interfaces.FetchResp'
+            $ref: "#/definitions/interfaces.FetchResp"
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: "#/definitions/rest.HTTPError"
         "500":
           description: 内部服务器错误
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: "#/definitions/rest.HTTPError"
       tags:
-      - fetch
+        - fetch
 swagger: "2.0"
