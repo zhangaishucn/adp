@@ -115,7 +115,7 @@ depServices:
     enableSSL: false
     connectInfo:
       username: root
-      password: eisoo.com123
+      password: yourpassword
       host: ""
       port: 26379
       masterHost: ""
@@ -125,7 +125,7 @@ depServices:
       sentinelHost: proton-redis-proton-redis-sentinel.resource.svc.cluster.local
       sentinelPort: 26379
       sentinelUsername: root
-      sentinelPassword: eisoo.com123
+      sentinelPassword: yourpassword
       masterGroupName: mymaster
       poolSize: 10
     secretName: ""
