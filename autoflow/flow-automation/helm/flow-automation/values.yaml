@@ -60,6 +60,7 @@ service:
   deleteExtDataCron: "0 1 * * *"
   deleteExpiredTaskCacheCron: "0 3 * * *"
   dagInstanceEventMaxInlineSize: 262144
+  dagInstanceEventArchivePolicy: successOnly
 
 flow-o11y-data-log:
   log_level: "INFO"
@@ -377,3 +378,12 @@ actionConfig:
 
   docformatconvert:
     timeoutSec: 3600
+
+  fileparse:
+    expireSec: 86400
+
+  ocr:
+    expireSec: 86400
+
+  audiotransfer:
+    expireSec: 86400
