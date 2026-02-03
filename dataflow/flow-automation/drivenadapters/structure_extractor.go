@@ -13,6 +13,7 @@ import (
 
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/common"
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/errors"
+	"github.com/kweaver-ai/adp/autoflow/flow-automation/utils"
 	traceLog "github.com/kweaver-ai/adp/autoflow/ide-go-lib/telemetry/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
@@ -142,8 +143,15 @@ func (s *structureExtractor) FileParse(ctx context.Context, fileUrl, fileName st
 			}
 		}
 
+		// 如果 fileName 是 word 或 excel 文件，在后面拼接 .pdf（只用于表单传递）
+		formFileName := fileName
+		fileExt := utils.GetFileExtension(fileName)
+		if fileExt == ".doc" || fileExt == ".docx" || fileExt == ".xls" || fileExt == ".xlsx" {
+			formFileName = fileName + ".pdf"
+		}
+
 		// 创建文件表单字段
-		part, err := writer.CreateFormFile("files", fileName)
+		part, err := writer.CreateFormFile("files", formFileName)
 		if err != nil {
 			writeErr = err
 			return
