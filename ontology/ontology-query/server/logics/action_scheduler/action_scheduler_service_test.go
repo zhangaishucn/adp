@@ -1,11 +1,22 @@
 package action_scheduler
 
 import (
+	"context"
+	"fmt"
+	"net/http"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/kweaver-ai/kweaver-go-lib/logger"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 	. "github.com/smartystreets/goconvey/convey"
 
+	"ontology-query/common"
+	oerrors "ontology-query/errors"
 	"ontology-query/interfaces"
+	dmock "ontology-query/interfaces/mock"
+	"ontology-query/logics"
+	"ontology-query/logics/action_logs"
 )
 
 func Test_buildExecutionParams(t *testing.T) {
@@ -22,12 +33,19 @@ func Test_buildExecutionParams(t *testing.T) {
 					},
 				},
 			}
-			identity := map[string]any{
+
+			objData := map[string]any{
+				"_instance_id": "test-instance",
+				"_instance_identity": map[string]any{
+					"pod_ip":   "192.168.1.1",
+					"pod_name": "test-pod",
+				},
+				"_display": "test-pod",
 				"pod_ip":   "192.168.1.1",
 				"pod_name": "test-pod",
 			}
 
-			params, err := s.buildExecutionParams(actionType, identity, nil)
+			params, err := s.buildExecutionParams(actionType, objData, nil)
 
 			So(err, ShouldBeNil)
 			So(params["target_ip"], ShouldEqual, "192.168.1.1")
@@ -43,9 +61,10 @@ func Test_buildExecutionParams(t *testing.T) {
 					},
 				},
 			}
-			identity := map[string]any{}
 
-			params, err := s.buildExecutionParams(actionType, identity, nil)
+			objData := map[string]any{}
+
+			params, err := s.buildExecutionParams(actionType, objData, nil)
 
 			So(err, ShouldBeNil)
 			So(params["timeout"], ShouldEqual, 60)
@@ -60,12 +79,12 @@ func Test_buildExecutionParams(t *testing.T) {
 					},
 				},
 			}
-			identity := map[string]any{}
+			objData := map[string]any{}
 			dynamicParams := map[string]any{
 				"Authorization": "Bearer token123",
 			}
 
-			params, err := s.buildExecutionParams(actionType, identity, dynamicParams)
+			params, err := s.buildExecutionParams(actionType, objData, dynamicParams)
 
 			So(err, ShouldBeNil)
 			So(params["Authorization"], ShouldEqual, "Bearer token123")
@@ -90,14 +109,19 @@ func Test_buildExecutionParams(t *testing.T) {
 					},
 				},
 			}
-			identity := map[string]any{
-				"pod_ip": "10.0.0.1",
+			objData := map[string]any{
+				"_instance_id": "test-instance",
+				"_instance_identity": map[string]any{
+					"pod_ip": "10.0.0.1",
+				},
+				"_display": "test-pod",
+				"pod_ip":   "10.0.0.1",
 			}
 			dynamicParams := map[string]any{
 				"token": "abc123",
 			}
 
-			params, err := s.buildExecutionParams(actionType, identity, dynamicParams)
+			params, err := s.buildExecutionParams(actionType, objData, dynamicParams)
 
 			So(err, ShouldBeNil)
 			So(params["target_ip"], ShouldEqual, "10.0.0.1")
@@ -115,11 +139,16 @@ func Test_buildExecutionParams(t *testing.T) {
 					},
 				},
 			}
-			identity := map[string]any{
+			objData := map[string]any{
+				"_instance_id": "test-instance",
+				"_instance_identity": map[string]any{
+					"pod_name": "test-pod", // pod_ip is missing
+				},
+				"_display": "test-pod",
 				"pod_name": "test-pod", // pod_ip is missing
 			}
 
-			params, err := s.buildExecutionParams(actionType, identity, nil)
+			params, err := s.buildExecutionParams(actionType, objData, nil)
 
 			So(err, ShouldBeNil)
 			_, exists := params["target_ip"]
@@ -135,9 +164,9 @@ func Test_buildExecutionParams(t *testing.T) {
 					},
 				},
 			}
-			identity := map[string]any{}
+			objData := map[string]any{}
 
-			params, err := s.buildExecutionParams(actionType, identity, nil)
+			params, err := s.buildExecutionParams(actionType, objData, nil)
 
 			So(err, ShouldBeNil)
 			_, exists := params["token"]
@@ -148,9 +177,9 @@ func Test_buildExecutionParams(t *testing.T) {
 			actionType := &interfaces.ActionType{
 				Parameters: []interfaces.Parameter{},
 			}
-			identity := map[string]any{}
+			objData := map[string]any{}
 
-			params, err := s.buildExecutionParams(actionType, identity, nil)
+			params, err := s.buildExecutionParams(actionType, objData, nil)
 
 			So(err, ShouldBeNil)
 			So(len(params), ShouldEqual, 0)
@@ -164,14 +193,14 @@ func Test_ActionExecutionRequest_Validation(t *testing.T) {
 			req := &interfaces.ActionExecutionRequest{
 				KNID:         "kn_001",
 				ActionTypeID: "at_001",
-				UniqueIdentities: []map[string]any{
+				InstanceIdentities: []map[string]any{
 					{"pod_ip": "192.168.1.1"},
 				},
 			}
 
 			So(req.KNID, ShouldEqual, "kn_001")
 			So(req.ActionTypeID, ShouldEqual, "at_001")
-			So(len(req.UniqueIdentities), ShouldEqual, 1)
+			So(len(req.InstanceIdentities), ShouldEqual, 1)
 		})
 
 		Convey("should support branch field", func() {
@@ -179,7 +208,7 @@ func Test_ActionExecutionRequest_Validation(t *testing.T) {
 				KNID:         "kn_001",
 				Branch:       "feature/test",
 				ActionTypeID: "at_001",
-				UniqueIdentities: []map[string]any{
+				InstanceIdentities: []map[string]any{
 					{"pod_ip": "192.168.1.1"},
 				},
 			}
@@ -200,14 +229,14 @@ func Test_ActionExecutionRequest_Validation(t *testing.T) {
 
 		Convey("should handle multiple objects", func() {
 			req := &interfaces.ActionExecutionRequest{
-				UniqueIdentities: []map[string]any{
+				InstanceIdentities: []map[string]any{
 					{"pod_ip": "192.168.1.1", "id": 1},
 					{"pod_ip": "192.168.1.2", "id": 2},
 					{"pod_ip": "192.168.1.3", "id": 3},
 				},
 			}
 
-			So(len(req.UniqueIdentities), ShouldEqual, 3)
+			So(len(req.InstanceIdentities), ShouldEqual, 3)
 		})
 
 		Convey("should handle dynamic params", func() {
@@ -246,11 +275,15 @@ func Test_ObjectExecutionResult(t *testing.T) {
 	Convey("Test ObjectExecutionResult", t, func() {
 		Convey("should represent success result", func() {
 			result := interfaces.ObjectExecutionResult{
-				UniqueIdentity: map[string]any{"pod_ip": "192.168.1.1"},
-				Status:         interfaces.ObjectStatusSuccess,
-				Parameters:     map[string]any{"target_ip": "192.168.1.1"},
-				Result:         map[string]any{"message": "OK"},
-				DurationMs:     1200,
+				ObjectSystemInfo: interfaces.ObjectSystemInfo{
+					InstanceID:       "",
+					InstanceIdentity: map[string]any{"pod_ip": "192.168.1.1"},
+					Display:          "",
+				},
+				Status:     interfaces.ObjectStatusSuccess,
+				Parameters: map[string]any{"target_ip": "192.168.1.1"},
+				Result:     map[string]any{"message": "OK"},
+				DurationMs: 1200,
 			}
 
 			So(result.Status, ShouldEqual, "success")
@@ -260,11 +293,15 @@ func Test_ObjectExecutionResult(t *testing.T) {
 
 		Convey("should represent failed result", func() {
 			result := interfaces.ObjectExecutionResult{
-				UniqueIdentity: map[string]any{"pod_ip": "192.168.1.2"},
-				Status:         interfaces.ObjectStatusFailed,
-				Parameters:     map[string]any{"target_ip": "192.168.1.2"},
-				ErrorMessage:   "Connection timeout",
-				DurationMs:     5000,
+				ObjectSystemInfo: interfaces.ObjectSystemInfo{
+					InstanceID:       "",
+					InstanceIdentity: map[string]any{"pod_ip": "192.168.1.2"},
+					Display:          "",
+				},
+				Status:       interfaces.ObjectStatusFailed,
+				Parameters:   map[string]any{"target_ip": "192.168.1.2"},
+				ErrorMessage: "Connection timeout",
+				DurationMs:   5000,
 			}
 
 			So(result.Status, ShouldEqual, "failed")
@@ -298,6 +335,287 @@ func Test_ActionSource_Types(t *testing.T) {
 			So(source.Type, ShouldEqual, "mcp")
 			So(source.McpID, ShouldEqual, "mcp_001")
 			So(source.ToolName, ShouldEqual, "restart_service")
+		})
+	})
+}
+
+func Test_ActionExecution_Snapshot(t *testing.T) {
+	Convey("Test ActionExecution with ActionTypeSnapshot", t, func() {
+		Convey("should store action type snapshot", func() {
+			// 模拟从 manager 获取的原始行动类配置
+			actionTypeSnapshot := map[string]any{
+				"id":             "at_001",
+				"name":           "restart_pod",
+				"action_type":    "modify",
+				"object_type_id": "ot_pod",
+				"tags":           []string{"k8s", "pod"},
+				"comment":        "重启 Pod",
+				"icon":           "restart",
+				"color":          "#FF5722",
+				"condition": map[string]any{
+					"field":    "status",
+					"operator": "eq",
+					"value":    "Running",
+				},
+				"parameters": []map[string]any{
+					{"name": "timeout", "value_from": "const", "value": 30},
+				},
+				"schedule": map[string]any{
+					"type":       "manual",
+					"expression": "",
+				},
+				"creator":     "user_123",
+				"create_time": int64(1704000000000),
+				"updater":     "user_456",
+				"update_time": int64(1704100000000),
+			}
+
+			execution := &interfaces.ActionExecution{
+				ID:                 "exec_001",
+				KNID:               "kn_001",
+				ActionTypeID:       "at_001",
+				ActionTypeName:     "restart_pod",
+				ActionSourceType:   interfaces.ActionSourceTypeTool,
+				Status:             interfaces.ExecutionStatusPending,
+				TotalCount:         1,
+				ActionTypeSnapshot: actionTypeSnapshot,
+			}
+
+			So(execution.ActionTypeSnapshot, ShouldNotBeNil)
+			So(execution.ActionTypeSnapshot["id"], ShouldEqual, "at_001")
+			So(execution.ActionTypeSnapshot["name"], ShouldEqual, "restart_pod")
+			So(execution.ActionTypeSnapshot["tags"], ShouldNotBeNil)
+			So(execution.ActionTypeSnapshot["condition"], ShouldNotBeNil)
+			So(execution.ActionTypeSnapshot["parameters"], ShouldNotBeNil)
+			So(execution.ActionTypeSnapshot["creator"], ShouldEqual, "user_123")
+			So(execution.ActionTypeSnapshot["create_time"], ShouldEqual, int64(1704000000000))
+		})
+
+		Convey("should allow nil snapshot for backward compatibility", func() {
+			execution := &interfaces.ActionExecution{
+				ID:                 "exec_002",
+				KNID:               "kn_001",
+				ActionTypeID:       "at_001",
+				ActionTypeName:     "restart_pod",
+				Status:             interfaces.ExecutionStatusCompleted,
+				ActionTypeSnapshot: nil, // 旧数据可能没有快照
+			}
+
+			So(execution.ActionTypeSnapshot, ShouldBeNil)
+			So(execution.ActionTypeID, ShouldEqual, "at_001")
+		})
+	})
+}
+
+func Test_ExecuteAction_ScanMode(t *testing.T) {
+	Convey("Test ExecuteAction with scan mode (empty _instance_identities)", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		appSetting := &common.AppSetting{}
+		omAccess := dmock.NewMockOntologyManagerAccess(mockCtrl)
+		aoAccess := dmock.NewMockAgentOperatorAccess(mockCtrl)
+		ots := dmock.NewMockObjectTypeService(mockCtrl)
+		logsService := action_logs.NewActionLogsService(appSetting)
+
+		// Set global variables
+		logics.OMA = omAccess
+		logics.AOA = aoAccess
+
+		service := &actionSchedulerService{
+			appSetting:  appSetting,
+			omAccess:    omAccess,
+			aoAccess:    aoAccess,
+			logsService: logsService,
+			ots:         ots,
+		}
+
+		ctx := context.Background()
+		knID := "kn_001"
+		actionTypeID := "at_001"
+		objectTypeID := "ot_001"
+
+		Convey("成功 - 扫描模式：找到符合条件的实例", func() {
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{}, // Empty, triggers scan mode
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "restart_pod",
+				ObjectTypeID: objectTypeID,
+				ActionSource: interfaces.ActionSource{
+					Type:   interfaces.ActionSourceTypeTool,
+					BoxID:  "box_001",
+					ToolID: "tool_001",
+				},
+				Parameters: []interfaces.Parameter{},
+			}
+
+			// Variable to capture scan result
+			var scanVerified bool
+
+			// Mock GetActionType
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+
+			// Mock GetObjectsByObjectTypeID to return scanned instances
+			scannedObjects := interfaces.Objects{
+				Datas: []map[string]any{
+					{
+						interfaces.SYSTEM_PROPERTY_INSTANCE_ID:       "1",
+						interfaces.SYSTEM_PROPERTY_INSTANCE_IDENTITY: map[string]any{"pod_ip": "192.168.1.1", "id": "1"},
+						interfaces.SYSTEM_PROPERTY_DISPLAY:           "pod-192.168.1.1",
+						"pod_ip":                                     "192.168.1.1",
+						"id":                                         "1",
+					},
+					{
+						interfaces.SYSTEM_PROPERTY_INSTANCE_ID:       "2",
+						interfaces.SYSTEM_PROPERTY_INSTANCE_IDENTITY: map[string]any{"pod_ip": "192.168.1.2", "id": "2"},
+						interfaces.SYSTEM_PROPERTY_DISPLAY:           "pod-192.168.1.2",
+						"pod_ip":                                     "192.168.1.2",
+						"id":                                         "2",
+					},
+				},
+				TotalCount: 2,
+			}
+
+			ots.EXPECT().GetObjectsByObjectTypeID(gomock.Any(), gomock.Any()).DoAndReturn(
+				func(ctx context.Context, query *interfaces.ObjectQueryBaseOnObjectType) (interfaces.Objects, error) {
+					// Verify query parameters
+					So(query.KNID, ShouldEqual, knID)
+					So(query.ObjectTypeID, ShouldEqual, objectTypeID)
+					scanVerified = true
+					return scannedObjects, nil
+				})
+
+			// Execute - will panic due to unmocked logsService, but scan logic should complete
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						// Expected panic due to unmocked logsService
+						logger.Infof("Expected panic due to unmocked logsService: %v", r)
+					}
+				}()
+				_, _ = service.ExecuteAction(ctx, req)
+			}()
+
+			// Verify scan mode was triggered and identities were populated
+			So(scanVerified, ShouldBeTrue)
+			So(len(req.Instances), ShouldEqual, 2)
+			So(req.Instances[0].InstanceID, ShouldEqual, "1")
+			So(req.Instances[1].InstanceID, ShouldEqual, "2")
+		})
+
+		Convey("失败 - 扫描模式：扫描后没有找到符合条件的实例", func() {
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{}, // Empty, triggers scan mode
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "restart_pod",
+				ObjectTypeID: objectTypeID,
+			}
+
+			// Mock GetActionType
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+
+			// Mock GetObjectsByObjectTypeID to return empty result
+			ots.EXPECT().GetObjectsByObjectTypeID(gomock.Any(), gomock.Any()).
+				Return(interfaces.Objects{Datas: []map[string]any{}}, nil)
+
+			_, err := service.ExecuteAction(ctx, req)
+
+			So(err, ShouldNotBeNil)
+			httpErr, ok := err.(*rest.HTTPError)
+			So(ok, ShouldBeTrue)
+			So(httpErr.HTTPCode, ShouldEqual, http.StatusBadRequest)
+			So(httpErr.BaseError.ErrorCode, ShouldEqual, oerrors.OntologyQuery_ActionExecution_InvalidParameter)
+		})
+
+		Convey("失败 - 扫描模式：扫描过程出错", func() {
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{}, // Empty, triggers scan mode
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "restart_pod",
+				ObjectTypeID: objectTypeID,
+			}
+
+			// Mock GetActionType
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+
+			// Mock GetObjectsByObjectTypeID to return error
+			ots.EXPECT().GetObjectsByObjectTypeID(gomock.Any(), gomock.Any()).
+				Return(interfaces.Objects{}, rest.NewHTTPError(ctx, http.StatusInternalServerError, oerrors.OntologyQuery_InternalError).
+					WithErrorDetails("scan failed"))
+
+			_, err := service.ExecuteAction(ctx, req)
+
+			So(err, ShouldNotBeNil)
+			httpErr, ok := err.(*rest.HTTPError)
+			So(ok, ShouldBeTrue)
+			So(httpErr.HTTPCode, ShouldEqual, http.StatusInternalServerError)
+		})
+
+		Convey("失败 - 扫描模式：超过最大执行数量限制", func() {
+			// Save original limit and restore after test
+			originalLimit := maxExecutionObjects
+			maxExecutionObjects = 5 // Set a low limit for testing
+			defer func() { maxExecutionObjects = originalLimit }()
+
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{}, // Empty, triggers scan mode
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "restart_pod",
+				ObjectTypeID: objectTypeID,
+			}
+
+			// Mock GetActionType
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+
+			// Mock GetObjectsByObjectTypeID to return more objects than the limit
+			manyObjects := interfaces.Objects{
+				Datas: []map[string]any{},
+			}
+			for i := 0; i < 10; i++ { // 10 objects, limit is 5
+				manyObjects.Datas = append(manyObjects.Datas, map[string]any{
+					interfaces.SYSTEM_PROPERTY_INSTANCE_IDENTITY: map[string]any{"id": fmt.Sprintf("%d", i)},
+				})
+			}
+			manyObjects.TotalCount = 10
+
+			ots.EXPECT().GetObjectsByObjectTypeID(gomock.Any(), gomock.Any()).
+				Return(manyObjects, nil)
+
+			_, err := service.ExecuteAction(ctx, req)
+
+			So(err, ShouldNotBeNil)
+			httpErr, ok := err.(*rest.HTTPError)
+			So(ok, ShouldBeTrue)
+			So(httpErr.HTTPCode, ShouldEqual, http.StatusBadRequest)
+			So(httpErr.BaseError.ErrorCode, ShouldEqual, oerrors.OntologyQuery_ActionExecution_InvalidParameter)
 		})
 	})
 }
