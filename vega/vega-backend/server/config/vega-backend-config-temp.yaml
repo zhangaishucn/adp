@@ -1,0 +1,46 @@
+server:
+  runMode: release
+  httpPort: 13014
+  language: zh-CN
+  readTimeOut: 120
+  writeTimeOut: 600
+log:
+  logLevel: info
+  developMode: false
+  maxAge: 100
+  maxBackups: 20
+  maxSize: 100
+crypto:
+  enabled: true
+  privateKeyPath: /mnt/c/aishu_code/vega-backend/server/config/rsa_private_key_pkcs8.pem
+  publicKeyPath: /mnt/c/aishu_code/vega-backend/server/config/rsa_public_key.pem
+depServices:
+  class-443:
+    ingressClass: class-443
+  rds:
+    host: localhost
+    port: 3330
+    user: username
+    password: password
+    type: MariaDB
+  mq:
+    mqType: kafka
+    mqHost: localhost
+    mqPort: 9092
+    protocol: sasl_plaintext
+    tenant: default
+    auth:
+      username: username
+      password: password
+      mechanism: PLAIN
+  opensearch:
+    host: localhost
+    port: 9200
+    protocol: http
+    username: username
+    password: password
+  redis:
+    host: localhost
+    port: 6379
+    username: username
+    password: password
