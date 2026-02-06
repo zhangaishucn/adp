@@ -6,7 +6,7 @@
         "operation_type": "RENAME",
         "object_name": "f_unique_identities",
         "new_name": "f_instance_identities",
-        "new_property": "TEXT DEFAULT NULL",
+        "object_property": "TEXT DEFAULT NULL",
         "object_comment": ""
     }
 ]
