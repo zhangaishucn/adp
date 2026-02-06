@@ -91,6 +91,11 @@ const FileSource: ExecutorAction = {
       name: "FileOutputEditorId",
       type: "string",
     },
+    {
+      key: ".download_url",
+      name: "FileOutputDownloadUrl",
+      type: "string",
+    },
   ],
 };
 

@@ -120,5 +120,6 @@
     "ecconfig.status": "Write Result",
     "MdlDataDataview": "Data View",
     "MdlDataDataviewDes": "Data View Data Source",
-    "WriteFile":"Document Library Write"
+    "WriteFile":"Document Library Write",
+    "FileOutputDownloadUrl": "Download link"
 }

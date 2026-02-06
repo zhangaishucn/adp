@@ -219,9 +219,12 @@ export const ContentFileParseConfig = forwardRef<
             multiple={false}
             omitUnavailableItem
             selectType={1}
-            placeholder={t("pdfFilePlaceholder", "请选择PDF或图片格式的文件")}
+            placeholder={t(
+              "pdfFilePlaceholder",
+              "请选择PDF或图片格式的文件",
+            )}
             selectButtonText={t("select")}
-            supportExtensions={["pdf","jpg", "jpeg", "png"]}
+            supportExtensions={["pdf", "jpg", "jpeg", "png"]}
           />
         </FormItem>
       )}
@@ -243,7 +246,7 @@ export const ContentFileParseConfig = forwardRef<
           <Input
             placeholder={t(
               "urlPlaceholder",
-              "请输入URL，示例：https://www.example.com/123.pdf"
+              "请输入URL，示例：https://www.example.com/123.pdf",
             )}
           />
         </FormItem>
@@ -257,7 +260,7 @@ export const ContentFileParseConfig = forwardRef<
           onChange={(checked) => {
             form.setFieldValue(
               "source_type",
-              checked ? SourceTypeEnum.Url : SourceTypeEnum.Docid
+              checked ? SourceTypeEnum.Url : SourceTypeEnum.Docid,
             );
 
             onChange(form.getFieldsValue());
@@ -266,9 +269,9 @@ export const ContentFileParseConfig = forwardRef<
         <div className={styles["switch-label"]}>
           {source_type === SourceTypeEnum.Url
             ? t(
-                "urlSwitchLabelWithFormat",
-                "通过URL地址选择文件，支持PDF格式的文件"
-              )
+              "urlSwitchLabelWithFormat",
+              "通过URL地址选择文件，支持PDF格式的文件",
+            )
             : t("urlSwitchLabel", "通过URL地址选择文件")}
         </div>
       </FormItem>
@@ -283,28 +286,38 @@ export const ContentFileParseConfig = forwardRef<
           <Input
             placeholder={t(
               "versionPlaceholder",
-              "请输入文件版本，默认获取所选文件的最新版本"
+              "请输入文件版本，默认获取所选文件的最新版本",
             )}
           />
         </FormItem>
       )}
 
       {source_type === SourceTypeEnum.Url && (
-        <FormItem
-          required
-          label={t("filename", "文件名称")}
-          name="filename"
-          allowVariable
-          type="string"
-          rules={[
-            {
-              required: true,
-              message: t("emptyMessage", "此项不能为空"),
-            },
-          ]}
-        >
-          <Input placeholder={t("filenamePlaceholder", "请输入")} />
-        </FormItem>
+        <>
+          <FormItem
+            required
+            label={t("filename", "文件名称")}
+            name="filename"
+            allowVariable
+            type="string"
+            rules={[
+              {
+                required: true,
+                message: t("emptyMessage", "此项不能为空"),
+              },
+            ]}
+          >
+            <Input placeholder={t("filenamePlaceholder", "请输入")} />
+          </FormItem>
+          <FormItem
+            label={t("docid", "文件id")}
+            name="docid"
+            allowVariable
+            type="string"
+          >
+            <Input placeholder={t("filenamePlaceholder", "请输入")} />
+          </FormItem>
+        </>
       )}
 
       <FormItem
@@ -337,11 +350,20 @@ export const ContentFileParseConfig = forwardRef<
           />
         </FormItem>
       )}
-      <FormItem label={t("sliceVectorConfigMore", "解析高级配置")} className={styles["slice_vector_config"]}>
-        <FormItem name="multimodal_enabled" valuePropName="checked" className={styles["multimodal_enabled"]}>
+      <FormItem
+        label={t("sliceVectorConfigMore", "解析高级配置")}
+        className={styles["slice_vector_config"]}
+      >
+        <FormItem
+          name="multimodal_enabled"
+          valuePropName="checked"
+          className={styles["multimodal_enabled"]}
+        >
           <Switch size="small" className={styles["switch"]} />
         </FormItem>
-        <FormItem className={styles["multimodal_enabled_des"]}>{t("sliceVectorConfigMoreDesc")}</FormItem>
+        <FormItem className={styles["multimodal_enabled_des"]}>
+          {t("sliceVectorConfigMoreDesc")}
+        </FormItem>
       </FormItem>
       {parameters?.multimodal_enabled && (
         <div className={styles["multimodal"]}>
@@ -371,7 +393,10 @@ export const ContentFileParseConfig = forwardRef<
             >
               <SettingOutlined
                 className="dip-c-subtext"
-                style={{ fontSize: "16px", margin: "34px 0 0 12px" }}
+                style={{
+                  fontSize: "16px",
+                  margin: "34px 0 0 12px",
+                }}
               />
             </ModelSettingsPopover>
           </FormItem>
@@ -381,7 +406,13 @@ export const ContentFileParseConfig = forwardRef<
           >
             <EditorWithMentions
               onChange={textAreaContent}
-              parameters={parameters?.multimodal_prompt_template || t("imageDescriptionPrompt", "请详细描述这张图片的内容,包括: \n 1. 主要对象和场景 \n 2. 颜色和布局 \n 3. 图片类型(照片、图表、示意图等) \n 4. 其他重要细节 \n \n 请用简洁、准确的语言描述,不超过200字。")}
+              parameters={
+                parameters?.multimodal_prompt_template ||
+                t(
+                  "imageDescriptionPrompt",
+                  "请详细描述这张图片的内容,包括: \n 1. 主要对象和场景 \n 2. 颜色和布局 \n 3. 图片类型(照片、图表、示意图等) \n 4. 其他重要细节 \n \n 请用简洁、准确的语言描述,不超过200字。",
+                )
+              }
               itemName="multimodal_prompt_template"
             />
           </FormItem>

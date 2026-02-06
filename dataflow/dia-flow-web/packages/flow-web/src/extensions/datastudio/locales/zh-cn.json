@@ -120,5 +120,6 @@
     "Operator": "算子数据源",
     "MdlDataDataview": "数据视图",
     "MdlDataDataviewDes": "数据视图数据源",
-    "WriteFile":"文档库写入"
+    "WriteFile":"文档库写入",
+    "FileOutputDownloadUrl": "下载地址"
 }

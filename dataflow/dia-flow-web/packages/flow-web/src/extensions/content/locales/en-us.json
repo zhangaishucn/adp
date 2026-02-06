@@ -70,6 +70,7 @@
   "model": "Model",
   "modelPlaceholder": "Please select model",
   "filename": "Filename",
+  "docid": "File ID",
   "pdfFilePlaceholder": "Select a PDF or image file.",
   "sliceVectorConfigMore": "Analysis of advanced configuration",
   "sliceVectorConfigMoreDesc": "When a file contains images, a multimodal large model can be used to describe the content of the images.",

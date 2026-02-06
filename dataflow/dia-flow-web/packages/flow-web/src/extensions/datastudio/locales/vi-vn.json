@@ -71,5 +71,6 @@
     "db.delTag": "Nhãn đã bị xóa",
     "MdlDataDataview": "View Dữ Liệu",
     "MdlDataDataviewDes": "Nguồn Dữ Liệu View Dữ Liệu",
-    "WriteFile":"Ghi Thư Viện Tài Liệu"
+    "WriteFile":"Ghi Thư Viện Tài Liệu",
+    "FileOutputDownloadUrl": "Liên kết tải xuống"
 }

@@ -120,5 +120,6 @@
     "ecconfig.status": "寫入結果",
     "MdlDataDataview": "數據視圖",
     "MdlDataDataviewDes": "數據視圖數據源",
-    "WriteFile":"文檔庫寫入"
+    "WriteFile":"文檔庫寫入",
+    "FileOutputDownloadUrl": "下載地址"
 }
