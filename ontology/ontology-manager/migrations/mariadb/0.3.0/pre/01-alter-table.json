@@ -6,7 +6,7 @@
         "operation_type": "RENAME",
         "object_name": "f_unique_identities",
         "new_name": "f_instance_identities",
-        "new_property": "MEDIUMTEXT DEFAULT NULL",
+        "object_property": "MEDIUMTEXT DEFAULT NULL",
         "object_comment": "JSON array of target object instance identities"
     }
 ]

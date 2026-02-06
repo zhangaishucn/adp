@@ -1,4 +1,4 @@
--- Source: ontology/ontology-manager/migrations/mariadb/0.2.0/pre/init.sql
+-- Source: ontology/ontology-manager/migrations/mariadb/0.3.0/pre/init.sql
 USE adp;
 
 -- 业务知识网络
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS t_action_schedule (
   f_branch VARCHAR(40) NOT NULL DEFAULT '' COMMENT 'Branch',
   f_action_type_id VARCHAR(40) NOT NULL DEFAULT '' COMMENT 'Action type ID to execute',
   f_cron_expression VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Standard 5-field cron expression (min hour dom mon dow)',
-  f_unique_identities MEDIUMTEXT DEFAULT NULL COMMENT 'JSON array of target object unique identities',
+  f_instance_identities MEDIUMTEXT DEFAULT NULL COMMENT 'JSON array of target object instance identities',
   f_dynamic_params MEDIUMTEXT DEFAULT NULL COMMENT 'JSON object of dynamic parameters',
   f_status VARCHAR(20) NOT NULL DEFAULT 'inactive' COMMENT 'Schedule status: active or inactive',
   f_last_run_time BIGINT(20) NOT NULL DEFAULT 0 COMMENT 'Last execution timestamp (ms)',
@@ -316,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `t_table_scan` (
   `f_operation_time` datetime NOT NULL DEFAULT current_timestamp() COMMENT '修改时间，默认当前时间',
   `f_operation_user` varchar(100) NOT NULL DEFAULT '' COMMENT '修改用户（ID），默认空字符串',
   `f_operation_type` tinyint NOT NULL DEFAULT 0 COMMENT '状态：0新增1删除2更新',
-  `f_status` tinyint NOT NULL DEFAULT 3 COMMENT '任务状态：0 成功1 失败2 进行中 3 初始化',
+  `f_status` tinyint NOT NULL DEFAULT 3 COMMENT '任务状态：0 等待;1 进行中;2 成功;3 失败',
   `f_status_change` tinyint NOT NULL DEFAULT 0 COMMENT '状态是否发生变化：0 否1 是',
   `f_scan_source` tinyint(4) DEFAULT NULL COMMENT '扫描来源',
   PRIMARY KEY (`f_id`),
