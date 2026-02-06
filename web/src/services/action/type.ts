@@ -53,6 +53,50 @@ export interface ActionType {
   }; // 最近一次修改人
   update_time: number; // 最近一次更新时间
   detail?: string; // 说明书。按需返回，若指定了include_detail=true，则返回，否则不返回
+  module_type?: string; // 模块类型
+  base_branch?: string; // 来源分支ID
+}
+
+// 任务状态枚举
+export enum TaskStatusEnum {
+  Pending = 'pending',
+  Running = 'running',
+  Success = 'success',
+  Failed = 'failed',
+  Canceled = 'canceled',
+}
+
+// 任务
+export interface Task {
+  id: string; // 任务ID
+  name: string; // 任务名称
+  status: TaskStatusEnum; // 任务状态
+  start_time: number; // 开始时间
+  end_time: number; // 结束时间
+  duration: number; // 耗时
+  trigger_type: string; // 触发方式
+  operator: {
+    id: string;
+    name: string;
+  }; // 执行人
+  result_desc?: string; // 结果描述
+  action_config?: ActionType; // 行动类配置快照
+}
+
+// 获取任务列表请求
+export interface GetTasksRequest {
+  offset?: number;
+  limit?: number;
+  status?: TaskStatusEnum;
+  start_time?: number;
+  end_time?: number;
+  keyword?: string; // 搜索关键词
+}
+
+// 获取任务列表响应
+export interface GetTasksResponse {
+  entries: Task[];
+  total_count: number;
 }
 
 // 获取行动类列表的请求体接口
@@ -168,4 +212,191 @@ export interface EditActionTypeRequest {
   action_source?: ActionSource; // 数据来源
   parameters?: ActionParameter[]; // 行动资源参数
   schedule?: ActionSchedule; //执行频率配置项
+}
+
+// 行动执行状态枚举
+export enum ActionExecutionStatusEnum {
+  Pending = 'pending',
+  Running = 'running',
+  Completed = 'completed',
+  Failed = 'failed',
+  Cancelled = 'cancelled'
+}
+
+// 行动执行请求
+export interface ActionExecutionRequest {
+  unique_identities: Array<Record<string, any>>; // 实体唯一标识列表
+  dynamic_params?: Record<string, any>; // 动态参数
+}
+
+// 行动执行响应
+export interface ActionExecutionResponse {
+  execution_id: string; // 执行ID
+  status: ActionExecutionStatusEnum; // 状态
+  message?: string; // 消息
+  created_at: number; // 创建时间
+}
+
+// 行动执行记录
+export interface ActionExecution {
+  execution_id: string; // 执行ID
+  action_type_id: string; // 行动类ID
+  status: ActionExecutionStatusEnum; // 状态
+  start_time: number; // 开始时间
+  end_time?: number; // 结束时间
+  duration?: number; // 耗时
+  result_desc?: string; // 结果描述
+  logs?: any[]; // 日志
+}
+
+// 查询行动日志参数
+export interface QueryActionLogsRequest { 
+  action_type_id?: string; // 按行动类过滤（可选）
+  status?: ActionExecutionStatusEnum; // 按状态过滤：pending/running/completed/failed/cancelled
+  trigger_type?: string; // 按触发类型：manual(手动)/schedule(定时)/event(事件)
+  start_time_range?: [number, number]; // 时间范围过滤
+  keyword?: string; // 按执行ID或实体唯一标识过滤
+  offset?: number; // 分页偏移量
+  limit?: number; // 分页大小
+  need_total?: boolean; // 是否需要总数
+  search_after?: [number, string]; // 分页游标
+}
+
+// 行动执行日志条目
+export interface ActionExecutionLog {
+  id: string;
+  action_type_id: string;
+  action_type_name: string;
+  status: ActionExecutionStatusEnum;
+  trigger_type: string;
+  total_count: number;
+  success_count: number;
+  failed_count: number;
+  start_time: number;
+  duration_ms: number;
+}
+
+// 行动日志列表响应
+export interface ActionExecutionList {
+  entries: ActionExecutionLog[];
+  total_count: number;
+  search_after?: [number, string];
+}
+
+// 行动执行日志详情结果项
+export interface ActionExecutionResult {
+  unique_identity: {
+    branch: string;
+    color: string;
+    icon: string;
+    id: string;
+    name: string;
+  };
+  status: 'success' | 'failed';
+  parameters: Record<string, any>;
+  result?: Record<string, any>;
+  error_message?: string;
+  duration_ms: number;
+  start_time: number;
+  end_time?: number;
+  _display?: string;
+}
+
+// 行动执行日志详情
+export interface ActionExecutionLogDetail {
+  id: string;
+  kn_id: string;
+  action_type_id: string;
+  action_type_name: string;
+  action_source_type: string;
+  object_type_id: string;
+  trigger_type: string;
+  status: ActionExecutionStatusEnum;
+  total_count: number;
+  success_count: number;
+  failed_count: number;
+  results: ActionExecutionResult[];
+  executor_id: string;
+  start_time: number;
+  end_time: number;
+  duration_ms: number;
+}
+
+// 取消执行响应
+export interface CancelExecutionResponse {
+  success: boolean;
+  message?: string;
+}
+
+// 行动计划状态枚举
+export enum ActionScheduleStatusEnum {
+  Active = 'active',
+  Inactive = 'inactive',
+}
+
+// 行动计划
+export interface ActionSchedule {
+  id: string; // 行动计划ID
+  name: string; // 行动计划名称
+  kn_id: string; // 知识网络ID
+  branch: string; // 分支
+  action_type_id: string; // 行动类ID
+  cron_expression: string; // Cron表达式
+  unique_identities?: Array<Record<string, any>>; // 实体唯一标识列表
+  dynamic_params?: Record<string, any>; // 动态参数
+  status: ActionScheduleStatusEnum; // 状态
+  last_run_time?: number; // 上次执行时间
+  next_run_time?: number; // 下次执行时间
+  creator?: {
+    id: string;
+    name: string;
+    type: string;
+  }; // 创建人
+  create_time?: number; // 创建时间
+  updater?: {
+    id: string;
+    name: string;
+    type: string;
+  }; // 更新人
+  update_time?: number; // 更新时间
+}
+
+// 创建行动计划请求
+export interface CreateActionScheduleRequest {
+  name: string; // 行动计划名称
+  action_type_id: string; // 行动类ID
+  cron_expression: string; // Cron表达式
+  unique_identities: Array<Record<string, any>>; // 实体唯一标识列表
+  dynamic_params?: Record<string, any>; // 动态参数
+  status?: ActionScheduleStatusEnum; // 状态，默认为inactive
+}
+
+// 更新行动计划请求
+export interface UpdateActionScheduleRequest {
+  name?: string; // 行动计划名称
+  cron_expression?: string; // Cron表达式
+  unique_identities?: Array<Record<string, any>>; // 实体唯一标识列表
+  dynamic_params?: Record<string, any>; // 动态参数
+}
+
+// 更新行动计划状态请求
+export interface UpdateActionScheduleStatusRequest {
+  status: ActionScheduleStatusEnum; // 状态
+}
+
+// 获取行动计划列表请求
+export interface GetActionSchedulesRequest {
+  name_pattern?: string; // 名称模糊查询
+  action_type_id?: string; // 行动类ID
+  status?: ActionScheduleStatusEnum; // 状态
+  offset?: number; // 偏移量
+  limit?: number; // 数量
+  sort?: string; // 排序字段
+  direction?: DirectionEnum; // 排序方向
+}
+
+// 获取行动计划列表响应
+export interface GetActionSchedulesResponse {
+  entries: ActionSchedule[];
+  total_count: number;
 }
