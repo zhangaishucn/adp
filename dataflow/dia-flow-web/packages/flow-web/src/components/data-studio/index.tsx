@@ -5,10 +5,11 @@ import { Overview } from "./overview";
 import { useContext, useEffect, useState, memo } from "react";
 import overview from "./assets/overview.png";
 import { useHandleErrReq } from "../../utils/hooks";
-import { API, MicroAppContext } from "@applet/common";
+import { API, MicroAppContext, useTranslate } from "@applet/common";
 import { PermissionType } from "./types";
 
 export const DataStudioIndex = memo(() => {
+  const t = useTranslate('dataStudio');
   const handleErr = useHandleErrReq();
   const { prefixUrl } = useContext(MicroAppContext);
   const [activeTab, setActiveTab] = useState<string>();
@@ -71,11 +72,11 @@ export const DataStudioIndex = memo(() => {
       >
         {observabilityShow &&
           permissionCheckInfo?.includes(PermissionType.Display) && (
-            <Tabs.TabPane tab="概览" key="1">
+            <Tabs.TabPane tab={t('index.overview')} key="1">
               {activeTab === "1" && <Overview />}
             </Tabs.TabPane>
           )}
-        <Tabs.TabPane tab="管道" key="2">
+        <Tabs.TabPane tab={t('index.process')} key="2">
           {activeTab === "2" && <DataStudioPanel />}
         </Tabs.TabPane>
       </Tabs>

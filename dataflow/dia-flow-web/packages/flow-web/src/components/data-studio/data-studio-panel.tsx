@@ -230,7 +230,7 @@ const DataStudioPanel: React.FC = () => {
   // 表格列定义
   const columns = [
     {
-      title: t("datastudio.table.column.name", "管道名称"),
+      title: t("datastudio.table.column.name", "流程名称"),
       dataIndex: "title",
       key: "title",
       ellipsis: true,
@@ -305,7 +305,7 @@ const DataStudioPanel: React.FC = () => {
       ),
     },
     {
-      title: "创建人",
+      title: t('dataStudio.overviewStatistics.creator'),
       dataIndex: "creator",
       key: "creator",
       width: 200,
@@ -738,7 +738,7 @@ const DataStudioPanel: React.FC = () => {
                 exportJson();
               }}
             >
-              导出
+              {t("datastudio.button.important", "导出")}
             </Button>
           )}
           {permissionCheckInfo?.includes(PermissionType.Delete) && (
@@ -1037,7 +1037,7 @@ const DataStudioPanel: React.FC = () => {
                       }
                       loading={uploading}
                     >
-                      导入
+                      {t("datastudio.button.import", "导入")}
                     </Button>
                   </Upload>
                 </>
@@ -1198,7 +1198,7 @@ const DataStudioPanel: React.FC = () => {
       >
         <p style={{ color: "red" }}>已存在同名任务,请更换名称重试</p>
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="管道名称">
+          <Form.Item name="name" label="流程名称">
             <Input placeholder="请输入" />
           </Form.Item>
         </Form>

@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import styles from "./index.module.less";
 import { OverviewRunning } from "./overview-running";
-import { API, MicroAppContext } from "@applet/common";
+import { API, MicroAppContext, useTranslate } from "@applet/common";
 import { useHandleErrReq } from "../../utils/hooks";
 import { OverviewStatistics } from "./overview-statistics";
 import { Card, Col, Row, Select, Statistic } from "antd";
@@ -15,16 +15,17 @@ import { SelectTime } from "./select-time";
 import { formatNumber } from "../../utils/format-number";
 
 export const Overview = memo(({}) => {
+  const t = useTranslate('dataStudio');
   const [loading, setLoading] = useState(false);
   const [fullViewInfo, setFullViewInfo] = useState<any>();
   const { prefixUrl } = useContext(MicroAppContext);
   const handleErr = useHandleErrReq();
   const [pieData, setPieData] = useState<any>([
-    { type: "运行中", value: 0, color: "#6395F9" },
-    { type: "成功", value: 0, color: "#69DFAE" },
-    { type: "失败", value: 0, color: "#E296B7" },
-    { type: "取消", value: 0, color: "#EDC14E" },
-    { type: "等待", value: 0, color: "#DADADA" },
+    { type: t('overview.running'), value: 0, color: "#6395F9" },
+    { type: t('overview.success'), value: 0, color: "#69DFAE" },
+    { type: t('overview.failed'), value: 0, color: "#E296B7" },
+    { type: t('overview.canceled'), value: 0, color: "#EDC14E" },
+    { type: t('overview.waiting'), value: 0, color: "#DADADA" },
   ]);
   const [trigger, setTrigger] = useState<string>("");
   const [fullDatePicker, setFullDatePicker] = useState<any>();
@@ -82,11 +83,11 @@ export const Overview = memo(({}) => {
       setFullViewInfo(data?.basic);
       const { success, failed, canceled, running, scheduled } = data?.run;
       setPieData([
-        { type: "运行中", value: running, color: "#6395F9" },
-        { type: "成功", value: success, color: "#69DFAE" },
-        { type: "失败", value: failed, color: "#E296B7" },
-        { type: "取消", value: canceled, color: "#EDC14E" },
-        { type: "等待", value: scheduled, color: "#DADADA" },
+        { type: t('overview.running'), value: running, color: "#6395F9" },
+        { type: t('overview.success'), value: success, color: "#69DFAE" },
+        { type: t('overview.failed'), value: failed, color: "#E296B7" },
+        { type: t('overview.canceled'), value: canceled, color: "#EDC14E" },
+        { type: t('overview.waiting'), value: scheduled, color: "#DADADA" },
       ]);
     } catch (error: any) {
       handleErr({ error: error?.response });
@@ -120,7 +121,7 @@ export const Overview = memo(({}) => {
   return (
     <div>
       <div className={styles["data-studio-operator"]}>
-        触发方式：
+        {t('overview.triggerMethod')}：
         <Select
           defaultValue=""
           onChange={handleChange}
@@ -128,19 +129,19 @@ export const Overview = memo(({}) => {
           options={[
             {
               value: "",
-              label: "全部",
+              label: t('overview.all'),
             },
             {
               value: "cron",
-              label: "定时",
+              label: t('overview.scheduled'),
             },
             {
               value: "event",
-              label: "事件",
+              label: t('overview.event'),
             },
             {
               value: "manually",
-              label: "手动",
+              label: t('overview.manual'),
             },
           ]}
         />
@@ -165,7 +166,7 @@ export const Overview = memo(({}) => {
                 title={
                   <div className={styles["card-statistic-title"]}>
                     <img src={SumSVG} />
-                    <div>管道总数</div>
+                    <div>{t('overview.totalProcesses')}</div>
                   </div>
                 }
                 value={formatNumber(fullViewInfo?.dag_total)}
@@ -178,7 +179,7 @@ export const Overview = memo(({}) => {
                   title={
                     <div className={styles["card-statistic-title"]}>
                       <img src={CronSVG} />
-                      <div>定时触发</div>
+                      <div>{t('overview.scheduledTrigger')}</div>
                     </div>
                   }
                   value={formatNumber(fullViewInfo?.cron)}
@@ -190,7 +191,7 @@ export const Overview = memo(({}) => {
                   title={
                     <div className={styles["card-statistic-title"]}>
                       <img src={EventSVG} />
-                      <div>事件触发</div>
+                      <div>{t('overview.eventTrigger')}</div>
                     </div>
                   }
                   value={formatNumber(fullViewInfo?.event)}
@@ -202,7 +203,7 @@ export const Overview = memo(({}) => {
                   title={
                     <div className={styles["card-statistic-title"]}>
                       <img src={ManuallySVG} />
-                      手动触发
+                      {t('overview.manualTrigger')}
                     </div>
                   }
                   value={formatNumber(fullViewInfo?.manually)}
@@ -220,7 +221,7 @@ export const Overview = memo(({}) => {
           >
             <div className={styles["data-studio-card-header"]}>
               <div className={styles["data-studio-card-title"]}>
-                实例运行状态占比
+                {t('overview.instanceStatusRatio')}
               </div>
               <SelectTime getTimeChange={getTimeChange} />
             </div>

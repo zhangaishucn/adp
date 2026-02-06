@@ -3,7 +3,7 @@ import styles from "./index.module.less";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { SelectTime } from "./select-time";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
-import { API, MicroAppContext } from "@applet/common";
+import { API, MicroAppContext, useTranslate } from "@applet/common";
 import { useHandleErrReq } from "../../utils/hooks";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { formatNumber } from "../../utils/format-number";
@@ -11,6 +11,7 @@ import { formatNumber } from "../../utils/format-number";
 export const OverviewStatistics = memo(({ trigger, random }: any) => {
   const { prefixUrl } = useContext(MicroAppContext);
   const handleErr = useHandleErrReq();
+  const t = useTranslate('dataStudio');
   const limit = 20;
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -19,48 +20,48 @@ export const OverviewStatistics = memo(({ trigger, random }: any) => {
   const [runtimeDatePicker, setRuntimeDatePicker] = useState<any>();
   const columns = [
     {
-      title: "管道名称",
+      title: t('overviewStatistics.processName'),
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "总运行次数",
+      title: t('overviewStatistics.totalRuns'),
       dataIndex: "status_summary",
       key: "total",
       render: (status_summary: any) => formatNumber(status_summary?.total),
     },
     {
-      title: "成功率",
+      title: t('overviewStatistics.successRate'),
       dataIndex: "metric",
       key: "success_rate",
       render: (metric: any) => `${metric?.success_rate}%`,
     },
     {
-      title: "成功次数",
+      title: t('overviewStatistics.successCount'),
       dataIndex: "status_summary",
       key: "success",
       render: (status_summary: any) => formatNumber(status_summary?.success),
     },
     {
-      title: "运行中次数",
+      title: t('overviewStatistics.runningCount'),
       dataIndex: "status_summary",
       key: "running",
       render: (status_summary: any) => formatNumber(status_summary?.running),
     },
     {
-      title: "失败次数",
+      title: t('overviewStatistics.failedCount'),
       dataIndex: "status_summary",
       key: "failed",
       render: (status_summary: any) => formatNumber(status_summary?.failed),
     },
     {
-      title: "平均耗时",
+      title: t('overviewStatistics.avgDuration'),
       dataIndex: "metric",
       key: "avg_run_duration",
       render: (metric: any) => `${metric?.avg_run_duration}s`,
     },
     {
-      title: "创建人",
+      title: t('overviewStatistics.creator'),
       dataIndex: "creator",
       key: "creator",
     },
@@ -123,8 +124,8 @@ export const OverviewStatistics = memo(({ trigger, random }: any) => {
     <Card className={styles["data-studio-card"]}>
       <div className={styles["data-studio-card-header"]}>
         <div className={styles["data-studio-card-title"]}>
-          运行统计
-          <Tooltip placement="top" title="统计所有管道在一段时间内的运行数据。">
+          {t('overviewStatistics.runningStats')}
+          <Tooltip placement="top" title={t('overviewStatistics.runningStatsTooltip')}>
             <QuestionCircleOutlined
               className={styles["data-studio-card-icon"]}
             />
