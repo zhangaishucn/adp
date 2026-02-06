@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"reflect"
@@ -25,6 +26,7 @@ import (
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/libs/go/telemetry/trace"
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/logics/perm"
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/pkg/actions"
+	pkgconfig "github.com/kweaver-ai/adp/autoflow/flow-automation/pkg/config"
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/pkg/dependency"
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/pkg/entity"
 	"github.com/kweaver-ai/adp/autoflow/flow-automation/pkg/log"
@@ -281,6 +283,14 @@ type RunDagParams struct {
 // DocMsg doc msg
 type DocMsg = common.DocMsg
 
+// S3ValidationResult S3配置验证结果
+type S3ValidationResult struct {
+	BucketExists   bool   `json:"bucket_exists"`
+	PathAccessible bool   `json:"path_accessible"`
+	FileCount      int    `json:"file_count"`
+	Message        string `json:"message,omitempty"`
+}
+
 // MgntHandler mgnt interface method
 type MgntHandler interface { //nolint
 	CreateDag(ctx context.Context, param *CreateDagReq, userInfo *drivenadapters.UserInfo) (string, error)
@@ -342,6 +352,16 @@ type MgntHandler interface { //nolint
 	ListHistoryData(ctx context.Context, page, limit int64) (HistoryDataResp, error)
 	ListDagInstanceEvents(ctx context.Context, dagID, dagInsID string, offset, limit int, userInfo *drivenadapters.UserInfo) (
 		logs []*entity.DagInstanceEvent, dagIns *entity.DagInstance, total int, next int, err error)
+
+	// S3配置验证接口
+	ValidateS3Config(ctx context.Context, bucket, path, mode string) (*S3ValidationResult, error)
+
+	// S3文件管理接口
+	UploadS3File(ctx context.Context, dagID string, fileHeader *multipart.FileHeader, userInfo *drivenadapters.UserInfo) (*S3DataItem, error)
+	ListS3Files(ctx context.Context, dagID string, userInfo *drivenadapters.UserInfo) ([]*S3DataItem, error)
+	DeleteS3File(ctx context.Context, dagID, key string, userInfo *drivenadapters.UserInfo) error
+	MoveS3Files(ctx context.Context, sources []string, targetDagID string) ([]string, error)
+	GetS3FileDownloadURL(ctx context.Context, dagID, key string, userInfo *drivenadapters.UserInfo) (string, error)
 }
 
 var (
@@ -382,6 +402,7 @@ type mgnt struct {
 	memoryCache       cstore.LocalCache
 	pool              *threadPool.PoolManager
 	bizDomain         drivenadapters.BusinessDomain
+	s3Adapter         drivenadapters.S3Adapter // S3适配器
 }
 
 // NewMgnt mgnt instance
@@ -426,6 +447,18 @@ func NewMgnt() MgntHandler {
 				CleanUpInterval: 10 * time.Minute,
 			}),
 			bizDomain: drivenadapters.NewBusinessDomain(),
+		}
+
+		// Initialize S3 adapter if configured
+		if s3cfg, err := pkgconfig.LoadS3Config(); err == nil {
+			if s3Adapter, err := drivenadapters.NewS3Adapter(s3cfg); err == nil {
+				mIns.s3Adapter = s3Adapter
+				log.Info("[mgnt.NewMgnt] S3 adapter initialized successfully")
+			} else {
+				log.Warnf("[mgnt.NewMgnt] Failed to create S3 adapter: %v", err)
+			}
+		} else if pkgconfig.IsS3Configured() {
+			log.Warnf("[mgnt.NewMgnt] S3 is configured but failed to load config: %v", err)
 		}
 
 		perm.RegisterChecker(common.DagTypeDataFlow, &perm.DataFlowDagPermChecker{PermPolicy: perm.NewPermPolicy()})
@@ -2953,7 +2986,6 @@ func (m *mgnt) ListTaskInstance(ctx context.Context, dagID, dagInstanceID string
 			log.Warnf("[logic.ListTaskInstance] GetTaskInstanceCount err, detail: %s", err.Error())
 			return taskInsResultList, 0, ierrors.NewIError(ierrors.InternalError, "", nil)
 		}
-
 	}
 
 	for _, taskIns := range taskInsList {
@@ -3769,9 +3801,90 @@ func (m *mgnt) triggerfromDataSource(ctx context.Context, dataSource *entity.Dat
 		} else {
 			return false, nil
 		}
+	case common.S3DataListObjects:
+		// S3数据源处理
+		fmt.Println("Processing S3 data source for dag: ", dag.ID)
+		log.Infof("[triggerfromDataSource] Processing S3 data source for dag: %s", dag.ID)
+
+		// 创建一个临时的 DagInstance 用于存储 S3 数据
+		dagIns := &entity.DagInstance{
+			DagID:     dag.ID,
+			ShareData: &entity.ShareData{},
+		}
+
+		// 调用 handleS3DataSource 获取 S3 对象列表
+		err := m.handleS3DataSource(ctx, dag, dagIns)
+		if err != nil {
+			log.Warnf("[triggerfromDataSource] handleS3DataSource failed: %s, dagId: %s", err.Error(), dag.ID)
+			return false, err
+		}
+
+		if dagIns.ShareData != nil && dagIns.ShareData.Dict != nil {
+			for key, value := range dagIns.ShareData.Dict {
+				fmt.Printf("  Key: %v (type: %T), Value type: %T\n", key, key, value)
+			}
+		} else {
+			fmt.Printf("  ShareData or Dict is nil\n")
+		}
+
+		// 从 ShareData 中获取 S3 对象列表
+		s3Data, ok := dagIns.ShareData.Get("__0")
+		if !ok {
+			log.Warnf("[triggerfromDataSource] No S3 data found in ShareData for dag: %s", dag.ID)
+			return false, nil
+		}
+
+		s3DataMap, ok := s3Data.(map[string]interface{})
+		if !ok {
+			log.Warnf("[triggerfromDataSource] Invalid S3 data format for dag: %s", dag.ID)
+			return false, nil
+		}
+
+		items, ok := s3DataMap["items"]
+		if !ok {
+			log.Warnf("[triggerfromDataSource] No items in S3 data for dag: %s", dag.ID)
+			return false, nil
+		}
+
+		// 将 S3 对象转换为 DataSourceItem
+		s3Items, ok := items.([]S3DataItem)
+		if !ok {
+			log.Warnf("[triggerfromDataSource] Invalid S3 items format for dag: %s", dag.ID)
+			return false, nil
+		}
+
+		for _, s3Item := range s3Items {
+			data := map[string]interface{}{
+				"id":            s3Item.ID,
+				"bucket":        s3Item.Bucket,
+				"key":           s3Item.Key,
+				"name":          s3Item.Name,
+				"size":          s3Item.Size,
+				"last_modified": s3Item.LastModified,
+				"etag":          s3Item.ETag,
+				"download_url":  s3Item.DownloadURL,
+			}
+			datas = append(datas, &DataSourceItem{
+				ID:       s3Item.Key,
+				Keywords: []string{s3Item.Bucket, s3Item.Key},
+				Data:     data,
+			})
+		}
+
+		if len(datas) > 0 {
+			err = m.createDagInstanceFromDataSource(ctx, triggerType, runVar, datas, dag)
+			if err != nil {
+				log.Warnf("[triggerfromDataSource] createDagInstanceFromDataSource failed: %s, dagId: %s", err.Error(), dag.ID)
+			}
+			return true, err
+		} else {
+			log.Warnf("[triggerfromDataSource] No S3 objects found for dag: %s", dag.ID)
+			return false, nil
+		}
+	default:
+		return false, nil
 	}
 
-	return false, nil
 }
 
 func (m *mgnt) getDepartmentMembers(ctx context.Context, departmentID string) []string {
@@ -4722,6 +4835,7 @@ func (m *mgnt) getDataSourceType(dataSource *entity.DataSource) string {
 type DataSourceItem struct {
 	ID       string
 	Keywords []string
+	Data     map[string]interface{}
 }
 
 // createDagInstanceFromDataSource
@@ -4729,8 +4843,19 @@ func (m *mgnt) createDagInstanceFromDataSource(ctx context.Context, triggerType 
 	dag.SetPushMessage(m.executeMethods.Publish)
 	dagInstances := make([]*entity.DagInstance, 0)
 	for _, d := range datas {
-		runVar["docid"] = d.ID
-		dagIns, dagErr := dag.Run(ctx, triggerType, runVar, entity.WithKeyWords(d.Keywords...))
+		// Clone runVar to avoid polluting shared map across iterations or affecting caller
+		currentRunVar := make(map[string]string)
+		for k, v := range runVar {
+			currentRunVar[k] = v
+		}
+		currentRunVar["docid"] = d.ID
+		if d.Data != nil {
+			for k, v := range d.Data {
+				currentRunVar[k] = fmt.Sprintf("%v", v)
+			}
+		}
+
+		dagIns, dagErr := dag.Run(ctx, triggerType, currentRunVar, entity.WithKeyWords(d.Keywords...))
 		if dagErr != nil {
 			return ierrors.NewIError(ierrors.Forbidden, ierrors.DagStatusNotNormal, map[string]interface{}{"id:": dag.ID, "status": dag.Status})
 		}
