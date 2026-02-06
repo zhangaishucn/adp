@@ -99,6 +99,42 @@ func waitForSessionRunning(ctx context.Context, sessionID string) error {
 	}
 }
 
+func checkAndReuseSession(ctx context.Context, sessionID string) bool {
+	log := traceLog.WithContext(ctx)
+	sandboxClient := drivenadapters.NewSandbox()
+
+	session, serr := sandboxClient.GetSession(ctx, sessionID)
+	if serr != nil {
+		log.Warnf("[Sandbox] Get session %s failed: %v", sessionID, serr)
+		return false
+	}
+
+	if session == nil {
+		return false
+	}
+
+	switch session.Status {
+	case drivenadapters.SessionStatusRunning:
+		log.Infof("[Sandbox] Reuse existing running session: %s", sessionID)
+		return true
+	case drivenadapters.SessionStatusCreating:
+		log.Infof("[Sandbox] Session %s is creating, waiting for it to be running...", sessionID)
+		serr := waitForSessionRunning(ctx, sessionID)
+		if serr != nil {
+			log.Warnf("[Sandbox] Session %s failed to become running: %v", sessionID, serr)
+			return false
+		}
+		log.Infof("[Sandbox] Session %s is now running, reusing it", sessionID)
+		return true
+	case drivenadapters.SessionStatusFailed, drivenadapters.SessionStatusCompleted:
+		log.Infof("[Sandbox] Session %s is invalid (status: %s), creating new one", sessionID, session.Status)
+		return false
+	default:
+		log.Warnf("[Sandbox] Session %s is unavailable with status: %s, creating new one", sessionID, session.Status)
+		return false
+	}
+}
+
 func GetOrCreateSession(ctx context.Context, config *drivenadapters.SandboxSessionConfig) (string, error) {
 	log := traceLog.WithContext(ctx)
 	redisClient := libstore.NewRedis().GetClient()
@@ -109,46 +145,43 @@ func GetOrCreateSession(ctx context.Context, config *drivenadapters.SandboxSessi
 	sessionKey := SandboxSessionKeyPrefix + configHash
 	lockKey := SandboxLockPrefix + ":" + configHash
 
+	sandboxClient := drivenadapters.NewSandbox()
+
+	sessionID, err := redisClient.Get(ctx, sessionKey).Result()
+	if err == nil && sessionID != "" {
+		reused := checkAndReuseSession(ctx, sessionID)
+		if reused {
+			return sessionID, nil
+		}
+	}
+
 	lockClient := lock.NewDistributeLock(libstore.NewRedis(), lockKey, "sandbox_executor")
 	lockCtx, cancel := context.WithTimeout(ctx, SandboxLockWaitTTL)
 	defer cancel()
 
-	err := lockClient.TryLock(lockCtx, SandboxLockTTL, false)
+	err = lockClient.TryLock(lockCtx, SandboxLockTTL, false)
 	if err != nil {
+		log.Warnf("[Sandbox] Acquire lock failed: %v, trying to reuse session created by other goroutine", err)
+		sessionID, err = redisClient.Get(ctx, sessionKey).Result()
+		if err == nil && sessionID != "" {
+			reused := checkAndReuseSession(ctx, sessionID)
+			if reused {
+				return sessionID, nil
+			}
+		}
 		return "", fmt.Errorf("acquire lock failed: %w", err)
 	}
 	defer lockClient.Release()
 
-	sessionID, err := redisClient.Get(ctx, sessionKey).Result()
+	sessionID, err = redisClient.Get(ctx, sessionKey).Result()
 	if err == nil && sessionID != "" {
-		sandboxClient := drivenadapters.NewSandbox()
-		session, serr := sandboxClient.GetSession(ctx, sessionID)
-		if serr != nil {
-			log.Warnf("[Sandbox] Get session %s failed: %v, creating new one", sessionID, serr)
-		} else if session != nil {
-			switch session.Status {
-			case drivenadapters.SessionStatusRunning:
-				log.Infof("[Sandbox] Reuse existing running session: %s", sessionID)
-				return sessionID, nil
-			case drivenadapters.SessionStatusCreating:
-				log.Infof("[Sandbox] Session %s is creating, waiting for it to be running...", sessionID)
-				serr := waitForSessionRunning(ctx, sessionID)
-				if serr != nil {
-					log.Warnf("[Sandbox] Session %s failed to become running: %v, creating new one", sessionID, serr)
-				} else {
-					log.Infof("[Sandbox] Session %s is now running, reusing it", sessionID)
-					return sessionID, nil
-				}
-			case drivenadapters.SessionStatusFailed, drivenadapters.SessionStatusCompleted:
-				log.Infof("[Sandbox] Session %s is invalid (status: %s), creating new one", sessionID, session.Status)
-			default:
-				log.Warnf("[Sandbox] Session %s is unavailable with status: %s, creating new one", sessionID, session.Status)
-			}
+		reused := checkAndReuseSession(ctx, sessionID)
+		if reused {
+			return sessionID, nil
 		}
 	}
 
 	log.Infof("[Sandbox] Creating new session for config hash: %s", configHash)
-	sandboxClient := drivenadapters.NewSandbox()
 
 	var deps []drivenadapters.SessionDependency
 	for _, dep := range config.Dependencies {

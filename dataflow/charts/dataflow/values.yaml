@@ -307,7 +307,7 @@ depServices:
     port: 13013
     protocol: http
   sandbox:
-    host: sandbox
+    host: sandbox-control-plane
     port: 8000
     template_id: "python-basic"
     cpu: "1"
