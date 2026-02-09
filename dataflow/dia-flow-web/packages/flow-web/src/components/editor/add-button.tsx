@@ -2,7 +2,7 @@ import { PlusCircleOutlined } from "@ant-design/icons";
 import { FC, useContext, useState } from "react";
 import { Popover, Space, Tooltip } from "antd";
 import styles from "./editor.module.less";
-import { useTranslate } from "@applet/common";
+import { MicroAppContext, useTranslate } from "@applet/common";
 import { EditorContext } from "./editor-context";
 import { LoopContext } from "./loop-step";
 import brancheIcon from "./assets/branche.svg";
@@ -22,6 +22,7 @@ export const AddButton: FC<{
     const [visible, setVisible] = useState(false);
     const t = useTranslate();
     const loopContext = useContext(LoopContext);
+    const { platform } = useContext(MicroAppContext);
 
     return (
       <Popover
@@ -63,21 +64,23 @@ export const AddButton: FC<{
                 </div>
               </Tooltip>
             </div>
-            <div className={styles.addButtonGroupItem} onClick={onAddParallel}>
-              <Tooltip
-                placement="top"
-                title={t("editor.addButton.parallelTips")}
-              >
-                <img
-                  src={parallelIcon}
-                  alt="icon"
-                  className={styles.addButtonGroupItemIcon}
-                />
-                <div className={styles.addButtonGroupItemLabel}>
-                  {t("editor.addButton.parallel", "并行分支")}
-                </div>
-              </Tooltip>
-            </div>
+            {platform !== 'operator' && (
+              <div className={styles.addButtonGroupItem} onClick={onAddParallel}>
+                <Tooltip
+                  placement="top"
+                  title={t("editor.addButton.parallelTips")}
+                >
+                  <img
+                    src={parallelIcon}
+                    alt="icon"
+                    className={styles.addButtonGroupItemIcon}
+                  />
+                  <div className={styles.addButtonGroupItemLabel}>
+                    {t("editor.addButton.parallel", "并行分支")}
+                  </div>
+                </Tooltip>
+              </div>
+            )}
             {loopContext.nest > 0 ? null : (
               <div className={styles.addButtonGroupItem} onClick={onAddLoop}>
                 <img
