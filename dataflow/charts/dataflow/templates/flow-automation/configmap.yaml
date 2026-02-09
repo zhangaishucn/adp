@@ -33,6 +33,7 @@ data:
   SERVER_DAG_INSTANCE_EVENT_MAX_INLINE_SIZE: {{ .Values.flowAutomation.service.dagInstanceEventMaxInlineSize | quote }}
   SERVER_DAG_INSTANCE_EVENT_ARCHIVE_POLICY: {{ .Values.flowAutomation.service.dagInstanceEventArchivePolicy | quote }}
   SERVER_STORAGE_PREFIX: {{ .Values.flowAutomation.service.storagePrefix | quote }}
+  SERVER_EDITION: {{ .Values.flowAutomation.service.edition | quote }}
   MONGODB_USER: {{ .Values.depServices.mongodb.user | quote }}
   MONGODB_HOST: {{ .Values.depServices.mongodb.host | quote }}
   MONGODB_PORT: {{ .Values.depServices.mongodb.port | quote }}
@@ -255,16 +256,6 @@ data:
   SANDBOX_DISK: {{ .Values.depServices.sandbox.disk | quote }}
   SANDBOX_TIMEOUT: {{ .Values.depServices.sandbox.timeout | quote }}
 
-  {{- if .Values.depServices.s3.endpoint }}
-  S3_ENDPOINT: {{ .Values.depServices.s3.endpoint | quote }}
-  S3_REGION: {{ .Values.depServices.s3.region | quote }}
-  S3_USE_SSL: {{ .Values.depServices.s3.useSSL | quote }}
-  S3_SKIP_VERIFY: {{ .Values.depServices.s3.skipVerify | quote }}
-  S3_BUCKET_NAME: {{ .Values.depServices.s3.bucket | quote }}
-  S3_ACCESS_KEY_ID: {{ .Values.depServices.s3.accessKeyId | quote }}
-  S3_SECRET_ACCESS_KEY: {{ .Values.depServices.s3.secretAccessKey | quote }}
-  {{- end }}
-
   flow_o11y_data.yaml: |
     log_level: {{ index .Values "flowAutomation" "flow-o11y-data-log" "log_level"}}
     {{- with index .Values "flowAutomation" "flow-o11y-data-log" "exporters" }}
@@ -275,4 +266,7 @@ data:
   ACTION_CONFIG_YAML: {{ .Values.flowAutomation.actionConfigYaml }}
   ACTION_CONFIG: |
     {{ .Values.flowAutomation.actionConfig | toYaml | nindent 4 }}
+
+  S3: |
+    {{ .Values.flowAutomation.s3 | toYaml | nindent 4 }}
 {{- end }}
