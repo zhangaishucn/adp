@@ -276,6 +276,7 @@ func (rta *relationTypeAccess) ListRelationTypes(ctx context.Context, query inte
 
 	// 记录处理的 sql 字符串
 	o11y.Info(ctx, fmt.Sprintf("查询关系类列表的 sql 语句: %s; queryParams: %v", sqlStr, query))
+	logger.Info(ctx, fmt.Sprintf("查询关系类列表的 sql 语句: %s; queryParams: %v", sqlStr, query))
 
 	rows, err := rta.db.Query(sqlStr, vals...)
 	if err != nil {
@@ -868,6 +869,13 @@ func processQueryCondition(query interfaces.RelationTypesQueryParams, subBuilder
 
 	if len(query.TargetObjectTypeIDs) > 0 {
 		subBuilder = subBuilder.Where(sq.Eq{"f_target_object_type_id": query.TargetObjectTypeIDs})
+	}
+
+	if len(query.BoundObjectTypeIDs) > 0 {
+		subBuilder = subBuilder.Where(sq.Or{
+			sq.Eq{"f_source_object_type_id": query.BoundObjectTypeIDs},
+			sq.Eq{"f_target_object_type_id": query.BoundObjectTypeIDs},
+		})
 	}
 
 	return subBuilder
