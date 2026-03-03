@@ -1051,16 +1051,21 @@ func (m *mqHandler) handleAsyncTaskResult(message []byte) error {
 		taskResult = notification.Result
 	}
 
-	// 查询关联的任务实例
+	// 查询关联的任务实例（只查询 blocked 状态，避免重复处理已完成的任务）
 	taskIns, err := m.mongo.ListTaskInstance(ctx, &mod.ListTaskInstanceInput{
-		Hash: notification.Hash,
+		Hash:   notification.Hash,
+		Status: []entity.TaskInstanceStatus{entity.TaskInstanceStatusBlocked},
 	})
 
-	if err != nil || len(taskIns) == 0 {
-		if err != nil {
-			log.Warnf("[handleAsyncTaskResult] ListTaskInstance failed, hash: %s, err: %s", notification.Hash, err.Error())
-		}
+	if err != nil {
+		log.Warnf("[handleAsyncTaskResult] ListTaskInstance failed, hash: %s, err: %s", notification.Hash, err.Error())
 		return err
+	}
+
+	if len(taskIns) == 0 {
+		log.Infof("[handleAsyncTaskResult] No blocked instances found for hash: %s, taskType: %s, already processed or not exist",
+			notification.Hash, notification.TaskType)
+		return nil
 	}
 
 	// 恢复所有阻塞的任务实例
