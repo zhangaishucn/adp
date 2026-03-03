@@ -1048,10 +1048,26 @@ func (m *mqHandler) handleAsyncTaskResult(message []byte) error {
 		taskStatus = entity.TaskInstanceStatusFailed
 		taskResult["error"] = notification.Error
 	} else {
-		taskResult = notification.Result
+		taskCacheItem, err := m.getTaskCacheByHashWithRetry(ctx, notification.Hash, 3)
+		if err != nil {
+			log.Warnf("[handleAsyncTaskResult] getTaskCacheByHashWithRetry failed, err %s, hash %s", err.Error(), notification.Hash)
+			taskStatus = entity.TaskInstanceStatusFailed
+			taskResult["error"] = err.Error()
+		} else if taskCacheItem == nil {
+			log.Warnf("[handleAsyncTaskResult] task cache not found, hash %s", notification.Hash)
+			taskStatus = entity.TaskInstanceStatusFailed
+			taskResult["error"] = "task cache not found"
+		} else {
+			loader := &actions.DefaultTaskResultLoader{}
+			taskResult, err = loader.LoadResult(ctx, taskCacheItem)
+			if err != nil {
+				log.Warnf("[handleAsyncTaskResult] LoadResult failed, err %s, hash %s", err.Error(), notification.Hash)
+				taskStatus = entity.TaskInstanceStatusFailed
+				taskResult["error"] = err.Error()
+			}
+		}
 	}
 
-	// 查询关联的任务实例（只查询 blocked 状态，避免重复处理已完成的任务）
 	taskIns, err := m.mongo.ListTaskInstance(ctx, &mod.ListTaskInstanceInput{
 		Hash:   notification.Hash,
 		Status: []entity.TaskInstanceStatus{entity.TaskInstanceStatusBlocked},
