@@ -23,6 +23,9 @@ import (
 	_ "go.uber.org/automaxprocs"
 
 	"vega-backend/common"
+	"vega-backend/drivenadapters/auth"
+	"vega-backend/drivenadapters/permission"
+	"vega-backend/drivenadapters/user_mgmt"
 	"vega-backend/driveradapters"
 	"vega-backend/logics"
 	"vega-backend/logics/connectors/factory"
@@ -104,13 +107,20 @@ func main() {
 	db := libdb.NewDB(&appSetting.DBSetting)
 	logics.SetDB(db)
 
+	// Set顺序按字母升序排序
+	if common.GetAuthEnabled() {
+		logics.SetAuthAccess(auth.NewHydraAuthAccess(appSetting))
+		logics.SetPermissionAccess(permission.NewPermissionAccess(appSetting))
+		logics.SetUserMgmtAccess(user_mgmt.NewUserMgmtAccess(appSetting))
+	}
+
 	// 初始化 Connector Factory 并注册内置的 Local Connector Builder
 	factory.Init(appSetting)
 	logger.Info("VEGA Manager Init Connector Factory Success")
 
-	dw := worker.NewDiscoveryWorker(appSetting)
+	dw := worker.NewDiscoverWorker(appSetting)
 	dw.Start()
-	logger.Info("VEGA Manager Init Discovery Worker Success")
+	logger.Info("VEGA Manager Init Discover Worker Success")
 
 	// 创建并启动服务
 	server := &vegaService{

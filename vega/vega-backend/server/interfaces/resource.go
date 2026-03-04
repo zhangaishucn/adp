@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0.
 // See the LICENSE file in the project root for details.
 
-// Package interfaces defines entities, DTOs, and service interfaces.
 package interfaces
 
 const (
@@ -25,6 +24,13 @@ const (
 	ResourceStatusStale      string = "stale"
 )
 
+var (
+	RESOURCE_SORT = map[string]string{
+		"name":        "f_name",
+		"update_time": "f_update_time",
+	}
+)
+
 // Resource represents a Data Resource entity.
 type Resource struct {
 	ID          string   `json:"id"`
@@ -42,12 +48,14 @@ type Resource struct {
 	Database         string         `json:"database,omitempty"`          // 所属数据库（实例级 Catalog 时填充）
 	SourceIdentifier string         `json:"source_identifier"`           // 源端标识（原始表名/路径）
 	SourceMetadata   map[string]any `json:"source_metadata,omitempty"`   // 源端配置（JSON）
-	SchemaDefinition []Property     `json:"schema_definition,omitempty"` // Schema定义
+	SchemaDefinition []*Property    `json:"schema_definition,omitempty"` // Schema定义
 
 	Creator    AccountInfo `json:"creator"`
 	CreateTime int64       `json:"create_time"`
 	Updater    AccountInfo `json:"updater"`
 	UpdateTime int64       `json:"update_time"`
+
+	Operations []string `json:"operations"`
 }
 
 type Property struct {
@@ -60,7 +68,7 @@ type Property struct {
 
 // ResourcesQueryParams holds resource list query parameters.
 type ResourcesQueryParams struct {
-	PaginationParams
+	PaginationQueryParams
 	CatalogID string
 	Category  string
 	Status    string
@@ -78,8 +86,10 @@ type ResourceRequest struct {
 
 	Status string `json:"status"`
 
-	Database         string `json:"database,omitempty"` // 所属数据库（实例级 Catalog 时填充）
-	SourceIdentifier string `json:"source_identifier"`  // 源端标识（原始表名/路径）
+	Database         string      `json:"database,omitempty"`          // 所属数据库（实例级 Catalog 时填充）
+	SourceIdentifier string      `json:"source_identifier"`           // 源端标识（原始表名/路径）
+	SchemaDefinition []*Property `json:"schema_definition,omitempty"` // Schema定义
 
+	IfNameModify   bool      `json:"-"`
 	OriginResource *Resource `json:"-"`
 }

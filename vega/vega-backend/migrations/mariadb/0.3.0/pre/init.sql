@@ -137,18 +137,18 @@ CREATE TABLE IF NOT EXISTS t_catalog (
 
 
 -- ==========================================
--- 2. t_catalog_discovery_policy 发现与变更策略表
+-- 2. t_catalog_discover_policy 发现与变更策略表
 -- ==========================================
-CREATE TABLE IF NOT EXISTS t_catalog_discovery_policy (
+CREATE TABLE IF NOT EXISTS t_catalog_discover_policy (
     f_id                      VARCHAR(40) NOT NULL DEFAULT '' COMMENT '所属catalog ID',
 
     -- 状态
     f_enabled                 BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否启用',
 
     -- 发现策略配置
-    f_discovery_mode          VARCHAR(20) NOT NULL DEFAULT 'manual' COMMENT '数据资源发现模式: manual, scheduled, event_driven',
-    f_discovery_cron          VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'scheduled模式的cron表达式',
-    f_discovery_config        MEDIUMTEXT NOT NULL COMMENT '发现策略详细配置',
+    f_discover_mode          VARCHAR(20) NOT NULL DEFAULT 'manual' COMMENT '数据资源发现模式: manual, scheduled, event_driven',
+    f_discover_cron          VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'scheduled模式的cron表达式',
+    f_discover_config        MEDIUMTEXT NOT NULL COMMENT '发现策略详细配置',
 
     -- 变更处理策略
     f_on_resource_added       VARCHAR(20) NOT NULL DEFAULT 'auto_register' COMMENT '新增数据资源策略: auto_register, pending_review, ignore',
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS t_catalog_discovery_policy (
 
     -- 索引
     PRIMARY KEY (f_id),
-    INDEX idx_discovery_mode (f_discovery_mode),
+    INDEX idx_discover_mode (f_discover_mode),
     INDEX idx_enabled (f_enabled)
 )  ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT='Catalog发现与变更策略配置表';
 
@@ -282,17 +282,17 @@ CREATE TABLE IF NOT EXISTS t_connector_type (
 -- 6. 初始化内置 Local Connector
 -- ==========================================
 INSERT INTO t_connector_type (f_type, f_name, f_description, f_mode, f_category, f_field_config, f_enabled)
-SELECT 'mysql', 'mysql', 'MySQL 关系型数据库连接器', 'local', 'table',
+SELECT 'mariadb', 'mariadb', 'MariaDB 关系型数据库连接器', 'local', 'table',
     '{
-        "host":      {"name":"主机地址","type":"string","description":"MySQL 服务器主机地址","required":true,"encrypted":false},
-        "port":      {"name":"端口号","type":"integer","description":"MySQL 服务器端口","required":true,"encrypted":false},
+        "host":      {"name":"主机地址","type":"string","description":"MariaDB 服务器主机地址","required":true,"encrypted":false},
+        "port":      {"name":"端口号","type":"integer","description":"MariaDB 服务器端口","required":true,"encrypted":false},
         "username":  {"name":"用户名","type":"string","description":"数据库用户名","required":true,"encrypted":false},
         "password":  {"name":"密码","type":"string","description":"数据库密码","required":true,"encrypted":true},
         "databases": {"name":"数据库列表","type":"array","description":"数据库名称列表（可选，为空则连接实例级别）","required":false,"encrypted":false},
         "options":   {"name":"连接参数","type":"object","description":"连接参数（如 charset, timeout 等）","required":false,"encrypted":false}
     }',
     TRUE
-FROM DUAL WHERE NOT EXISTS ( SELECT f_type FROM t_connector_type WHERE f_type = 'mysql' );
+FROM DUAL WHERE NOT EXISTS ( SELECT f_type FROM t_connector_type WHERE f_type = 'mariadb' );
 
 INSERT INTO t_connector_type (f_type, f_name, f_description, f_mode, f_category, f_field_config, f_enabled)
 SELECT 'opensearch', 'opensearch', 'OpenSearch 搜索引擎连接器', 'local', 'index',
@@ -308,9 +308,9 @@ FROM DUAL WHERE NOT EXISTS ( SELECT f_type FROM t_connector_type WHERE f_type = 
 
 
 -- ==========================================
--- 7. t_discovery_task 发现任务表
+-- 7. t_discover_task 发现任务表
 -- ==========================================
-CREATE TABLE IF NOT EXISTS t_discovery_task (
+CREATE TABLE IF NOT EXISTS t_discover_task (
     -- 主键与关联信息
     f_id                      VARCHAR(40) NOT NULL DEFAULT '' COMMENT '任务唯一标识',
     f_catalog_id              VARCHAR(40) NOT NULL DEFAULT '' COMMENT '所属catalog ID',

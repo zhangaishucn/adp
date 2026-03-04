@@ -15,8 +15,8 @@ import (
 
 // TestConfig AT测试配置
 type TestConfig struct {
-	VegaManager      VegaManagerConfig `mapstructure:"vega_manager"`
-	TargetMySQL      MySQLConfig       `mapstructure:"target_mysql"`
+	VegaBackend      VegaBackendConfig `mapstructure:"vega_backend"`
+	TargetMariaDB    MariaDBConfig     `mapstructure:"target_mariadb"`
 	TargetOpenSearch OpenSearchConfig  `mapstructure:"target_opensearch"`
 	Crypto           CryptoConfig      `mapstructure:"crypto"`
 
@@ -24,13 +24,13 @@ type TestConfig struct {
 	Cipher kwcrypto.Cipher `mapstructure:"-"`
 }
 
-// VegaManagerConfig VEGA Manager服务配置
-type VegaManagerConfig struct {
-	BaseURL string `mapstructure:"base_url"` // VEGA Manager HTTP服务地址
+// VegaBackendConfig VEGA Backend服务配置
+type VegaBackendConfig struct {
+	BaseURL string `mapstructure:"base_url"` // VEGA Backend HTTP服务地址
 }
 
-// MySQLConfig 测试目标MySQL配置
-type MySQLConfig struct {
+// MariaDBConfig 测试目标MariaDB配置
+type MariaDBConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
 	Database string `mapstructure:"database"`
@@ -61,12 +61,13 @@ func LoadTestConfig() (*TestConfig, error) {
 	viper.SetConfigType("yaml")
 
 	// 添加多个可能的配置文件路径
-	viper.AddConfigPath("./testdata")          // 从测试目录运行
-	viper.AddConfigPath("./at/testdata")       // 从tests目录运行
-	viper.AddConfigPath("./tests/at/testdata") // 从server目录运行
-	viper.AddConfigPath("../testdata")         // 从子目录运行
-	viper.AddConfigPath("../../testdata")      // 从深层子目录运行
-	viper.AddConfigPath("../../../testdata")   // 从深层子目录运行
+	viper.AddConfigPath("./testdata")           // 从测试目录运行
+	viper.AddConfigPath("./at/testdata")        // 从tests目录运行
+	viper.AddConfigPath("./tests/at/testdata")  // 从server目录运行
+	viper.AddConfigPath("../testdata")          // 从子目录运行
+	viper.AddConfigPath("../../testdata")       // 从深层子目录运行
+	viper.AddConfigPath("../../../testdata")    // 从深层子目录运行
+	viper.AddConfigPath("../../../../testdata") // 从深层子目录运行
 
 	// 支持环境变量覆盖
 	viper.SetEnvPrefix("VEGA_TEST")
@@ -83,11 +84,11 @@ func LoadTestConfig() (*TestConfig, error) {
 	}
 
 	// 验证必填字段
-	if config.VegaManager.BaseURL == "" {
+	if config.VegaBackend.BaseURL == "" {
 		return nil, fmt.Errorf("配置错误: vega_manager.base_url 不能为空")
 	}
-	if config.TargetMySQL.Host == "" {
-		return nil, fmt.Errorf("配置错误: target_mysql.host 不能为空")
+	if config.TargetMariaDB.Host == "" {
+		return nil, fmt.Errorf("配置错误: target_mariadb.host 不能为空")
 	}
 
 	// 初始化RSA加密器（用于加密敏感字段）

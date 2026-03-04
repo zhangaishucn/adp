@@ -66,7 +66,7 @@ func (ca *catalogAccess) Create(ctx context.Context, catalog *interfaces.Catalog
 	tagsStr := libCommon.TagSlice2TagString(catalog.Tags)
 
 	// Serialize connector config
-	connectorConfigStr, err := sonic.MarshalString(catalog.ConnectorConfig)
+	connectorConfigStr, err := sonic.MarshalString(catalog.ConnectorCfg)
 	if err != nil {
 		logger.Errorf("Failed to marshal connector config: %v", err)
 		o11y.Error(ctx, fmt.Sprintf("Failed to marshal connector config: %v", err))
@@ -221,7 +221,7 @@ func (ca *catalogAccess) GetByID(ctx context.Context, id string) (*interfaces.Ca
 
 	// Deserialize connector config
 	if connectorConfigStr != "" {
-		err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorConfig)
+		err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorCfg)
 		if err != nil {
 			logger.Errorf("Failed to unmarshal connector config: %v", err)
 			span.SetStatus(codes.Error, "Unmarshal connector failed")
@@ -323,7 +323,7 @@ func (ca *catalogAccess) GetByIDs(ctx context.Context, ids []string) ([]*interfa
 		catalog.Tags = libCommon.TagString2TagSlice(tagsStr)
 
 		if connectorConfigStr != "" {
-			err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorConfig)
+			err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorCfg)
 			if err != nil {
 				logger.Errorf("Failed to unmarshal connector config: %v", err)
 				span.SetStatus(codes.Error, "Unmarshal connector config failed")
@@ -424,7 +424,7 @@ func (ca *catalogAccess) GetByName(ctx context.Context, name string) (*interface
 
 	// Deserialize connector config
 	if connectorConfigStr != "" {
-		err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorConfig)
+		err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorCfg)
 		if err != nil {
 			logger.Errorf("Failed to unmarshal connector config: %v", err)
 			span.SetStatus(codes.Error, "Unmarshal connector failed")
@@ -492,12 +492,13 @@ func (ca *catalogAccess) List(ctx context.Context, params interfaces.CatalogsQue
 		return nil, 0, err
 	}
 
-	// Pagination
-	if params.Limit > 0 {
-		builder = builder.Limit(uint64(params.Limit)).Offset(uint64(params.Offset))
-	}
+	// 分页
+	// if params.Limit > 0 {
+	// 	builder = builder.Limit(uint64(params.Limit)).Offset(uint64(params.Offset))
+	// }
+	// 排序
 	if params.Sort != "" {
-		builder = builder.OrderBy(fmt.Sprintf("f_%s %s", params.Sort, params.Direction))
+		builder = builder.OrderBy(fmt.Sprintf("%s %s", params.Sort, params.Direction))
 	} else {
 		builder = builder.OrderBy("f_update_time DESC")
 	}
@@ -551,7 +552,7 @@ func (ca *catalogAccess) List(ctx context.Context, params interfaces.CatalogsQue
 		catalog.Tags = libCommon.TagString2TagSlice(tagsStr)
 
 		if connectorConfigStr != "" {
-			err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorConfig)
+			err = sonic.UnmarshalString(connectorConfigStr, &catalog.ConnectorCfg)
 			if err != nil {
 				span.SetStatus(codes.Error, "Unmarshal connector config failed")
 				return nil, 0, err
@@ -584,8 +585,16 @@ func (ca *catalogAccess) Update(ctx context.Context, catalog *interfaces.Catalog
 	// tags 转成 string 的格式
 	tagsStr := libCommon.TagSlice2TagString(catalog.Tags)
 
-	connectorConfigBytes, _ := sonic.Marshal(catalog.ConnectorConfig)
-	metadataBytes, _ := sonic.Marshal(catalog.Metadata)
+	connectorConfigBytes, err := sonic.Marshal(catalog.ConnectorCfg)
+	if err != nil {
+		span.SetStatus(codes.Error, "Marshal connector config failed")
+		return err
+	}
+	metadataBytes, err := sonic.Marshal(catalog.Metadata)
+	if err != nil {
+		span.SetStatus(codes.Error, "Marshal metadata failed")
+		return err
+	}
 
 	sqlStr, vals, err := sq.Update(CATALOG_TABLE_NAME).
 		Set("f_name", catalog.Name).

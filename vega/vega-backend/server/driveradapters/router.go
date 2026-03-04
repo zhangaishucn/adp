@@ -7,21 +7,27 @@
 package driveradapters
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	libCommon "github.com/kweaver-ai/kweaver-go-lib/common"
+	"github.com/kweaver-ai/kweaver-go-lib/hydra"
 	"github.com/kweaver-ai/kweaver-go-lib/logger"
 	"github.com/kweaver-ai/kweaver-go-lib/middleware"
+	o11y "github.com/kweaver-ai/kweaver-go-lib/observability"
 	"github.com/kweaver-ai/kweaver-go-lib/rest"
 
 	"vega-backend/common"
 	"vega-backend/interfaces"
+	"vega-backend/logics/auth"
 	"vega-backend/logics/catalog"
-	connectortype "vega-backend/logics/connector_type"
-	discoverytask "vega-backend/logics/discovery_task"
+	"vega-backend/logics/connector_type"
+	"vega-backend/logics/dataset"
+	"vega-backend/logics/discover_task"
 	"vega-backend/logics/resource"
+	"vega-backend/logics/resource_data"
 	"vega-backend/version"
 )
 
@@ -32,22 +38,29 @@ type RestHandler interface {
 
 type restHandler struct {
 	appSetting *common.AppSetting
+	as         interfaces.AuthService
 	cs         interfaces.CatalogService
 	rs         interfaces.ResourceService
+	ds         interfaces.DatasetService
 	cts        interfaces.ConnectorTypeService
-	dts        interfaces.DiscoveryTaskService // 任务服务
+	dts        interfaces.DiscoverTaskService
+	rds        interfaces.ResourceDataService
 }
 
 // NewRestHandler creates a new RestHandler.
 func NewRestHandler(appSetting *common.AppSetting) RestHandler {
 	cs := catalog.NewCatalogService(appSetting)
 	rs := resource.NewResourceService(appSetting)
+	ds := dataset.NewDatasetService(appSetting)
 	return &restHandler{
 		appSetting: appSetting,
+		as:         auth.NewAuthService(appSetting),
 		cs:         cs,
 		rs:         rs,
-		cts:        connectortype.NewConnectorTypeService(appSetting),
-		dts:        discoverytask.NewDiscoveryTaskService(appSetting),
+		ds:         ds,
+		cts:        connector_type.NewConnectorTypeService(appSetting),
+		dts:        discover_task.NewDiscoverTaskService(appSetting),
+		rds:        resource_data.NewResourceDataService(appSetting),
 	}
 }
 
@@ -82,6 +95,12 @@ func (r *restHandler) RegisterPublic(engine *gin.Engine) {
 			resources.GET("/:ids", r.GetResources)
 			resources.PUT("/:id", r.verifyJsonContentType(), r.UpdateResource)
 			resources.DELETE("/:ids", r.DeleteResources)
+
+			resources.POST("/:id/data", r.verifyJsonContentType(), r.QueryResourceData) // method override GET list and get
+
+			resources.POST("/dataset/:id/docs", r.verifyJsonContentType(), r.CreateDatasetDocuments)
+			resources.PUT("/dataset/:id/docs", r.verifyJsonContentType(), r.UpdateDatasetDocuments)
+			resources.DELETE("/dataset/:id/docs/:ids", r.DeleteDatasetDocuments)
 		}
 
 		// ConnectorType APIs
@@ -95,33 +114,26 @@ func (r *restHandler) RegisterPublic(engine *gin.Engine) {
 			connectorTypes.POST("/:type/enabled", r.SetConnectorTypeEnabled)
 		}
 
-		// DiscoveryTask APIs
-		discoveryTasks := apiV1.Group("/discovery-tasks")
+		// DiscoverTask APIs
+		discoverTasks := apiV1.Group("/discover-tasks")
 		{
-			discoveryTasks.GET("", r.ListDiscoveryTasks)
-			discoveryTasks.GET("/:id", r.GetDiscoveryTask)
+			discoverTasks.GET("", r.ListDiscoverTasks)
+			discoverTasks.GET("/:id", r.GetDiscoverTask)
 		}
 	}
 
 	logger.Info("RestHandler RegisterPublic")
 }
 
-// HealthCheck handles GET /health
+// HealthCheck 健康检查
 func (r *restHandler) HealthCheck(c *gin.Context) {
-	serverInfo := struct {
-		ServerName    string `json:"server_name"`
-		ServerVersion string `json:"server_version"`
-		Language      string `json:"language"`
-		GoVersion     string `json:"go_version"`
-		GoArch        string `json:"go_arch"`
-		Status        string `json:"status"`
-	}{
+	// 返回服务信息
+	serverInfo := o11y.ServerInfo{
 		ServerName:    version.ServerName,
 		ServerVersion: version.ServerVersion,
 		Language:      version.LanguageGo,
 		GoVersion:     version.GoVersion,
 		GoArch:        version.GoArch,
-		Status:        "healthy",
 	}
 	rest.ReplyOK(c, http.StatusOK, serverInfo)
 }
@@ -130,7 +142,7 @@ func (r *restHandler) HealthCheck(c *gin.Context) {
 func (r *restHandler) verifyJsonContentType() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.ContentType() != interfaces.CONTENT_TYPE_JSON {
-			httpErr := rest.NewHTTPError(c, http.StatusNotAcceptable, "VegaManager.InvalidRequestHeader.ContentType")
+			httpErr := rest.NewHTTPError(c, http.StatusNotAcceptable, "VegaBackend.InvalidRequestHeader.ContentType")
 			rest.ReplyError(c, httpErr)
 			c.Abort()
 			return
@@ -157,18 +169,15 @@ func (r *restHandler) accessLog() gin.HandlerFunc {
 	}
 }
 
-// generateAccountInfo extracts account info from request headers
-func (r *restHandler) generateAccountInfo(c *gin.Context) interfaces.AccountInfo {
-	return interfaces.AccountInfo{
-		ID:   c.GetHeader(interfaces.HTTP_HEADER_ACCOUNT_ID),
-		Type: c.GetHeader(interfaces.HTTP_HEADER_ACCOUNT_TYPE),
+// verifyOAuth verifies OAuth token
+func (r *restHandler) verifyOAuth(ctx context.Context, c *gin.Context) (hydra.Visitor, error) {
+	visitor, err := r.as.VerifyToken(ctx, c)
+	if err != nil {
+		httpErr := rest.NewHTTPError(ctx, http.StatusUnauthorized, rest.PublicError_Unauthorized).
+			WithErrorDetails(err.Error())
+		rest.ReplyError(c, httpErr)
+		return visitor, err
 	}
-}
 
-// Health handles GET /health
-func (h *restHandler) Health(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "healthy",
-		"service": "vega-backend",
-	})
+	return visitor, nil
 }

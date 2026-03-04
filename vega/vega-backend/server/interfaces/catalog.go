@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0.
 // See the LICENSE file in the project root for details.
 
-// Package interfaces defines entities, DTOs, and service interfaces.
 package interfaces
 
 const (
@@ -35,9 +34,9 @@ type Catalog struct {
 	Type    string `json:"type"`
 	Enabled bool   `json:"enabled"`
 
-	ConnectorType   string         `json:"connector_type"`
-	ConnectorConfig map[string]any `json:"connector_config"`
-	Metadata        map[string]any `json:"metadata"`
+	ConnectorType string          `json:"connector_type"`
+	ConnectorCfg  ConnectorConfig `json:"connector_config"`
+	Metadata      map[string]any  `json:"metadata"`
 
 	HealthCheckEnabled bool `json:"health_check_enabled"`
 	CatalogHealthCheckStatus
@@ -46,22 +45,33 @@ type Catalog struct {
 	CreateTime int64       `json:"create_time"`
 	Updater    AccountInfo `json:"updater"`
 	UpdateTime int64       `json:"update_time"`
+
+	Operations []string `json:"operations"`
 }
+
+var (
+	CATALOG_SORT = map[string]string{
+		"name":        "f_name",
+		"update_time": "f_update_time",
+	}
+)
 
 // CatalogsQueryParams holds catalog list query parameters.
 type CatalogsQueryParams struct {
-	PaginationParams
+	PaginationQueryParams
+	Tag               string
 	Type              string
 	HealthCheckStatus string
 }
 
 // CatalogCreateRequest represents create catalog request.
 type CatalogRequest struct {
-	Name            string         `json:"name"`
-	Tags            []string       `json:"tags"`
-	Description     string         `json:"description"`
-	ConnectorType   string         `json:"connector_type"`
-	ConnectorConfig map[string]any `json:"connector_config"`
+	Name          string          `json:"name"`
+	Tags          []string        `json:"tags"`
+	Description   string          `json:"description"`
+	ConnectorType string          `json:"connector_type"`
+	ConnectorCfg  ConnectorConfig `json:"connector_config"`
 
+	IfNameModify  bool     `json:"-"`
 	OriginCatalog *Catalog `json:"-"`
 }
