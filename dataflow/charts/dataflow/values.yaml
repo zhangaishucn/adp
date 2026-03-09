@@ -278,6 +278,9 @@ depServices:
     privateHost: contentpipeline-private
     privatePort: 9002
   structure-extractor:
+    useMineru: false
+    mineruBaseURL: https://mineru.net
+    mineruToken: ""
     privateHost: 192.168.102.250
     privatePort: 18089
     outputDir: /output
