@@ -2399,11 +2399,6 @@ paths:
   /api/ontology-query/v1/knowledge-networks/{kn_id}/action-types/{at_id}/execute:
     summary: 执行指定行动类的行动
     post:
-      description: |
-        执行指定行动类的行动。支持三种执行模式：
-        1. 指定对象：传 _instance_identities，仅对指定对象执行
-        2. 全量扫描：不传 _instance_identities，按行动类条件扫描所有匹配对象并逐个执行
-        3. 无对象上下文：行动类未绑定对象类（object_type_id 为空），或 skip_scan=true 且无 identities/condition，直接执行 1 次
       requestBody:
         content:
           application/json:
@@ -2417,15 +2412,6 @@ paths:
                       id: 1
                     - pod_ip: "192.168.1.2"
                       id: 2
-                  dynamic_params:
-                    Authorization: "Bearer xxx"
-              执行行动-全量扫描:
-                value:
-                  dynamic_params:
-                    Authorization: "Bearer xxx"
-              执行行动-跳过扫描:
-                value:
-                  skip_scan: true
                   dynamic_params:
                     Authorization: "Bearer xxx"
         required: true
@@ -4973,7 +4959,7 @@ components:
             - mcp
           type: string
         object_type_id:
-          description: 对象类ID。当行动类未绑定对象类时为空
+          description: 对象类ID
           type: string
         trigger_type:
           description: 触发类型
