@@ -990,7 +990,7 @@ components:
             - delete
           type: string
         object_type_id:
-          description: 行动类所绑定的对象类ID
+          description: 行动类所绑定的对象类ID。可选，为空时执行时不扫描对象，直接执行 1 次
           type: string
         object_type:
           $ref: "#/components/schemas/SimpleObjectType"
@@ -1097,7 +1097,7 @@ components:
             - delete
           type: string
         object_type_id:
-          description: 行动类所绑定的对象类ID
+          description: 行动类所绑定的对象类ID。可选，为空时执行时不扫描对象，直接执行 1 次
           type: string
         condition:
           $ref: "#/components/schemas/ActionCondition"
