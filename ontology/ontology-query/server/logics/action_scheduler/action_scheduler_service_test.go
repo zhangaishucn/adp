@@ -16,6 +16,7 @@ import (
 	"github.com/kweaver-ai/kweaver-go-lib/rest"
 	. "github.com/smartystreets/goconvey/convey"
 
+	cond "ontology-query/common/condition"
 	"ontology-query/common"
 	oerrors "ontology-query/errors"
 	"ontology-query/interfaces"
@@ -621,6 +622,134 @@ func Test_ExecuteAction_ScanMode(t *testing.T) {
 			So(ok, ShouldBeTrue)
 			So(httpErr.HTTPCode, ShouldEqual, http.StatusBadRequest)
 			So(httpErr.BaseError.ErrorCode, ShouldEqual, oerrors.OntologyQuery_ActionExecution_InvalidParameter)
+		})
+
+		Convey("成功 - 空对象类：不扫描，直接执行1次", func() {
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{},
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "no_object_action",
+				ObjectTypeID: "", // Empty object class
+				ActionSource: interfaces.ActionSource{
+					Type:   interfaces.ActionSourceTypeTool,
+					BoxID:  "box_001",
+					ToolID: "tool_001",
+				},
+				Parameters: []interfaces.Parameter{},
+			}
+
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+			// GetObjectsByObjectTypeID should NOT be called - no expectation
+
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						logger.Infof("Expected panic from logsService: %v", r)
+					}
+				}()
+				_, _ = service.ExecuteAction(ctx, req)
+			}()
+
+			So(len(req.Instances), ShouldEqual, 1)
+			So(len(req.ObjDatas), ShouldEqual, 1)
+		})
+
+		Convey("成功 - skip_scan=true 且无 identities/condition：不扫描，直接执行1次", func() {
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{},
+				SkipScan:           true,
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "skip_scan_action",
+				ObjectTypeID: objectTypeID,
+				ActionSource: interfaces.ActionSource{
+					Type:   interfaces.ActionSourceTypeTool,
+					BoxID:  "box_001",
+					ToolID: "tool_001",
+				},
+				Parameters: []interfaces.Parameter{},
+				Condition:  nil, // No condition
+			}
+
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+			// GetObjectsByObjectTypeID should NOT be called
+
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						logger.Infof("Expected panic from logsService: %v", r)
+					}
+				}()
+				_, _ = service.ExecuteAction(ctx, req)
+			}()
+
+			So(len(req.Instances), ShouldEqual, 1)
+			So(len(req.ObjDatas), ShouldEqual, 1)
+		})
+
+		Convey("skip_scan=true 但有 condition：仍触发扫描", func() {
+			req := &interfaces.ActionExecutionRequest{
+				KNID:               knID,
+				Branch:             interfaces.MAIN_BRANCH,
+				ActionTypeID:       actionTypeID,
+				InstanceIdentities: []map[string]any{},
+				SkipScan:           true,
+			}
+
+			actionType := interfaces.ActionType{
+				ATID:         actionTypeID,
+				ATName:       "skip_scan_with_condition",
+				ObjectTypeID: objectTypeID,
+				ActionSource: interfaces.ActionSource{
+					Type:   interfaces.ActionSourceTypeTool,
+					BoxID:  "box_001",
+					ToolID: "tool_001",
+				},
+				Parameters: []interfaces.Parameter{},
+				Condition: &cond.CondCfg{
+					Name:      "status",
+					Operation: "eq",
+					ValueOptCfg: cond.ValueOptCfg{Value: "Running"},
+				}, // Has condition, triggers scan
+			}
+
+			omAccess.EXPECT().GetActionType(gomock.Any(), knID, interfaces.MAIN_BRANCH, actionTypeID).
+				Return(actionType, map[string]any{"id": actionTypeID}, true, nil)
+
+			// GetObjectsByObjectTypeID should be called (scan still triggered)
+			ots.EXPECT().GetObjectsByObjectTypeID(gomock.Any(), gomock.Any()).
+				Return(interfaces.Objects{Datas: []map[string]any{
+					{
+						interfaces.SYSTEM_PROPERTY_INSTANCE_ID:       "1",
+						interfaces.SYSTEM_PROPERTY_INSTANCE_IDENTITY: map[string]any{"id": "1"},
+						interfaces.SYSTEM_PROPERTY_DISPLAY:           "obj-1",
+					},
+				}, TotalCount: 1}, nil)
+
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						logger.Infof("Expected panic from logsService: %v", r)
+					}
+				}()
+				_, _ = service.ExecuteAction(ctx, req)
+			}()
+
+			So(len(req.Instances), ShouldEqual, 1)
+			So(req.Instances[0].InstanceID, ShouldEqual, "1")
 		})
 	})
 }

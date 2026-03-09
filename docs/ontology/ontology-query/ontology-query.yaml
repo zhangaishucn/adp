@@ -4893,6 +4893,26 @@ components:
           type: object
           additionalProperties: true
 
+    ActionExecutionRequest:
+      description: 行动执行请求体
+      type: object
+      properties:
+        _instance_identities:
+          description: 对象主键的数组，代表多个对象。不传则按行动类条件全量扫描；传则仅对指定对象执行
+          type: array
+          items:
+            $ref: '#/components/schemas/InstanceIdentity'
+        dynamic_params:
+          description: 动态参数，用于填充行动参数
+          type: object
+          additionalProperties: true
+        skip_scan:
+          description: |
+            当未传 _instance_identities 且行动类无过滤条件时，为 true 则跳过对象扫描，直接执行 1 次（无对象上下文）。
+            默认 false。若有 identities 或行动类有 condition，则忽略此参数。
+          type: boolean
+          default: false
+
     ActionExecutionResponse:
       description: 行动执行响应（异步）
       type: object
