@@ -34,19 +34,6 @@ func Test_ValidateActionType(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Success with empty ObjectTypeID (action without object class binding)\n", func() {
-			at := &interfaces.ActionType{
-				ActionTypeWithKeyField: interfaces.ActionTypeWithKeyField{
-					ATID:         "at1",
-					ATName:       "action1",
-					ActionType:   interfaces.ACTION_TYPE_ADD,
-					ObjectTypeID: "",
-				},
-			}
-			err := ValidateActionType(ctx, at)
-			So(err, ShouldBeNil)
-		})
-
 		Convey("Failed with invalid ID\n", func() {
 			at := &interfaces.ActionType{
 				ActionTypeWithKeyField: interfaces.ActionTypeWithKeyField{

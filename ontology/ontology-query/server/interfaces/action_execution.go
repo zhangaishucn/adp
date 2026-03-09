@@ -42,8 +42,6 @@ type ActionExecutionRequest struct {
 	TriggerType        string           `json:"trigger_type,omitempty"` // "manual" or "scheduled", defaults to "manual"
 	InstanceIdentities []map[string]any `json:"_instance_identities"`
 	DynamicParams      map[string]any   `json:"dynamic_params,omitempty"`
-	// SkipScan when true and no _instance_identities and no action condition: skip object scan and execute once without object context
-	SkipScan bool `json:"skip_scan,omitempty"`
 
 	Instances []ObjectSystemInfo `json:"-"`
 	ObjDatas  []map[string]any   `json:"-"`

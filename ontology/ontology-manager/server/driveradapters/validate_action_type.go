@@ -95,7 +95,11 @@ func ValidateActionType(ctx context.Context, actionType *interfaces.ActionType) 
 				actionType.ActionType))
 	}
 
-	// ObjectTypeID is optional: action can run without object class binding (execute once without object context)
+	// 行动类绑定的对象类非空
+	if actionType.ObjectTypeID == "" {
+		return rest.NewHTTPError(ctx, http.StatusBadRequest, oerrors.OntologyManager_ActionType_InvalidParameter).
+			WithErrorDetails("行动类绑定的对象类不能为空")
+	}
 
 	// 校验类型
 	if actionType.ActionSource.Type != "" {

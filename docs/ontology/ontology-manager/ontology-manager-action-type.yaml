@@ -812,6 +812,7 @@ components:
         - concept_type
         - branch
         - base_version
+        - object_type_id
       type: object
       properties:
         id:
@@ -845,7 +846,7 @@ components:
             - delete
           type: string
         object_type_id:
-          description: 行动类所绑定的对象类ID。可选，为空时执行时不扫描对象，直接执行 1 次
+          description: 行动类所绑定的对象类ID
           type: string
         condition:
           $ref: "#/components/schemas/ActionCondition"
@@ -877,6 +878,7 @@ components:
         - concept_type
         - branch
         - base_version
+        - object_type_id
       type: object
       properties:
         name:
@@ -907,7 +909,7 @@ components:
             - delete
           type: string
         object_type_id:
-          description: 行动类所绑定的对象类ID。可选，为空时执行时不扫描对象，直接执行 1 次
+          description: 行动类所绑定的对象类ID
           type: string
         condition:
           $ref: "#/components/schemas/ActionCondition"
