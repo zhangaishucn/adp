@@ -113,6 +113,22 @@
                         "type": "object",
                         "title": "文档结构化解析服务",
                         "properties": {
+                            "useMineru": {
+                                "type": "boolean",
+                                "title": "是否使用 Mineru 官方服务",
+                                "description": "如果开启，结构化解析服务将使用 Mineru 官方提供的 API 接口，关闭则使用内部部署的服务",
+                                "default": false
+                            },
+                            "mineruBaseURL": {
+                                "type": "string",
+                                "title": "Mineru 服务地址",
+                                "description": "当 useMineru 为 true 时有效，默认为 https://mineru.net"
+                            },
+                            "mineruToken": {
+                                "type": "string",
+                                "title": "Mineru 访问令牌",
+                                "description": "当 useMineru 为 true 时有效，需要提供有效的访问令牌以调用 Mineru API"
+                            },
                             "privateHost": {
                                 "type": "string",
                                 "title": "服务器地址",

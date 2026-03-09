@@ -485,6 +485,10 @@ type OCR struct {
 }
 
 type StructureExtractor struct {
+	UseMineru     bool   `mapstructure:"use_mineru"`
+	MineruBaseURL string `mapstructure:"mineru_base_url"`
+	MineruToken   string `mapstructure:"mineru_token"`
+
 	PrivateHost string `mapstructure:"private_host"`
 	PrivatePort string `mapstructure:"private_port"`
 	OutputDir   string `mapstructure:"output_dir"`

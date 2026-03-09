@@ -226,6 +226,9 @@ data:
   DP_DATASOURCE_PORT: {{ .Values.depServices.dp_datasource.port | quote }}
   DP_DATASOURCE_PROTOCOL: {{ .Values.depServices.dp_datasource.protocol | quote }}
 
+  STRUCTUREEXTRACTOR_USE_MINERU: {{ index .Values "depServices" "structure-extractor" "useMineru" | quote }}
+  STRUCTUREEXTRACTOR_MINERU_BASE_URL: {{ index .Values "depServices" "structure-extractor" "mineruBaseURL" | quote }}
+  STRUCTUREEXTRACTOR_MINERU_TOKEN: {{ index .Values "depServices" "structure-extractor" "mineruToken" | quote }}
   STRUCTUREEXTRACTOR_PRIVATE_HOST: {{ index .Values "depServices" "structure-extractor" "privateHost" | quote }}
   STRUCTUREEXTRACTOR_PRIVATE_PORT: {{ index .Values "depServices" "structure-extractor" "privatePort" | quote }}
   STRUCTUREEXTRACTOR_OUTPUT_DIR: {{ index .Values "depServices" "structure-extractor" "outputDir" | quote }}
